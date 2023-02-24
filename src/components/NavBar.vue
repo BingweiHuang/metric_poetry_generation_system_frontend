@@ -71,7 +71,6 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue'
 
 import {useStore} from "vuex";
 
@@ -85,8 +84,6 @@ export default {
 
   },
   setup() {
-
-    const store = useStore();
 
     const handleSelect = (key: string, keyPath: string[]) => {
       console.log(key, keyPath);

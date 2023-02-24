@@ -24,8 +24,6 @@
 
 
 <script lang="ts">
-import { ArrowLeft } from '@element-plus/icons-vue'
-import { ElNotification as notify } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import {ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
