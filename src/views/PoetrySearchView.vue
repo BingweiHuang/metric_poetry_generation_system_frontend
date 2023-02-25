@@ -27,7 +27,65 @@
         </el-input>
         <el-button size="large" :icon="Search" circle @click="poetry_search" />
       </el-space>
+    </div>
 
+    <div  v-if="poetry_dynasty_value && poetry_dynasty_value[0] === 0">
+      <el-space style="justify-content: center; display: flex">
+
+        <div>
+          格律诗检索:
+        </div>
+
+        <el-select v-model="yan_value" class="m-2" placeholder="Select" style="width: 150px">
+          <template #prefix>
+            <span>几言:</span>
+          </template>
+          <el-option
+              v-for="item in yan_options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+          />
+        </el-select>
+
+        <el-select v-model="jue_value" class="m-2" placeholder="Select" style="width: 150px">
+          <template #prefix>
+            <span>绝律:</span>
+          </template>
+          <el-option
+              v-for="item in jue_options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+          />
+        </el-select>
+
+        <el-select v-model="qi_value" class="m-2" placeholder="Select" style="width: 150px">
+          <template #prefix>
+            <span>起调:</span>
+          </template>
+          <el-option
+              v-for="item in qi_options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+          />
+        </el-select>
+
+        <el-select v-model="ru_value" class="m-2" placeholder="Select" style="width: 150px">
+          <template #prefix>
+            <span>入韵:</span>
+          </template>
+          <el-option
+              v-for="item in ru_options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+
+          />
+        </el-select>
+
+      </el-space>
     </div>
 
     <el-space size="" wrap style="width: 100%; justify-content: center">
@@ -92,90 +150,18 @@ export default {
           {
             value: 0,
             label: '唐朝',
-            children: [
-              {
-                value: 0,
-                label: '绝句'
-              },
-              {
-                value: 1,
-                label: '律句'
-              },
-              {
-                value: 2,
-                label: '排律'
-              },
-              {
-                value: 3,
-                label: '不限'
-              },
-            ]
           },
           {
             value: 1,
             label: '宋朝',
-            children: [
-              {
-                value: 0,
-                label: '绝句'
-              },
-              {
-                value: 1,
-                label: '律句'
-              },
-              {
-                value: 2,
-                label: '排律'
-              },
-              {
-                value: 3,
-                label: '不限'
-              },
-            ]
           },
           {
             value: 2,
             label: '其他',
-            children: [
-              {
-                value: 0,
-                label: '绝句'
-              },
-              {
-                value: 1,
-                label: '律句'
-              },
-              {
-                value: 2,
-                label: '排律'
-              },
-              {
-                value: 3,
-                label: '不限'
-              },
-            ]
           },
           {
             value: 3,
             label: '不限',
-            children: [
-              {
-                value: 0,
-                label: '绝句'
-              },
-              {
-                value: 1,
-                label: '律句'
-              },
-              {
-                value: 2,
-                label: '排律'
-              },
-              {
-                value: 3,
-                label: '不限'
-              },
-            ]
           },
         ]
       },
@@ -203,6 +189,75 @@ export default {
       },
     ])
     const poetry_dynasty_value = ref()
+
+    const yan_options = ref([
+      {
+        value: 5,
+        label: '五言',
+      },
+      {
+        value: 7,
+        label: '七言',
+      },
+      {
+        value: 0,
+        label: '不限',
+      },
+    ])
+    const yan_value = ref(0)
+
+    const jue_options = ref([
+      {
+        value: 0,
+        label: '绝句',
+      },
+      {
+        value: 1,
+        label: '律句',
+      },
+      {
+        value: 2,
+        label: '排律',
+      },
+      {
+        value: 3,
+        label: '不限',
+      },
+    ])
+    const jue_value = ref(3)
+
+    const qi_options = ref([
+      {
+        value: 1,
+        label: '平起',
+      },
+      {
+        value: 0,
+        label: '仄起',
+      },
+      {
+        value: 2,
+        label: '不限',
+      },
+    ])
+    const qi_value = ref(2)
+
+    const ru_options = ref([
+      {
+        value: 0,
+        label: '首句入韵',
+      },
+      {
+        value: 1,
+        label: '首句不入',
+      },
+      {
+        value: 2,
+        label: '不限',
+      },
+    ])
+    const ru_value = ref(2)
+
     const shici = ref('')
     const author_input = ref('')
     const title_input = ref('')
@@ -271,10 +326,21 @@ export default {
       let kwargs: any = {};
 
       if (shici.value === 'shi') { // 如果选的是诗
-        let jue = poetry_dynasty_value.value[2]
-        if (jue !== 3) { // 如果选了诗体
-          kwargs['jue'] = jue
-          kwargs['rhyme_type'] = [1, 2]
+
+        if (yan_value.value !== 0) { // 如果选了几言
+          kwargs['yan'] = yan_value.value
+        }
+
+        if (jue_value.value !== 3) { // 如果选了绝律
+          kwargs['jue'] = jue_value.value
+        }
+
+        if (qi_value.value !== 2) { // 如果选了起调
+          kwargs['qi'] = qi_value.value
+        }
+
+        if (ru_value.value !== 2) { // 如果选了入韵
+          kwargs['ru'] = ru_value.value
         }
       }
 
@@ -320,6 +386,15 @@ export default {
     return {
       poetry_dynasty_options,
       poetry_dynasty_value,
+      yan_options,
+      yan_value,
+      jue_options,
+      jue_value,
+      qi_options,
+      qi_value,
+      ru_options,
+      ru_value,
+
       shici,
       author_input,
       title_input,
