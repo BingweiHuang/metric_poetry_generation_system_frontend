@@ -5,6 +5,7 @@ import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
 import AICreateView from '@/views/AICreateView.vue'
 import PoetrySearchView from '@/views/PoetrySearchView.vue'
 import TestView from '@/views/TestView.vue'
+import MetricDetectionView from '@/views/MetricDetectionView.vue'
 
 // 路由懒加载 需要时才导入组件
 const HomeView = () => import('@/views/HomeView.vue')
@@ -19,6 +20,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/PoetrySearch',
     name: 'PoetrySearchView',
     component: PoetrySearchView
+  },
+  {
+    path: '/MetricDetection',
+    name: 'MetricDetectionView',
+    component: MetricDetectionView
   },
   /*{
     path: '/Figure/FigureDetail/:fig_id',

@@ -32,10 +32,6 @@
     <div  v-if="poetry_dynasty_value && poetry_dynasty_value[0] === 0">
       <el-space style="justify-content: center; display: flex">
 
-        <div>
-          格律诗检索:
-        </div>
-
         <el-select v-model="yan_value" class="m-2" placeholder="Select" style="width: 150px">
           <template #prefix>
             <span>几言:</span>
@@ -84,6 +80,8 @@
 
           />
         </el-select>
+
+        <el-button type="primary" @click="all_buxian">全不限</el-button>
 
       </el-space>
     </div>
@@ -382,6 +380,13 @@ export default {
       poetryList.value = ret.data.poetryList
     }
 
+    const all_buxian = () => { // 所有格律诗筛选条件变成 不限
+      yan_value.value = 0
+      jue_value.value = 3
+      qi_value.value = 2
+      ru_value.value = 2
+    }
+
 
     return {
       poetry_dynasty_options,
@@ -408,6 +413,7 @@ export default {
       handleCurrentChange,
       handleChange,
       poetry_search,
+      all_buxian,
 
       Search,
       User,
