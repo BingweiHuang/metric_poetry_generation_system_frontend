@@ -32,6 +32,8 @@
     <div  v-if="poetry_dynasty_value && poetry_dynasty_value[0] === 0">
       <el-space style="justify-content: center; display: flex">
 
+        <el-button type="primary" @click="all_buxian">全不限</el-button>
+
         <el-select v-model="yan_value" class="m-2" placeholder="Select" style="width: 150px">
           <template #prefix>
             <span>几言:</span>
@@ -80,8 +82,6 @@
 
           />
         </el-select>
-
-        <el-button type="primary" @click="all_buxian">全不限</el-button>
 
       </el-space>
     </div>
@@ -269,10 +269,6 @@ export default {
       if (poetry_dynasty_value.value) {
         console.log(poetry_dynasty_value.value[0])
         console.log(poetry_dynasty_value.value[1])
-        if (poetry_dynasty_value.value[0] === 0) {
-          console.log(poetry_dynasty_value.value[2])
-        }
-
       }
     }
 
@@ -331,14 +327,23 @@ export default {
 
         if (jue_value.value !== 3) { // 如果选了绝律
           kwargs['jue'] = jue_value.value
+          kwargs['rhyme_type'] = '1,2'
         }
 
         if (qi_value.value !== 2) { // 如果选了起调
           kwargs['qi'] = qi_value.value
+
+          if (!('rhyme_type' in Object.keys(kwargs))) {
+            kwargs['rhyme_type'] = '1,2'
+          }
         }
 
         if (ru_value.value !== 2) { // 如果选了入韵
           kwargs['ru'] = ru_value.value
+
+          if (!('rhyme_type' in Object.keys(kwargs))) {
+            kwargs['rhyme_type'] = '1,2'
+          }
         }
       }
 
@@ -353,6 +358,7 @@ export default {
         kwargs['content'] = content_input.value;
       }
 
+      console.log(kwargs)
       // let all_poetryList:any = []
 
       let ret = await instance({
