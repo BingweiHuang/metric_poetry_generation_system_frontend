@@ -19,6 +19,9 @@
       <el-tag class="mx-1" effect="light" type="success">
         {{poetry.rhythmic.split('·')[0].split(' ')[0]}}
       </el-tag>
+      <el-tag class="mx-1" effect="light" type="success" v-if="poetry.three_hundred && poetry.three_hundred === 1">
+        宋词三百首
+      </el-tag>
     </div>
 
   </el-card>

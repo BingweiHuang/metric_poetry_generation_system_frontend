@@ -1,119 +1,187 @@
 <template>
-  <el-card class="box-card">
-    <template #header>
-      <div class="card-header">
-        <div style="text-align: center; width: 100%">LSTM</div>
-        <div style="text-align: center; width: 100%">GPT2</div>
-<!--        <el-button class="button" text>Operation button</el-button>-->
-      </div>
-      <div class="card_intro">
-        <div style="text-align: center; width: 100%">我是一个无情的作诗机器~</div>
-        <div style="text-align: center; width: 100%">我是一个无情但有素的作诗机器~</div>
-      </div>
-    </template>
-<!--    <div v-for="o in 4" :key="o" class="text item">{{ 'List item ' + o }}</div>-->
 
-    <div class="card-body">
+  <el-row>
+    <el-col :xl="5" :lg="5" :md="3" :sm="0" :xs="0">
 
-      <el-card class="box-card mx-card" shadow="never" v-loading="lstm_loading">
-        <div v-if="lstm_display_state === 0">
-          我很C，来试试看吧
-        </div>
-        <div v-else-if="lstm_display_state === 1">
+    </el-col>
+    <el-col :xl="14" :lg="14" :md="18" :sm="24" :xs="24">
+
+      <el-card class="box-card">
+        <div style="text-align: center; width: 100%; font-weight: bold; font-size: 18px">LSTM</div>
+        <div class="card-body ai_content">
+          <el-card class="box-card mx-card" shadow="never" v-loading="lstm_loading">
+            <div v-if="lstm_display_state === 0">
+              <div style="text-align: center; width: 100%">我是一个无情的作诗机器~</div>
+            </div>
+            <div v-else-if="lstm_display_state === 1">
+
+            </div>
+            <div v-else-if="lstm_display_state === 2">
+              <div v-for="(poem, index) in lstmCreateList" :key="index">
+                <div v-if="poem[0] === 0">没有限制押韵</div>
+                <div v-else>{{poem[0] === 1 ? '平水韵' : '中华新韵'}} : {{poem[1]}}</div>
+                <div class="ai_create_poetry" v-for="(sen, index2) in poem[2]" :key="index-index2">{{sen}}</div>
+              </div>
+            </div>
+          </el-card>
 
         </div>
-        <div v-else-if="lstm_display_state === 2">
-          <div v-for="(poem, index) in lstmCreateList" :key="index">
-            <div v-if="poem[0] === 0">没有限制押韵</div>
-            <div v-else>{{poem[0] === 1 ? '平水韵' : '中华新韵'}} : {{poem[1]}}</div>
-            <div class="ai_create_poetry" v-for="(sen, index2) in poem[2]" :key="index-index2">{{sen}}</div>
-          </div>
-        </div>
+
+        <el-row justify="center" align="middle" :gutter="30">
+          <el-col :span="5">
+            <el-switch v-model="yan" size="large" inline-prompt style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" active-text="七言" inactive-text="五言"/>
+          </el-col>
+          <el-col :span="5">
+            <el-switch v-model="jue" size="large" inline-prompt style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" active-text="绝句" inactive-text="律句"/>
+          </el-col>
+          <el-col :span="5">
+            <el-switch v-model="qi" size="large" inline-prompt style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" active-text="平起" inactive-text="仄起"/>
+          </el-col>
+          <el-col :span="5">
+            <el-tooltip content="首句是否押(入)韵" placement="top">
+              <el-switch v-model="ru" size="large" inline-prompt active-text="入韵" inactive-text="不入"/>
+            </el-tooltip>
+          </el-col>
+        </el-row>
+
+        <el-row justify="center" align="middle" :gutter="30">
+          <el-col :span="10">
+            <el-select v-model="use_rhyme" placeholder="选韵表" style="">
+              <el-option :key="0" :label="'不管平仄押韵'" :value="0"/>
+              <el-option :key="1" :label="'平水韵'" :value="1"/>
+              <el-option :key="2" :label="'中华新韵'" :value="2"/>
+            </el-select>
+          </el-col>
+          <el-col :span="10">
+            <el-select v-model="style" placeholder="生成方式" style="">
+              <el-option :key="0" :label="'单字续写'" :value="0"/>
+              <el-option :key="1" :label="'首句续写'" :value="1"/>
+              <el-option :key="2" :label="'鹤顶格'" :value="2"/>
+            </el-select>
+          </el-col>
+        </el-row>
+
+        <el-row justify="center" align="middle" :gutter="30">
+          <el-col :span="12">
+            <el-input style="" v-model="text" placeholder="不用管标点符号" clearable>
+            </el-input>
+          </el-col>
+          <el-col :span="8">
+            <el-button type="primary" id="lstm_create_button" @click="lstm_create" :loading="lstm_loading">{{lstm_button_state}}</el-button>
+          </el-col>
+          <!--              <el-col :span="4" v-if="lstm_display_state === 2">
+                          <el-button type="success">存入我的诗库</el-button>
+                        </el-col>-->
+
+        </el-row>
+
       </el-card>
 
-      <el-card class="box-card mx-card" shadow="never" v-loading="gpt2_loading">
-        <div v-if="gpt2_display_state === 0">
-          我很C，来试试看吧
-        </div>
-        <div v-else-if="gpt2_display_state === 1">
+    </el-col>
+  </el-row>
+  <el-row>
+    <el-col :xl="5" :lg="5" :md="3" :sm="0" :xs="0">
+
+    </el-col>
+    <el-col :xl="14" :lg="14" :md="18" :sm="24" :xs="24">
+      <el-card class="box-card">
+        <div style="text-align: center; width: 100%; font-weight: bold; font-size: 18px">GPT2</div>
+        <div class="card-body ai_content">
+          <el-card class="box-card mx-card" shadow="never" v-loading="gpt2_loading">
+            <div v-if="gpt2_display_state === 0">
+              <div style="text-align: center; width: 100%">我是一个无情但有素的作诗机器~</div>
+            </div>
+            <div v-else-if="gpt2_display_state === 1">
+
+            </div>
+            <div v-else-if="gpt2_display_state === 2">
+              <div v-for="(poem, index) in gpt2CreateList" :key="index">
+                <div v-if="poem[0] === 0">没有限制押韵</div>
+                <div v-else>{{poem[0] === 1 ? '平水韵' : '中华新韵'}} : {{poem[1]}}</div>
+                <div class="ai_create_poetry" v-for="(sen, index2) in poem[2]" :key="index-index2">{{sen}}</div>
+              </div>
+            </div>
+          </el-card>
 
         </div>
-        <div v-else-if="gpt2_display_state === 2">
-          <div v-for="(poem, index) in gpt2CreateList" :key="index">
-            <div v-if="poem[0] === 0">没有限制押韵</div>
-            <div v-else>{{poem[0] === 1 ? '平水韵' : '中华新韵'}} : {{poem[1]}}</div>
-            <div class="ai_create_poetry" v-for="(sen, index2) in poem[2]" :key="index-index2">{{sen}}</div>
-          </div>
-        </div>
+
+        <el-row justify="center" align="middle" :gutter="30">
+          <el-col :span="5">
+            <el-switch v-model="yan2" size="large" inline-prompt style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" active-text="七言" inactive-text="五言"/>
+          </el-col>
+          <el-col :span="5">
+            <el-switch v-model="jue2" size="large" inline-prompt style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" active-text="绝句" inactive-text="律句"/>
+          </el-col>
+          <el-col :span="5">
+            <el-switch v-model="qi2" size="large" inline-prompt style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" active-text="平起" inactive-text="仄起"/>
+          </el-col>
+          <el-col :span="5">
+            <el-tooltip content="首句是否押(入)韵" placement="top">
+              <el-switch v-model="ru2" size="large" inline-prompt active-text="入韵" inactive-text="不入"/>
+            </el-tooltip>
+          </el-col>
+        </el-row>
+
+        <el-row justify="center" align="middle" :gutter="30">
+          <el-col :span="10">
+            <el-select v-model="use_rhyme2" placeholder="选韵表" style="">
+              <el-option :key="0" :label="'不管平仄押韵'" :value="0"/>
+              <el-option :key="1" :label="'平水韵'" :value="1"/>
+              <el-option :key="2" :label="'中华新韵'" :value="2"/>
+            </el-select>
+          </el-col>
+          <el-col :span="10">
+            <el-select v-model="style2" placeholder="生成方式" style="">
+              <el-option :key="0" :label="'单字续写'" :value="0"/>
+              <el-option :key="1" :label="'首句续写'" :value="1"/>
+              <el-option :key="2" :label="'鹤顶格'" :value="2"/>
+            </el-select>
+          </el-col>
+        </el-row>
+
+        <el-row justify="center" align="middle" :gutter="30">
+          <el-col :span="12">
+            <el-input style="" v-model="text2" placeholder="不用管标点符号" clearable>
+            </el-input>
+          </el-col>
+          <el-col :span="8">
+            <el-button type="primary" id="gpt2_create_button" @click="gpt2_create" :loading="gpt2_loading">{{gpt2_button_state}}</el-button>
+          </el-col>
+          <!--              <el-col :span="4" v-if="gpt2_display_state === 2">
+                          <el-button type="success">存入我的诗库</el-button>
+                        </el-col>-->
+
+        </el-row>
       </el-card>
+    </el-col>
+  </el-row>
 
-    </div>
 
-    <div class="card-body">
 
-      <el-card class="box-card " shadow="never">
-
-        <el-space wrap style="">
-          <el-switch v-model="yan" size="large" inline-prompt style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" active-text="七言" inactive-text="五言"/>
-          <el-switch v-model="jue" size="large" inline-prompt style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" active-text="绝句" inactive-text="律句"/>
-          <el-switch v-model="qi" size="large" inline-prompt style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" active-text="平起" inactive-text="仄起"/>
-          <el-tooltip content="首句是否押(入)韵" placement="top">
-            <el-switch v-model="ru" size="large" inline-prompt active-text="入韵" inactive-text="不入"/>
-          </el-tooltip>
-          <el-select v-model="use_rhyme" class="m-2" placeholder="选韵表" style="width: 100px">
-            <el-option :key="0" :label="'不管平仄押韵'" :value="0"/>
-            <el-option :key="1" :label="'平水韵'" :value="1"/>
-            <el-option :key="2" :label="'中华新韵'" :value="2"/>
-          </el-select>
-          <el-select v-model="style" class="m-2" placeholder="生成方式" style="width: 100px">
-            <el-option :key="0" :label="'单字续写'" :value="0"/>
-            <el-option :key="1" :label="'首句续写'" :value="1"/>
-            <el-option :key="2" :label="'藏头绝句'" :value="2"/>
-          </el-select>
-          <el-input style="width: 200px" v-model="text" placeholder="不用管标点符号" clearable>
-            <template #prefix>
-              <span>输入:</span>
-            </template>
-          </el-input>
-          <el-button type="primary" id="lstm_create_button" @click="lstm_create" :loading="lstm_loading">{{lstm_button_state}}</el-button>
-          <el-button type="success" v-if="lstm_display_state === 2">存入我的诗库</el-button>
-        </el-space>
-
-      </el-card>
-      <el-card class="box-card" shadow="never">
-
-        <el-space wrap>
-          <el-switch v-model="yan2" size="large" inline-prompt style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" active-text="七言" inactive-text="五言"/>
-          <el-switch v-model="jue2" size="large" inline-prompt style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" active-text="绝句" inactive-text="律句"/>
-          <el-switch v-model="qi2" size="large" inline-prompt style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" active-text="平起" inactive-text="仄起"/>
-          <el-tooltip content="首句是否押(入)韵" placement="top">
-            <el-switch v-model="ru2" size="large" inline-prompt active-text="入韵" inactive-text="不入"/>
-          </el-tooltip>
-          <el-select v-model="use_rhyme2" class="m-2" placeholder="选韵表" style="width: 100px">
-            <el-option :key="0" :label="'不管平仄押韵'" :value="0"/>
-            <el-option :key="1" :label="'平水韵'" :value="1"/>
-            <el-option :key="2" :label="'中华新韵'" :value="2"/>
-          </el-select>
-          <el-select v-model="style2" class="m-2" placeholder="生成方式" style="width: 100px">
-            <el-option :key="0" :label="'单字续写'" :value="0"/>
-            <el-option :key="1" :label="'首句续写'" :value="1"/>
-            <el-option :key="2" :label="'藏头绝句'" :value="2"/>
-          </el-select>
-          <el-input style="width: 200px" v-model="text2" placeholder="不用管标点符号" clearable>
-            <template #prefix>
-              <span>输入:</span>
-            </template>
-          </el-input>
-          <el-button type="primary" id="gpt2_create_button" @click="gpt2_create" :loading="gpt2_loading" >{{gpt2_button_state}}</el-button>
-          <el-button type="success" v-if="gpt2_display_state === 2">存入我的诗库</el-button>
-        </el-space>
-
-      </el-card>
-    </div>
-  </el-card>
 </template>
 
 <style lang="scss" scoped>
+
+.ai_content .el-card {
+  --el-card-padding: 0px;
+}
+
+.el-row {
+  margin-bottom: 10px;
+}
+.el-row:last-child {
+  margin-bottom: 0;
+}
+.el-col {
+  border-radius: 4px;
+}
+
+.grid-content {
+  border-radius: 4px;
+  min-height: 36px;
+}
+
+
 .card-header {
   display: flex;
   justify-content: space-between;
@@ -147,7 +215,7 @@
 }
 
 .mx-card {
-  height: 220px;
+  height: 180px;
 }
 .mx-card div {
   margin: 10px auto;
@@ -256,6 +324,7 @@ export default {
     }
 
     const reserved_chinese_word = (text:string) => {
+      if (text === '') return '';
       let regEx = /[^\u4e00-\u9fa5\uf900-\ufa2d]/g;
       return text.replace(regEx, '');
     }

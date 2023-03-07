@@ -17,27 +17,37 @@
 <!--      <el-button class="button" text @click="open_FigureDetail(poetry.fig_id)">查看详情</el-button>-->
     </div>
 
-    <div class="poetry-tags" v-if="poetry.rhyme_type === 0">
+    <div class="poetry-tags">
+      <el-tag class="mx-1" effect="light" type="" :round="true">
+        {{poetry.metric === 1 ? '近体' : '古体'}}
+      </el-tag>
+      <template v-if="poetry.jue !== 3">
+        <el-tag class="mx-1" effect="light" type="" :round="true">
+          {{poetry.jue === 0 ? '绝句' : poetry.jue === 1 ? '律诗' : '排律'}}
+        </el-tag>
+      </template>
 
-      <el-tag class="mx-1" effect="light" type="" :round="true">
-        不是格律诗
-      </el-tag>
+      <template v-if="poetry.rhyme !== ''">
+        <el-tag class="mx-1" effect="light" type="" :round="true">
+          {{poetry.rhyme}}
+        </el-tag>
+        <el-tag class="mx-1" effect="light" type="" :round="true">
+          {{poetry.ru === 0 ? '入韵' : '不入韵'}}
+        </el-tag>
+      </template>
 
-    </div>
+      <template v-if="poetry.metric === 1">
+        <el-tag class="mx-1" effect="light" type="" :round="true" >
+          {{poetry.qi === 1 ? '平起' : '仄起'}}
+        </el-tag>
+      </template>
+      <template v-if="poetry.three_hundred && poetry.three_hundred === 1">
+        <el-tag class="mx-1" effect="light" type="" :round="true" >
+          唐诗三百首
+        </el-tag>
+      </template>
 
-    <div class="poetry-tags" v-else>
-      <el-tag class="mx-1" effect="light" type="" :round="true">
-        {{poetry.yan === 7 ? '七言' : '五言'}}{{poetry.jue === 0 ? '绝句' : poetry.jue === 1 ? '律句' : '排律'}}
-      </el-tag>
-      <el-tag class="mx-1" effect="light" type="" :round="true">
-        {{poetry.rhyme}}
-      </el-tag>
-      <el-tag class="mx-1" effect="light" type="" :round="true">
-        {{poetry.qi === 1 ? '平起' : '仄起'}}
-      </el-tag>
-      <el-tag class="mx-1" effect="light" type="" :round="true">
-        {{poetry.ru === 0 ? '首句入韵' : '首句不入韵'}}
-      </el-tag>
+
     </div>
 
   </el-card>
@@ -110,7 +120,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center; /*竖直居中*/
-  margin: 5px 5px;
+  margin: 5px 0px;
   width: 100%;
   flex-wrap:wrap; /*超过长度 换行*/
 }

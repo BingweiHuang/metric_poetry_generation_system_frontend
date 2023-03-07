@@ -20,52 +20,57 @@
              :default-active="this.$router.path"
              class="el-menu-demo"
              mode="horizontal"
-             background-color="#158BB8"
+             background-color="#2775B6"
              text-color="#fff"
              active-text-color="#ffd04b"
              @select="handleSelect"
-             style="padding: 0 250px;"
+             style="padding: 0; font-weight: bold"
              :ellipsis="false"
     >
+      <!--      <div class="flex-grow" />-->
 
-      <!--    <el-image style="width: 100px; height: 100px" src="https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg" fit="cover"/>-->
+      <el-col :xl="4" :lg="4" :md="2" :sm="0" :xs="0">
+        <router-link to="/">
+          <img class="el-image-logo" src="/favicon.ico" fit="cover"  style="margin-top: 10px"/>
+        </router-link>
 
-      <router-link to="/" style="  margin: auto 0;"><img class="el-image-logo" src="/favicon.ico" fit="cover" /></router-link>
-      <div class="flex-grow" />
-      <el-menu-item index="/AICreate">
-        AI作诗
-      </el-menu-item>
-      <el-menu-item index="/PoetrySearch">
-        诗词检索
-      </el-menu-item>
-      <el-menu-item index="/MetricDetection">
-        格律检测
-      </el-menu-item>
-      <el-menu-item index="/RhymeSearch">
-        韵表检索
-      </el-menu-item>
-      <el-menu-item index="/TraditionalSimplified">
-        繁简转换
-      </el-menu-item>
-<!--      <el-sub-menu index="2">
-        <template #title>项目</template>
-        <el-menu-item index="2-1">item one</el-menu-item>
-        <el-menu-item index="2-2">item two</el-menu-item>
-        <el-menu-item index="2-3">item three</el-menu-item>
-        <el-sub-menu index="2-4">
-          <template #title>item four</template>
-          <el-menu-item index="2-4-1">item one</el-menu-item>
-          <el-menu-item index="2-4-2">item two</el-menu-item>
-          <el-menu-item index="2-4-3">item three</el-menu-item>
-        </el-sub-menu>
-      </el-sub-menu>-->
-      <el-menu-item index="/Test" class="image">
-        <!--      <el-avatar :icon="UserFilled" />-->
-        <el-avatar class="my"
-                   src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-        />
-        个人中心
-      </el-menu-item>
+      </el-col>
+
+      <el-col :xl="16" :lg="16" :md="20" :sm="24" :xs="24">
+        <el-row align="middle" justify="center">
+          <el-col :span="1.5">
+            <el-menu-item index="/AICreate">
+              AI作诗
+            </el-menu-item>
+          </el-col>
+          <el-col :span="1.5">
+            <el-menu-item index="/MetricDetection">
+              格律检测
+            </el-menu-item>
+          </el-col>
+          <el-col :span="1.5">
+            <el-menu-item index="/RhymeSearch">
+              韵表检索
+            </el-menu-item>
+          </el-col>
+          <el-col :span="1.5">
+            <el-menu-item index="/PoetrySearch">
+              诗词检索
+            </el-menu-item>
+          </el-col>
+          <el-col :span="1.5">
+            <el-menu-item index="/FlyingOrder">
+              飞花检索
+            </el-menu-item>
+          </el-col>
+          <el-col :span="1.5">
+            <el-menu-item index="/Test" class="image">
+              个人中心
+            </el-menu-item>
+          </el-col>
+        </el-row>
+      </el-col>
+
     </el-menu>
   </div>
 </template>
@@ -89,64 +94,6 @@ export default {
       console.log(key, keyPath);
     }
 
-    /*const toFigure = () => {
-      store.dispatch("selectFigure", {
-        args: {
-          // fig_ch_name: input.value,
-        },
-        success() {
-          console.log("NavBar selectFigure 成功");
-        },
-        error() {
-          console.log("NavBar selectFigure 失败");
-        }
-      });
-    }*/
-
-
-
-    /*const mohuSearch = () => {
-
-      console.log(select.value);
-      console.log(input.value);
-      if(parseInt(select.value) === 1) {
-
-        store.dispatch("selectFigure", {
-          args: {
-            fig_ch_name: input.value,
-          },
-          success() {
-            console.log("NavBar selectFigure 成功");
-          },
-          error() {
-            console.log("NavBar selectFigure 失败");
-          }
-        });
-
-        router.push({
-          name: "FigureView",
-          params: {
-            // lit_id
-          }
-        });
-
-        console.log(store.state.figure.figureList);
-
-      } else if (parseInt(select.value) === 2) {
-        store.dispatch("selectLiterature", {
-          args: {
-            lit_ch_title: input.value,
-          },
-          success() {
-            console.log("NavBar selectLiterature 成功");
-          },
-          error() {
-            console.log("NavBar selectLiterature 失败");
-          }
-        })
-      }
-    }*/
-
     return {
       handleSelect,
     }
@@ -163,16 +110,13 @@ export default {
 }
 
 .image {
-  height: 58px !important;
+  //height: 58px !important;
 }
-.el-menu--horizontal {
-  border: none;
-}
+
 
 .el-image-logo {
   width: 33px;
   height: 33px;
-
 }
 .el-image-logo:hover {
   cursor: pointer;

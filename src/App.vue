@@ -1,16 +1,23 @@
 <template>
-  <div class="common-layout">
-    <el-container>
-      <el-header class="my-el-header">
-        <NavBar/>
-      </el-header>
-      <el-main class="my-el-main">
-        <PageHeader class="my-PageHeader" />
-        <router-view :key="$route.fullPath"/>
-      </el-main>
-      <el-footer class="my-el-footer">Footer</el-footer>
-    </el-container>
-  </div>
+
+  <el-row style="margin-bottom: 0">
+    <el-col :span="24">
+      <NavBar/>
+    </el-col>
+  </el-row>
+
+  <el-row style="min-height: 800px">
+    <el-col :xl="4" :lg="4" :md="2" :sm="0" :xs="0">
+    </el-col>
+    <el-col :xl="16" :lg="16" :md="20" :sm="24" :xs="24">
+      <!--          <PageHeader class="my-PageHeader" />-->
+      <router-view :key="$route.fullPath"/>
+    </el-col>
+    <el-col :xl="4" :lg="4" :md="2" :sm="0" :xs="0">
+    </el-col>
+  </el-row>
+
+  <el-footer style="background-color: #2775B6;">Footer</el-footer>
 </template>
 
 <script lang="ts">
@@ -34,7 +41,7 @@ export default class App extends Vue {}
   --el-header-height: 58px;
 }
 .my-el-main {
-  --el-main-padding: 0px 300px 20px 300px !important;
+  //--el-main-padding: 0px 300px 20px 300px !important;
   //background-color: #2D2D30;
   //background: linear-gradient(180deg, #158BB8, #2775B6);
   //text-align: center;
@@ -42,8 +49,7 @@ export default class App extends Vue {}
   align-items: center;
 }
 .my-el-footer {
-  --el-footer-padding: 0 250px !important;
-  background-color: #2775B6;
+
 }
 .my-PageHeader {
  margin-top: 10px;
