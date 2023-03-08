@@ -223,8 +223,8 @@
   text-align: center;
 }
 .ai_create_poetry {
-  font-family: '华文楷体';
-  font-size: 20px;
+  //font-family: '华文楷体';
+  font-size: 18px;
 }
 
 </style>

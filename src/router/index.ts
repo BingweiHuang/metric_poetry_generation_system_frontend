@@ -7,6 +7,7 @@ import PoetrySearchView from '@/views/PoetrySearchView.vue'
 import TestView from '@/views/TestView.vue'
 import MetricDetectionView from '@/views/MetricDetectionView.vue'
 import RhymeSearchView from '@/views/RhymeSearchView.vue'
+import FlyingOrderView from '@/views/FlyingOrderView.vue'
 
 // 路由懒加载 需要时才导入组件
 const HomeView = () => import('@/views/HomeView.vue')
@@ -31,6 +32,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/MetricDetection',
     name: 'MetricDetectionView',
     component: MetricDetectionView
+  },
+  {
+    path: '/FlyingOrder',
+    name: 'FlyingOrderView',
+    component: FlyingOrderView
   },
   /*{
     path: '/Figure/FigureDetail/:fig_id',

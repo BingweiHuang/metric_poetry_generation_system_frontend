@@ -138,7 +138,7 @@
               <el-card shadow="never" style="margin-top: 15px; background-color: #F3F3F3" v-if="xin_word2rhyme && xin_word2rhyme.length > 0">
                 <template v-for="(rhyme, index) in xin_word2rhyme" :key="index">
 
-                  <div style="font-size: 18px; font-weight: bold; text-align: center">中华新韵&nbsp;{{rhyme[1]}}{{rhyme[0]}}</div>
+                  <div style="font-size: 18px; font-weight: bold; text-align: center; margin-top: 10px">中华新韵&nbsp;{{rhyme[1]}}{{rhyme[0]}}</div>
                   <el-space wrap size="small" class="yun" style="display: flex; align-items: baseline; justify-content: start" v-if="rhyme[2] && rhyme[2].length > 0">
                     <span v-for="(value, index) in (rhyme[2][0])" :key="index" style="display: flex; align-items: baseline; justify-content: start">
 
@@ -191,17 +191,10 @@
 <script lang="ts">
 import {instance} from "@/utils/utils";
 import {ref} from "vue";
+import {useStore} from "vuex";
 
 import {
-  Check,
-  Delete,
-  Edit,
-  Message,
   Search,
-  User,
-  Folder,
-  Document,
-  Star,
 } from '@element-plus/icons-vue'
 import {ElMessage} from "element-plus";
 
@@ -344,24 +337,32 @@ export default {
     }
 
 
-    instance({
-      url: 'rhyme/all_rhyme',
-      method:'get',
-      headers: {
-        // 'Authorization': "Bearer " + store.state.user.access,
-      },
-      // params: kwargs,
-    })
-    .then((resp) => {
-      // console.log(resp.data.pingshui2word);
-      // console.log(resp.data.xinyun2word['平声']);
-      // console.log(typeof resp.data.xinyun2word['平声']);
-      pingshui2word.value = resp.data.pingshui2word;
-      xinyun2word.value = resp.data.xinyun2word;
-    })
-    .catch((error) => {
-      console.log(error);
-    })
+    (async function() { // 自执行函数
+      const store = useStore();
+      if (Object.keys(store.getters.get_xinyun).length === 0 ||
+          Object.keys(store.getters.get_pingshui).length === 0) {
+
+        // store.dispatch 是异步
+        await store.dispatch("updateAllRhyme", {
+          args: { // 参数
+
+          },
+          success() {
+            console.log("selectRhyme 成功");
+          },
+          error() {
+            console.log("selectRhyme 失败");
+          }
+        })
+      }
+      // xinyun2word.value = store.state.rhyme.xinyun2word;
+      xinyun2word.value = store.getters.get_xinyun;
+      // pingshui2word.value = store.state.rhyme.pingshui2word;
+      pingshui2word.value = store.getters.get_pingshui;
+      console.log(xinyun2word.value)
+      console.log(pingshui2word.value)
+    }());
+
 
     return {
       xinyun2word,

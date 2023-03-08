@@ -128,20 +128,14 @@
 <script lang="ts">
 import {ref} from "vue";
 import {
-  Check,
-  Delete,
-  Edit,
-  Message,
   Search,
   User,
   Folder,
   Document,
-  Star,
 } from '@element-plus/icons-vue'
 import ShiCard from "@/components/ShiCard.vue";
 import CiCard from "@/components/CiCard.vue";
 import {instance} from "@/utils/utils";
-import {all} from "axios";
 import {ElMessage} from "element-plus";
 export default {
   name: "PoetrySearchView",

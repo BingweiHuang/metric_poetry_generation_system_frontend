@@ -77,8 +77,6 @@
 
 <script lang="ts">
 
-import {useStore} from "vuex";
-
 
 export default {
   name: "NavBar",

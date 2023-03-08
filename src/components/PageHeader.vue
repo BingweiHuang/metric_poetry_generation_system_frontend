@@ -26,7 +26,7 @@
 <script lang="ts">
 import { Search } from '@element-plus/icons-vue'
 import {ref} from "vue";
-import {useRoute, useRouter} from "vue-router";
+import {useRouter} from "vue-router";
 const input3 = ref('')
 const select = ref('')
 
@@ -38,7 +38,6 @@ export default {
   },
   setup() {
 
-    const route = useRoute();
     const router = useRouter();
 
     const goBack = () => {
