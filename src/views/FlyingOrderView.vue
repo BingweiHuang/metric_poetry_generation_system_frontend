@@ -1,9 +1,9 @@
 <template>
-  <el-row>
+  <el-row justify="center" align="middle">
     <el-col :xl="2" :lg="2" :md="2" :sm="2" :xs="0">
 
     </el-col>
-    <el-col :xl="20" :lg="20" :md="20" :sm="20" :xs="24">
+    <el-col :xl="20" :lg="20" :md="20" :sm="20" :xs="23">
       <el-row justify="center" align="middle" :gutter="10">
 
         <el-col :xl="8" :lg="8" :md="9" :sm="10" :xs="11">
@@ -74,6 +74,9 @@
 
       </el-row>
     </el-col>
+    <el-col :xl="2" :lg="2" :md="2" :sm="2" :xs="0">
+
+    </el-col>
   </el-row>
 
   <div style="min-height: 600px">
@@ -104,22 +107,7 @@
       </el-row>
 
     </template>
-
-
   </div>
-
-
-<!--  <el-pagination
-      class="my-el-pagination"
-      background
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-      :current-page="currentPage"
-      :page-size="pageSize"
-      :pager-count="6"
-      layout=" prev, pager, next"
-      :total="flyList.length">
-  </el-pagination>-->
 </template>
 
 <script lang="ts">

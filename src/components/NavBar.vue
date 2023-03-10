@@ -30,14 +30,18 @@
       <!--      <div class="flex-grow" />-->
 
       <el-col :xl="4" :lg="4" :md="2" :sm="0" :xs="0">
-        <router-link to="/">
-          <img class="el-image-logo" src="/favicon.ico" fit="cover"  style="margin-top: 10px"/>
-        </router-link>
 
       </el-col>
 
       <el-col :xl="16" :lg="16" :md="20" :sm="24" :xs="24">
         <el-row align="middle" justify="center">
+
+
+          <el-col :span="2">
+            <router-link to="/">
+              <img class="el-image-logo" src="/favicon.ico" fit="cover"  style="margin-top: 10px"/>
+            </router-link>
+          </el-col>
           <el-col :span="1.5">
             <el-menu-item index="/AICreate">
               AI作诗

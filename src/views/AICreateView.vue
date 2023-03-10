@@ -1,12 +1,12 @@
 <template>
 
-  <el-row>
+  <el-row justify="center" align="middle">
     <el-col :xl="5" :lg="5" :md="3" :sm="0" :xs="0">
 
     </el-col>
-    <el-col :xl="14" :lg="14" :md="18" :sm="24" :xs="24">
+    <el-col :xl="14" :lg="14" :md="18" :sm="23" :xs="23">
 
-      <el-card class="box-card">
+      <el-card class="box-card" style="margin-bottom: 10px">
         <div style="text-align: center; width: 100%; font-weight: bold; font-size: 18px">LSTM</div>
         <div class="card-body ai_content">
           <el-card class="box-card mx-card" shadow="never" v-loading="lstm_loading">
@@ -77,14 +77,7 @@
 
       </el-card>
 
-    </el-col>
-  </el-row>
-  <el-row>
-    <el-col :xl="5" :lg="5" :md="3" :sm="0" :xs="0">
-
-    </el-col>
-    <el-col :xl="14" :lg="14" :md="18" :sm="24" :xs="24">
-      <el-card class="box-card">
+      <el-card class="box-card" >
         <div style="text-align: center; width: 100%; font-weight: bold; font-size: 18px">GPT2</div>
         <div class="card-body ai_content">
           <el-card class="box-card mx-card" shadow="never" v-loading="gpt2_loading">
@@ -153,10 +146,12 @@
 
         </el-row>
       </el-card>
+
+    </el-col>
+    <el-col :xl="5" :lg="5" :md="3" :sm="0" :xs="0">
+
     </el-col>
   </el-row>
-
-
 
 </template>
 
