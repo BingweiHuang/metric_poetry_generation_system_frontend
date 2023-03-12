@@ -1,10 +1,9 @@
 <template>
 
   <el-row>
-    <el-col :xl="2" :lg="2" :md="2" :sm="2" :xs="0">
+    <el-col :xl="2" :lg="2" :md="2" :sm="1" :xs="0"></el-col>
 
-    </el-col>
-    <el-col :xl="20" :lg="20" :md="20" :sm="20" :xs="24">
+    <el-col :xl="20" :lg="20" :md="20" :sm="22" :xs="24">
       <el-tabs type="border-card" @tab-change="tab_change">
         <el-tab-pane label="平水韵">
 
@@ -184,6 +183,8 @@
 
       </el-tabs>
     </el-col>
+
+    <el-col :xl="2" :lg="2" :md="2" :sm="1" :xs="0"></el-col>
   </el-row>
 
 </template>
@@ -325,8 +326,6 @@ export default {
           },
         })
         .then((resp) => {
-          console.log(resp.data.ps_word2rhyme);
-          console.log(resp.data.xin_word2rhyme);
           ps_word2rhyme.value = resp.data.ps_word2rhyme;
           xin_word2rhyme.value = resp.data.xin_word2rhyme;
         })
@@ -359,8 +358,6 @@ export default {
       xinyun2word.value = store.getters.get_xinyun;
       // pingshui2word.value = store.state.rhyme.pingshui2word;
       pingshui2word.value = store.getters.get_pingshui;
-      console.log(xinyun2word.value)
-      console.log(pingshui2word.value)
     }());
 
 

@@ -1,10 +1,10 @@
 <template>
 
   <el-row justify="center" align="middle">
-    <el-col :xl="5" :lg="5" :md="3" :sm="0" :xs="0">
+    <el-col :xl="5" :lg="5" :md="4" :sm="2" :xs="0">
 
     </el-col>
-    <el-col :xl="14" :lg="14" :md="18" :sm="23" :xs="23">
+    <el-col :xl="14" :lg="14" :md="16" :sm="19" :xs="23">
 
       <el-card class="box-card" style="margin-bottom: 10px">
         <div style="text-align: center; width: 100%; font-weight: bold; font-size: 18px">LSTM</div>
@@ -148,7 +148,7 @@
       </el-card>
 
     </el-col>
-    <el-col :xl="5" :lg="5" :md="3" :sm="0" :xs="0">
+    <el-col :xl="5" :lg="5" :md="4" :sm="2" :xs="0">
 
     </el-col>
   </el-row>

@@ -1,5 +1,6 @@
 import { createStore } from 'vuex'
 import ModuleRhyme from './rhyme'
+import ModuleAccount from './account'
 
 export default createStore({
   state: {
@@ -12,5 +13,6 @@ export default createStore({
   },
   modules: {
     rhyme: ModuleRhyme,
+    account: ModuleAccount,
   }
 })

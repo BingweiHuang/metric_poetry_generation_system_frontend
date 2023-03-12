@@ -1,19 +1,18 @@
 <template>
 
-  <el-row style="margin-bottom: 0">
+  <el-row style="margin-bottom: 0; background-color: #2775B6">
     <el-col :span="24">
       <NavBar/>
     </el-col>
   </el-row>
 
   <el-row style="min-height: 800px">
-    <el-col :xl="4" :lg="4" :md="2" :sm="0" :xs="0">
+    <el-col :xl="4" :lg="4" :md="3" :sm="2" :xs="0">
     </el-col>
-    <el-col :xl="16" :lg="16" :md="20" :sm="24" :xs="24">
-      <!--          <PageHeader class="my-PageHeader" />-->
+    <el-col :xl="16" :lg="16" :md="18" :sm="20" :xs="24">
       <router-view :key="$route.fullPath"/>
     </el-col>
-    <el-col :xl="4" :lg="4" :md="2" :sm="0" :xs="0">
+    <el-col :xl="4" :lg="4" :md="3" :sm="2" :xs="0">
     </el-col>
   </el-row>
 
@@ -23,12 +22,10 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import NavBar from '@/components/NavBar.vue'; // @ is an alias to /src
-import PageHeader from '@/components/PageHeader.vue'; // @ is an alias to /src
 
 @Options({
   components: {
     NavBar,
-    PageHeader,
   },
 })
 export default class App extends Vue {}
@@ -50,8 +47,5 @@ export default class App extends Vue {}
 }
 .my-el-footer {
 
-}
-.my-PageHeader {
- margin-top: 10px;
 }
 </style>

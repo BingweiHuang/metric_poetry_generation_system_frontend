@@ -110,6 +110,7 @@
     <el-pagination
         class="my-el-pagination"
         background
+        :hide-on-single-page="true"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
