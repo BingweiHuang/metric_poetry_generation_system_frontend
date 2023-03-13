@@ -45,14 +45,28 @@ const ModuleAccount = {
     actions: {
         login(context, data) {
 
-            instance({
+            /*instance({
                 url: 'api/token/',
                 method: "POST",
                 data: {
                     username: data.username,
                     password: data.password,
                 },
-            }).then((resp) => {
+            })*/
+
+            instance({
+                url: 'account/login',
+                method: "POST",
+                data: {
+                    username: data.email,
+                    password: data.password,
+                },
+            })
+
+            .then((resp) => {
+
+                console.log(resp.data)
+
                 const {access, refresh} = resp.data;
                 const access_obj:any = jwt_decode(access);
                 setInterval(() => {

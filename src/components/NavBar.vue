@@ -121,36 +121,66 @@
 
   </div>
 
-  <el-dialog v-model="dialogFormVisible" :title="form_state">
-    <el-form :model="form">
-      <el-form-item label="邮箱" :label-width="formLabelWidth">
-        <el-input v-model="form.username" placeholder="请输入邮箱" />
-      </el-form-item>
-      <el-form-item label="密码" :label-width="formLabelWidth" v-if="['注册', '登录'].includes(form_state)">
-        <el-input v-model="form.password" type="password" show-password placeholder="请输入密码" />
-      </el-form-item>
-      <el-form-item label="确认密码" :label-width="formLabelWidth" v-if="form_state === '注册'">
-        <el-input v-model="form.password2" type="password" show-password placeholder="请再次输入密码" />
-      </el-form-item>
-    </el-form>
+  <div class="my-dialog">
+    <el-dialog v-model="dialogFormVisible" :title="form_state">
+      <el-form :model="form" :rules="rules" ref="dom">
+        <el-form-item label="邮箱" :label-width="formLabelWidth" prop="email">
+          <!--        <el-input v-model="form.email" placeholder="请输入邮箱" oninput ="value=value.replace(/[^\d]/g,'')" />-->
+          <el-input v-model="form.email" placeholder="请输入邮箱" />
+        </el-form-item>
+        <el-form-item label="验证码" :label-width="formLabelWidth" v-if="['注册','忘记密码'].includes(form_state)">
+          <el-input v-model="form.code" placeholder="请输入验证码">
+            <template #append>
+              <el-button @click="send_email">
+                发送
+              </el-button>
+            </template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="密码" :label-width="formLabelWidth" v-if="['注册', '忘记密码'].includes(form_state)" prop="password">
+          <el-input v-model="form.password" type="password" show-password placeholder="请输入密码" />
+        </el-form-item>
+        <el-form-item label="密码" :label-width="formLabelWidth" v-if="['登录'].includes(form_state)">
+          <el-input v-model="form.password" type="password" show-password placeholder="请输入密码" />
+        </el-form-item>
+        <el-form-item label="确认密码" :label-width="formLabelWidth" v-if="['注册', '忘记密码'].includes(form_state)" prop="password2">
+          <el-input v-model="form.password2" type="password" show-password placeholder="请再次输入密码" />
+        </el-form-item>
+        <el-form-item label="记住我" :label-width="formLabelWidth" v-if="form_state === '登录'">
+          <el-checkbox v-model="form.remember" size="" />
+        </el-form-item>
 
-    <div style="display: flex; justify-content: center; align-items: center">
-      <el-button type="primary" @click="log_in" v-if="form_state === '登录'">登录</el-button>
-      <el-button type="primary" @click="sign_in" v-if="form_state === '注册'">注册</el-button>
-    </div>
 
-    <div style="display: flex; justify-content: space-around; align-items: center">
-      <el-link v-if="form_state === '登录'" >忘记密码</el-link>
-      <el-link @click="form_state = '注册'" v-if="form_state === '登录'">注册</el-link>
-      <el-link @click="form_state = '登录'" v-if="form_state === '注册'">登录</el-link>
-    </div>
+      </el-form>
 
-    <div style="display: flex; justify-content: space-around; align-items: center">
-      {{error_message}}
-    </div>
+      <div style="display: flex; justify-content: space-around; align-items: center">
+        <div style="width: 80px">
+
+        </div>
+        <div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px;">
+          <el-button type="primary" class="my-button" @click="log_in('form')" v-if="form_state === '登录'">登 录</el-button>
+          <el-button type="primary" class="my-button" @click="sign_in" v-if="form_state === '注册'">注 册</el-button>
+          <el-button type="primary" class="my-button" @click="update_password" v-if="form_state === '忘记密码'">修改密码</el-button>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-around; align-items: center">
+        <div style="width: 80px">
+
+        </div>
+        <div style="display: flex; justify-content: space-around; align-items: center; width: 260px">
+          <el-link @click="trans_forget" v-if="form_state === '登录'" >忘记密码</el-link>
+          <el-link @click="trans_sign_in" v-if="form_state === '登录'">注册</el-link>
+          <el-link @click="form_state = '登录'" v-if="['注册', '忘记密码'].includes(form_state)">登录</el-link>
+        </div>
+      </div>
+
+    </el-dialog>
+  </div>
 
 
-  </el-dialog>
+
+
 
 
 </template>
@@ -162,6 +192,7 @@ import {onMounted, reactive, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useStore} from "vuex";
 import {instance} from "@/utils/utils";
+import {ElMessage} from "element-plus";
 
 
 export default {
@@ -173,9 +204,6 @@ export default {
 
   },
   setup() {
-
-
-
 
     const store = useStore();
 
@@ -246,14 +274,101 @@ export default {
     )
 
     const dialogFormVisible = ref(false)
-    const formLabelWidth = '140px'
+    const formLabelWidth = '80px'
     const form = reactive({
-      username: '',
+      email: '',
+      code: '',
       password: '',
       password2: '',
+      remember: false,
     })
     const form_state = ref('登录') // 登录 注册 忘记密码
-    const error_message = ref('')
+    const dom = ref(null)
+    const rules = ref({
+      chinese: [ // 只能输入中文
+        { required: true, message: "请输入中文名", trigger: "blur" },
+        {
+          validator: function(rule, value, callback) {
+            if (/^[\u4e00-\u9fa5]+$/.test(value) == false) {
+              callback(new Error("请输入中文"));
+            } else {
+              //校验通过
+              callback();
+            }
+          },
+          trigger: "blur"
+        }
+      ],
+
+      password: [ // 密码限制
+        { required: true, message: "请输入密码", trigger: "blur" },
+        {
+          validator: function(rule, value, callback) {
+            if (/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#.$@!%&*?])[A-Za-z\d#.$@!%&*?]{8,16}$/.test(value) == false) {
+              callback(new Error("密码必须为8~16位，数字+英文字母+特殊符号"));
+            } else {
+              //校验通过
+              callback();
+            }
+          },
+          trigger: "blur"
+        }
+      ],
+
+      password2: [ // 两次密码需相同
+        { required: true, message: "请再次输入密码", trigger: "blur" },
+        {
+          validator: function(rule, value, callback) {
+            if (form.password !== form.password2) {
+              callback(new Error("两次输入密码不同"));
+            } else {
+              //校验通过
+              callback();
+            }
+          },
+          trigger: "blur"
+        }
+      ],
+
+      english: [ // 英文
+        { required: true, message: "请输入英文名", trigger: "blur" },
+        {
+          validator: function(rule, value, callback) {
+            if (/[a-zA-z]$/.test(value) == false) {
+              callback(new Error("请输入英文"));
+            } else {
+              //校验通过
+              callback();
+            }
+          },
+          trigger: "blur"
+        }
+      ],
+
+      email: [
+        { required: true, message: '请输入邮箱', trigger: 'blur' },
+        {
+          type: 'email',
+          message: '请输入正确的邮箱格式',
+          trigger: ['blur'],
+        },
+      ],
+
+      phone: [ // 手机号
+        { required: true, message: "请输入手机号", trigger: "blur" },
+        {
+          validator: function(rule, value, callback) {
+            if (/^(13[0-9]|14[0-9]|15[0-9]|16[6]|18[0-9]|19[6,9]|17[0-9])\d{8}$/i.test(value) == false) {
+              callback(new Error("请输入手机号"));
+            } else {
+              //校验通过
+              callback();
+            }
+          },
+          trigger: "blur"
+        }
+      ],
+    })
 
 
     const log_out = () => {
@@ -261,39 +376,139 @@ export default {
     }
 
     const log_in = () => {
-      error_message.value = "";
+      console.log('提交数据', form)
       store.dispatch("login", {
-        username: form.username,
+        email: form.email,
         password: form.password,
         success() {
           dialogFormVisible.value = false
         },
         error() {
-          error_message.value = "用户名或密码错误";
+          form.email = ''
+          form.password = ''
+          form.password2 = ''
+          ElMessage({
+            showClose: true,
+            message: '用户名或密码错误~',
+            type: 'error',
+            duration: 5000,
+          })
         }
       });
+      /*dom.value.validate((valid) => {
+        console.log('校验结果', valid)
+        if (valid) {
+
+          store.dispatch("login", {
+            username: form.email,
+            password: form.password,
+            success() {
+              dialogFormVisible.value = false
+            },
+            error() {
+              form.email = ''
+              form.password = ''
+              form.password2 = ''
+              ElMessage({
+                showClose: true,
+                message: '用户名或密码错误~',
+                type: 'error',
+                duration: 5000,
+              })
+            }
+          });
+
+        } else {
+          console.log('校验不通过')
+        }
+      })*/
+    }
+
+    const send_email = () => {
+
+      dom.value.validateField('email', (valid) => {
+        if (valid) {
+          console.log('邮箱验证通过')
+
+          instance({
+            url: 'account/sign_in',
+            method:'get',
+            headers: {
+              // 'Authorization': "Bearer " + store.state.user.access,
+            },
+            params: {
+              'email' : form.email
+            }
+          })
+              .then((resp) => {
+                console.log(resp.data.result)
+              })
+              .catch((error) => {
+                console.log(error);
+                console.log(error.responce.data.result);
+              })
+
+        } else {
+          console.log('邮箱验证失败');
+          return false;
+        }
+      })
+
+
     }
 
     const sign_in = () => {
-      instance({
-        url: 'account/sign_in',
-        method:'post',
-        headers: {
-          // 'Authorization': "Bearer " + store.state.user.access,
-        },
-        data: form,
-      })
-      .then((resp) => {
-        console.log(resp.data.result)
-        dialogFormVisible.value = false
-      })
-      .catch((error) => {
-        console.log(error);
-        console.log(error.data.result);
+
+      console.log('提交数据', form)
+
+      dom.value.validate((valid) => {
+        console.log('校验结果', valid)
+        if (valid) {
+
+          instance({
+            url: 'account/sign_in',
+            method:'post',
+            headers: {
+              // 'Authorization': "Bearer " + store.state.user.access,
+            },
+            data: form,
+          })
+          .then((resp) => {
+            console.log(resp.data.result)
+            dialogFormVisible.value = false
+          })
+          .catch((error) => {
+            console.log(error);
+            console.log(error.responce.data.result);
+          })
+
+        } else {
+          console.log('校验不通过')
+        }
       })
     }
 
+    const trans_sign_in = () => {
+      form_state.value = '注册'
+      form.email = ''
+      form.code = ''
+      form.password = ''
+      form.password2 = ''
+      form.remember = false
+    }
+
+    const trans_forget = () => {
+      form_state.value = '忘记密码'
+      form.email = ''
+      form.code = ''
+      form.password = ''
+      form.password2 = ''
+      form.remember = false
+    }
+
     return {
+      dom,
+      rules,
       activeIndex,
       activeIndex2,
       MenuList,
@@ -302,11 +517,13 @@ export default {
       formLabelWidth,
       form,
       form_state,
-      error_message,
 
       log_out,
       log_in,
       sign_in,
+      send_email,
+      trans_sign_in,
+      trans_forget,
     }
 },
 
@@ -316,7 +533,7 @@ export default {
 
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .flex-grow {
   flex-grow: 1;
 }
@@ -338,8 +555,12 @@ export default {
   margin-right: 10px;
 }
 
-.dialog-footer {
+.my-dialog .el-dialog {
+  width: 380px !important;
+}
 
+.my-button {
+  width: 260px;
 }
 
 </style>
