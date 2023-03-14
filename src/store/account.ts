@@ -1,102 +1,83 @@
 // import $ from 'jquery';
-import {instance} from "@/utils/utils";
+import {get, post} from "@/utils/request";
 import jwt_decode from 'jwt-decode';
 
 const ModuleAccount = {
     state: {
-        id: JSON.parse(localStorage.getItem('account')) === null ? 0 : JSON.parse(localStorage.getItem('account')).id,
-        username: JSON.parse(localStorage.getItem('account')) === null ? "" : JSON.parse(localStorage.getItem('account')).username,
-        // photo: JSON.parse(localStorage.getItem('account')) === null ? "" : JSON.parse(localStorage.getItem('account')).photo,
-        followerCount: JSON.parse(localStorage.getItem('account')) === null ? 0 : JSON.parse(localStorage.getItem('account')).followerCount,
-        access: JSON.parse(localStorage.getItem('account')) === null ? "" : JSON.parse(localStorage.getItem('account')).access,
-        refresh: JSON.parse(localStorage.getItem('account')) === null ? "" : JSON.parse(localStorage.getItem('account')).refresh,
-        is_login: JSON.parse(localStorage.getItem('account')) === null ? false : JSON.parse(localStorage.getItem('account')).is_login,
+        account: JSON.parse(localStorage.getItem('account')),
+        access: JSON.parse(localStorage.getItem('access')) === null ? "" : JSON.parse(localStorage.getItem('access')),
+        // access: "",
+        refresh: JSON.parse(localStorage.getItem('refresh')) === null ? "" : JSON.parse(localStorage.getItem('refresh')),
+        // refresh: "",
+        is_login: (JSON.parse(localStorage.getItem('account')) !== null),
     },
     getters: {
+        get_access(state) {
+            return state.access
+        },
+        get_refresh(state) {
+            return state.refresh
+        },
+        get_account(state) {
+            return state.account
+        },
+        get_is_login(state) {
+            return state.is_login
+        },
     },
     mutations: {
-        updateAccount(state, account) {
-            localStorage.setItem('account', JSON.stringify(account)); // 将用户信息存入
-            state.id = account.id;
-            state.username = account.username;
-            // state.photo = account.photo;
-            state.followerCount = account.followerCount;
-            state.access = account.access;
-            state.refresh = account.refresh;
-            state.is_login = account.is_login;
-        },
-        updateAccess(state, data) {
-            const account = JSON.parse(localStorage.getItem('account')); // 获取用户信息
-            account.access = data.access;  // 修改
-            localStorage.setItem('account', JSON.stringify(account));  // 存入
-            state.access = data.access;
-        },
-        logout(state) {
+
+        clear_account(state) {
             localStorage.clear(); // 清空用户信息
-            state.id = "";
-            state.username = "";
-            // state.photo = "";
-            state.followerCount = 0;
             state.access = "";
             state.refresh = "";
             state.is_login = false;
-        }
+        },
+
+        set_account(state, account) {
+            localStorage.setItem('account', JSON.stringify(account)); // 将用户信息存入
+            state.account = account;
+            state.is_login = true;
+        },
+
+        set_access(state, access) {
+            state.access = access;
+            localStorage.setItem('access', JSON.stringify(access));
+        },
+
+        set_refresh(state, refresh) {
+            state.refresh = refresh;
+            localStorage.setItem('refresh', JSON.stringify(refresh));
+        },
+
     },
     actions: {
         login(context, data) {
+            // 邮箱或者用户名登录
+            const the_username = (data.email && (data.email !== '')) ? data.email : data.username
 
-            /*instance({
-                url: 'api/token/',
-                method: "POST",
-                data: {
-                    username: data.username,
-                    password: data.password,
-                },
-            })*/
-
-            instance({
-                url: 'account/login',
-                method: "POST",
-                data: {
-                    username: data.email,
-                    password: data.password,
-                },
-            })
-
+            post('account/login', {
+                username: the_username,
+                password: data.password,
+            }, false)
             .then((resp) => {
-
-                console.log(resp.data)
 
                 const {access, refresh} = resp.data;
                 const access_obj:any = jwt_decode(access);
-                setInterval(() => {
-                    instance({
-                        url: "api/token/refresh/",
-                        method: "POST",
-                        data: {
-                            refresh,
-                        },
-                    }).then((resp) => {
-                        context.commit('updateAccess', resp.data.access);
-                    })
-                }, 4.5 * 60 * 1000);
+                console.log('access:',access)
+                console.log('refresh:',refresh)
+                context.commit('set_access', access)
+                // console.log('access的存储情况:', context.getters('get_access'))
+                context.commit('set_refresh', refresh)
 
-                instance({
-                    url: "account/get_info",
-                    method: "GET",
-                    params: {
-                        user_id: access_obj.user_id,
-                    },
-                    headers: {
-                        'Authorization': "Bearer " + access,
-                    },
-                }).then((resp) => {
-                    context.commit("updateAccount", {
-                        ...resp.data,
-                        access: access,
-                        refresh: refresh,
-                        is_login: true,
-                    });
+                get('account/get_info', {
+                    'user_id': access_obj.user_id,
+                }, true)
+                .then((resp) => {
+
+                    console.log('resp.data:',resp.data)
+                    context.commit("set_account", resp.data);
+
                     data.success();
                 });
             }).catch((error) => {
@@ -104,6 +85,10 @@ const ModuleAccount = {
                 data.error();
             });
         },
+
+        logout(context) {
+            context.commit("clear_account")
+        }
     },
     modules: {
     }

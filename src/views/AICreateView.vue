@@ -229,6 +229,7 @@
 import { ref } from 'vue';
 import {instance} from "@/utils/utils";
 import { ElMessage } from 'element-plus'
+import {get, post} from "@/utils/request";
 
 export default {
   name: "AICreateView",
@@ -271,26 +272,14 @@ export default {
       let flag = false
 
       //axios是异步请求（返回Promise对象），想要让ret获取到他的结果然后给flag 必须用async/await使其同步
-      let ret = await instance({
-        url:'detection/first_sentence',
-        method:'get',
-        headers: {
-          // 'Authorization': "Bearer " + store.state.user.access,
-        },
-        params: {
-          text: text,
-          yan: yan ? 7 : 5,
-          qi: qi ? 1 : 0,
-          ru: ru ? 0 : 1,
-          use_rhyme: use_rhyme,
-        },
-      })
-      /*.then((resp) => {
-        console.log(resp.data.is_rhyme)
-      })
-      .catch((error) => {
-        console.log(error);
-      })*/
+
+      const ret = await get('detection/first_sentence', {
+        text: text,
+        yan: yan ? 7 : 5,
+        qi: qi ? 1 : 0,
+        ru: ru ? 0 : 1,
+        use_rhyme: use_rhyme,
+      }, false)
       
       flag = (ret.data.is_rhyme === 1)
       return flag
@@ -373,22 +362,16 @@ export default {
       }
 
       lstm_change_state(1) // 字数和韵律都符合规范 切换状态 开始作诗
-      instance({
-        url:'create/lstm',
-        method:'get',
-        headers: {
-          // 'Authorization': "Bearer " + store.state.user.access,
-        },
-        params: {
-          text: text_filter,
-          yan: yan.value ? 7 : 5,
-          jue: jue.value ? 0 : 1,
-          qi: qi.value ? 1 : 0,
-          ru: ru.value ? 0 : 1,
-          use_rhyme: use_rhyme.value,
-          style: style.value,
-        },
-      })
+
+      await get('create/lstm', {
+        text: text_filter,
+        yan: yan.value ? 7 : 5,
+        jue: jue.value ? 0 : 1,
+        qi: qi.value ? 1 : 0,
+        ru: ru.value ? 0 : 1,
+        use_rhyme: use_rhyme.value,
+        style: style.value,
+      }, false)
       .then((resp) => {
         lstm_change_state(2)
         console.log(resp.data);
@@ -449,22 +432,15 @@ export default {
       }
 
       gpt2_change_state(1);
-      instance({
-        url:'create/gpt2',
-        method:'get',
-        headers: {
-          // 'Authorization': "Bearer " + store.state.user.access,
-        },
-        params: {
-          text: text_filter,
-          yan: yan2.value ? 7 : 5,
-          jue: jue2.value ? 0 : 1,
-          qi: qi2.value ? 1 : 0,
-          ru: ru2.value ? 0 : 1,
-          use_rhyme: use_rhyme2.value,
-          style: style2.value,
-        },
-      })
+      await get('create/gpt2', {
+        text: text_filter,
+        yan: yan2.value ? 7 : 5,
+        jue: jue2.value ? 0 : 1,
+        qi: qi2.value ? 1 : 0,
+        ru: ru2.value ? 0 : 1,
+        use_rhyme: use_rhyme2.value,
+        style: style2.value,
+      }, false)
       .then((resp) => {
         gpt2_change_state(2)
         console.log(resp.data);

@@ -686,6 +686,7 @@ import {
   Search,
 } from '@element-plus/icons-vue'
 import {useStore} from "vuex";
+import {get} from "@/utils/request";
 export default {
   name: "MetricDetectionView",
   components: {},
@@ -747,21 +748,14 @@ export default {
       }
 
 
-      const ret = await instance({
-        url: 'detection/metric_poetry',
-        method:'get',
-        headers: {
-          // 'Authorization': "Bearer " + store.state.user.access,
-        },
-        params: {
-          text: text_filter,
-          yan: yan.value ? 7 : 5,
-          jue: jue.value ? 0 : 1,
-          qi: qi.value ? 1 : 0,
-          ru: ru.value ? 0 : 1,
-          use_rhyme: use_rhyme.value,
-        },
-      })
+      const ret = await get('detection/metric_poetry', {
+        text: text_filter,
+        yan: yan.value ? 7 : 5,
+        jue: jue.value ? 0 : 1,
+        qi: qi.value ? 1 : 0,
+        ru: ru.value ? 0 : 1,
+        use_rhyme: use_rhyme.value,
+      }, false)
 
 
       // console.log("text", ret.data.text)
@@ -1057,16 +1051,10 @@ export default {
         return false
       } else {
         searched_word.value = word
-        instance({
-          url: 'rhyme/search_rhyme',
-          method:'get',
-          headers: {
-            // 'Authorization': "Bearer " + store.state.user.access,
-          },
-          params: {
-            'word': word,
-          },
-        })
+
+        get('rhyme/search_rhyme', {
+          'word': word,
+        }, false)
         .then((resp) => {
           ps_word2rhyme.value = resp.data.ps_word2rhyme;
           xin_word2rhyme.value = resp.data.xin_word2rhyme;

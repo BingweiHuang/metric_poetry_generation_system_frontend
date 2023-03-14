@@ -7,9 +7,6 @@
 </template>
 
 <script lang="ts">
-import { ref, onMounted } from 'vue'
-import {instance} from "@/utils/utils";
-import * as echarts from 'echarts';
 import 'echarts-wordcloud';
 
 export default {

@@ -123,6 +123,7 @@ import ShiCard from "@/components/ShiCard.vue";
 import CiCard from "@/components/CiCard.vue";
 import {instance} from "@/utils/utils";
 import {ElMessage} from "element-plus";
+import {get} from "@/utils/request";
 
 export default {
   name: "FlyingOrderView",
@@ -366,21 +367,8 @@ export default {
 
       // console.log(kwargs)
 
-      let ret = await instance({
-        url: query_url,
-        method:'get',
-        headers: {
-          // 'Authorization': "Bearer " + store.state.user.access,
-        },
-        params: kwargs,
-      })
-      /*.then((resp) => {
-        console.log(resp.data.flyList);
-        flyList.value = resp.data.flyList;
-      })
-      .catch((error) => {
-        console.log(error);
-      })*/
+      await get(query_url, kwargs, false)
+      let ret = await get(query_url, kwargs, false)
 
       if (ret.data.flyList.length === 0) {
         ElMessage({

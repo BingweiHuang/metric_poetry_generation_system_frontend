@@ -9,11 +9,6 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
-import NavBar from '@/components/NavBar.vue';
-import {onMounted, ref} from "vue";
-import {instance} from "@/utils/utils";
-import * as echarts from "echarts"; // @ is an alias to /src
 
 
 export default {
@@ -21,7 +16,7 @@ export default {
   components: {
   },
   setup() {
-    let a;
+    const a = 1;
   },
 
 }

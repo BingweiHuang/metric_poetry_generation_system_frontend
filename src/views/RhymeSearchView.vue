@@ -198,6 +198,7 @@ import {
   Search,
 } from '@element-plus/icons-vue'
 import {ElMessage} from "element-plus";
+import {get} from "@/utils/request";
 
 export default {
   name: "RhymeSearchView",
@@ -315,16 +316,10 @@ export default {
         return false
       } else {
         searched_word.value = word
-        instance({
-          url: 'rhyme/search_rhyme',
-          method:'get',
-          headers: {
-            // 'Authorization': "Bearer " + store.state.user.access,
-          },
-          params: {
-            'word': word,
-          },
-        })
+
+        get('rhyme/search_rhyme', {
+          'word': word,
+        }, false)
         .then((resp) => {
           ps_word2rhyme.value = resp.data.ps_word2rhyme;
           xin_word2rhyme.value = resp.data.xin_word2rhyme;

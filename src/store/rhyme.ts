@@ -34,7 +34,14 @@ const ModuleRhyme = {
                     // 'Authorization': "Bearer " + store.state.user.access,
                 },
                 // params: data.args,
-            })
+            },
+                {
+                    loading: true
+                },
+                {
+                    text: '登录....'
+                }
+                )
             .then((resp) => {
                 context.commit('set_xinyun', resp.data.xinyun2word);
                 context.commit('set_pingshui', resp.data.pingshui2word);

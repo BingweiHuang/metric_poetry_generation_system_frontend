@@ -138,6 +138,7 @@ import ShiCard from "@/components/ShiCard.vue";
 import CiCard from "@/components/CiCard.vue";
 import {instance} from "@/utils/utils";
 import {ElMessage} from "element-plus";
+import {get} from "@/utils/request";
 export default {
   name: "PoetrySearchView",
   components: {
@@ -360,21 +361,7 @@ export default {
 
       console.log(kwargs)
 
-      let ret = await instance({
-        url: query_url,
-        method:'get',
-        headers: {
-          // 'Authorization': "Bearer " + store.state.user.access,
-        },
-        params: kwargs,
-      })
-      /*.then((resp) => {
-        console.log(resp.data.poetryList);
-        poetryList.value = resp.data.poetryList;
-      })
-      .catch((error) => {
-        console.log(error);
-      })*/
+      let ret = await get(query_url, kwargs, false)
 
       if (ret.data.poetryList.length === 0) {
         ElMessage({

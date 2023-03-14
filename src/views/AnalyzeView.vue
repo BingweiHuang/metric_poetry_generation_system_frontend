@@ -250,6 +250,8 @@ import {
   Folder,
   Document,
 } from '@element-plus/icons-vue'
+import {useStore} from "vuex";
+import {get, post} from "@/utils/request";
 
 export default {
   name: "AnalyzeView",
@@ -410,25 +412,13 @@ export default {
         'three_hundred': three_hundred,
       }
 
-      await instance({
-        url: 'analyze/author_output',
-        method:'get',
-        headers: {
-          // 'Authorization': "Bearer " + store.state.user.access,
-        },
-        params: kwargs,
+      await get('analyze/author_output', kwargs, true)
+      .then((resp) => {
+        res_list = resp.data.res_list
       })
-          .then((resp) => {
-            res_list = resp.data.res_list
-            /*for (let i = 0; i < res_list[0].length; i ++) {
-              x_list.push(res_list[0][i][0])
-              y1_list.push(res_list[0][i][1])
-              y2_list.push(res_list[1][i][1])
-            }*/
-          })
-          .catch((error) => {
-            console.log(error);
-          })
+      .catch((error) => {
+        console.log(error);
+      })
 
 
       let x_list = []
@@ -453,6 +443,8 @@ export default {
           focus: 'series'
         },
       }
+
+      if (res_list.length === 0) return false
 
       for (let i = 0; i < res_list[0].length; i ++) {
         x_list.push(res_list[0][i][0])
@@ -877,19 +869,12 @@ export default {
       }
 
       let res_list = []
-      await instance({
-        // /analyze/poetry_statistics?author=苏轼&dynasty=宋代&num=10&mode=1
-        url: 'analyze/poetry_statistics',
-        method: 'get',
-        headers: {
-          // 'Authorization': "Bearer " + store.state.user.access,
-        },
-        params: {
-          'rhyme_num': num,
-          'dynasty': dynasty2_value.value,
-          'author': author,
-        },
-      })
+
+      await get('analyze/poetry_statistics', {
+        'rhyme_num': num,
+        'dynasty': dynasty2_value.value,
+        'author': author,
+      }, true)
           .then((resp) => {
             res_list = resp.data.res_list
           })
@@ -899,6 +884,7 @@ export default {
 
       if (res_list[0][0]['value'] === 0 && res_list[0][1]['value'] === 0) {
         ElMessage({
+          showClose: true,
           message:'喏哦~ 诗人不存在的喔~ 换个人戏一下的喔',
           duration: 5000
         })
@@ -1224,20 +1210,13 @@ export default {
       }
 
       let res_list = []
-      await instance({
-        // /analyze/poetry_statistics?author=苏轼&dynasty=宋代&num=10&mode=1
-        url: 'analyze/word_list',
-        method: 'get',
-        headers: {
-          // 'Authorization': "Bearer " + store.state.user.access,
-        },
-        params: {
-          'word_list': the_word_list.join(' '),
-          'dynasty': trans[dynasty3_value.value]['dynasty'],
-          'shici': trans[dynasty3_value.value]['shici'],
-          'author': author,
-        },
-      })
+
+      await get('analyze/word_list', {
+        'word_list': the_word_list.join(' '),
+        'dynasty': trans[dynasty3_value.value]['dynasty'],
+        'shici': trans[dynasty3_value.value]['shici'],
+        'author': author,
+      }, true)
           .then((resp) => {
             res_list = resp.data.word_list
           })
@@ -1400,15 +1379,9 @@ export default {
       if (phrase_value.value === 0) kwargs['word_len'] = 1
       else if (phrase_value.value === 1) kwargs['word_len'] = 2
 
-      await instance({
-        // /analyze/poetry_statistics?author=苏轼&dynasty=宋代&num=10&mode=1
-        url: 'analyze/word_frequency',
-        method: 'get',
-        headers: {
-          // 'Authorization': "Bearer " + store.state.user.access,
-        },
-        params: kwargs,
-      })
+
+
+      await get('analyze/word_frequency', kwargs, true)
           .then((resp) => {
             word_list = resp.data.word_list
           })
@@ -1570,19 +1543,12 @@ export default {
       }
 
       console.log(author)
-      await instance({
-        // /analyze/rhythmic_statistics?author=苏轼&dynasty=宋代&num=10
-        url: 'analyze/rhythmic_statistics',
-        method: 'get',
-        headers: {
-          // 'Authorization': "Bearer " + store.state.user.access,
-        },
-        params: {
-          'num': rhythmic_num_value.value,
-          'dynasty': dynasty5_value.value,
-          'author': author,
-        },
-      })
+
+      await get('analyze/rhythmic_statistics', {
+        'num': rhythmic_num_value.value,
+        'dynasty': dynasty5_value.value,
+        'author': author,
+      }, true)
       .then((resp) => {
         word_list = resp.data.word_list
       })
@@ -1673,7 +1639,6 @@ export default {
     }
 
 
-
     onMounted(async() => {
       let num = Number(author_num.value);
       if (!(num >= 5 && num <= 20)) {
@@ -1698,26 +1663,13 @@ export default {
         'jue': jue_value.value,
         'three_hundred': three_hundred,
       }
-
-      await instance({
-        url: 'analyze/author_output',
-        method:'get',
-        headers: {
-          // 'Authorization': "Bearer " + store.state.user.access,
-        },
-        params: kwargs,
+      await get('analyze/author_output', kwargs, true)
+      .then((resp) => {
+        res_list = resp.data.res_list
       })
-          .then((resp) => {
-            res_list = resp.data.res_list
-            /*for (let i = 0; i < res_list[0].length; i ++) {
-              x_list.push(res_list[0][i][0])
-              y1_list.push(res_list[0][i][1])
-              y2_list.push(res_list[1][i][1])
-            }*/
-          })
-          .catch((error) => {
-            console.log(error);
-          })
+      .catch((error) => {
+        console.log(error);
+      })
 
 
       let x_list = []
@@ -1743,6 +1695,7 @@ export default {
         },
       }
 
+      if (res_list.length === 0) return false
       for (let i = 0; i < res_list[0].length; i ++) {
         x_list.push(res_list[0][i][0])
       }
@@ -2135,33 +2088,23 @@ export default {
       }
 
       let res_list = []
-      await instance({
-        // /analyze/poetry_statistics?author=苏轼&dynasty=宋代&num=10&mode=1
-        url: 'analyze/poetry_statistics',
-        method: 'get',
-        headers: {
-          // 'Authorization': "Bearer " + store.state.user.access,
-        },
-        params: {
-          'rhyme_num': num,
-          'dynasty': dynasty2_value.value,
-          'author': author,
-        },
-      })
-          .then((resp) => {
-            res_list = resp.data.res_list
-          })
-          .catch((error) => {
-            console.log(error);
-          })
 
-      if (res_list[0][0]['value'] === 0 && res_list[0][1]['value'] === 0) {
-        ElMessage({
-          message:'喏哦~ 诗人不存在的喔~ 换个人戏一下的喔',
-          duration: 5000
-        })
+      await get('analyze/poetry_statistics', {
+        'rhyme_num': num,
+        'dynasty': dynasty2_value.value,
+        'author': author,
+      }, true)
+      .then((resp) => {
+        res_list = resp.data.res_list
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+
+      if (res_list.length === 0) {
         return false
       }
+
       let search = (author === '' ? dynasty2_value.value : author)
       const my_echart = echarts.init(pie_echart.value, 'white', {renderer: 'canvas'})
 
@@ -2342,26 +2285,19 @@ export default {
       }
 
       let res_list = []
-      await instance({
-        // /analyze/poetry_statistics?author=苏轼&dynasty=宋代&num=10&mode=1
-        url: 'analyze/word_list',
-        method: 'get',
-        headers: {
-          // 'Authorization': "Bearer " + store.state.user.access,
-        },
-        params: {
-          'word_list': the_word_list.join(' '),
-          'dynasty': trans[dynasty3_value.value]['dynasty'],
-          'shici': trans[dynasty3_value.value]['shici'],
-          'author': author,
-        },
+
+      await get('analyze/word_list', {
+        'word_list': the_word_list.join(' '),
+        'dynasty': trans[dynasty3_value.value]['dynasty'],
+        'shici': trans[dynasty3_value.value]['shici'],
+        'author': author,
+      }, true)
+      .then((resp) => {
+        res_list = resp.data.word_list
       })
-          .then((resp) => {
-            res_list = resp.data.word_list
-          })
-          .catch((error) => {
-            console.log(error);
-          })
+      .catch((error) => {
+        console.log(error);
+      })
 
       let search = ''
       if (dynasty3_value.value == 0) search = '毛泽东诗词';
@@ -2430,21 +2366,15 @@ export default {
       if (phrase_value.value === 0) kwargs['word_len'] = 1
       else if (phrase_value.value === 1) kwargs['word_len'] = 2
 
-      await instance({
-        // /analyze/poetry_statistics?author=苏轼&dynasty=宋代&num=10&mode=1
-        url: 'analyze/word_frequency',
-        method: 'get',
-        headers: {
-          // 'Authorization': "Bearer " + store.state.user.access,
-        },
-        params: kwargs,
+
+      // await get('analyze/word_frequency', kwargs, false)
+      await get('analyze/word_frequency', kwargs, true)
+      .then((resp) => {
+        word_list = resp.data.word_list
       })
-          .then((resp) => {
-            word_list = resp.data.word_list
-          })
-          .catch((error) => {
-            console.log(error);
-          })
+      .catch((error) => {
+        console.log(error);
+      })
 
       const my_echart = echarts.init(wc_echart.value, 'white', {renderer: 'canvas'})
 
@@ -2519,6 +2449,7 @@ export default {
 
     });
 
+
     onMounted(async() => {
       let word_list = []
       let author = reserved_chinese_word(author5_input.value)
@@ -2531,31 +2462,20 @@ export default {
         })
       }
 
-      await instance({
-        // /analyze/rhythmic_statistics?author=苏轼&dynasty=宋代&num=10
-        url: 'analyze/rhythmic_statistics',
-        method: 'get',
-        headers: {
-          // 'Authorization': "Bearer " + store.state.user.access,
-        },
-        params: {
-          'num': rhythmic_num_value.value,
-          'dynasty': dynasty5_value.value,
-          'author': author,
-        },
+      await get('analyze/rhythmic_statistics', {
+        'num': rhythmic_num_value.value,
+        'dynasty': dynasty5_value.value,
+        'author': author,
+      }, true)
+
+      .then((resp) => {
+        word_list = resp.data.word_list
       })
-          .then((resp) => {
-            word_list = resp.data.word_list
-          })
-          .catch((error) => {
-            console.log(error);
-          })
+      .catch((error) => {
+        console.log(error);
+      })
 
       if (word_list.length === 0) {
-        ElMessage({
-          message:'喏哦~ 词人不存在的喔~ 换个人戏一下的喔',
-          duration: 5000
-        })
         return false
       }
 
