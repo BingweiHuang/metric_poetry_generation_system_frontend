@@ -4,10 +4,12 @@
     <el-row justify="center" align="middle">
       <el-col :xl="4" :lg="4" :md="2" :sm="0" :xs="0"></el-col>
 
-      <el-col :xl="16" :lg="16" :md="20" :sm="23" :xs="23">
+      <el-col :xl="16" :lg="16" :md="20" :sm="24" :xs="24">
+        <!-- 1.作者产量排行 柱状图分析 -->
+        <!-- 检索条件1 -->
         <el-row justify="center" align="middle" :gutter="0">
 
-          <el-col :xl="10" :lg="10" :md="10" :sm="10" :xs="9">
+          <el-col :xl="10" :lg="10" :md="10" :sm="10" :xs="10">
             <!--            <el-select size="large" v-model="dynasty_value">
                           <el-option
                               v-for="item in dynasty_options"
@@ -32,6 +34,7 @@
           </el-col>
 
         </el-row>
+        <!-- 检索条件2 -->
         <el-row justify="center" align="middle" :gutter="0" v-if="dynasty_value && (dynasty_value[0] === '唐诗' || dynasty_value[0] === '宋诗')">
 
           <el-col :xl="7" :lg="7" :md="7" :sm="7" :xs="7">
@@ -45,7 +48,7 @@
             </el-select>
 
           </el-col>
-          <el-col :xl="7" :lg="7" :md="7" :sm="7" :xs="7">
+          <el-col :xl="8" :lg="8" :md="8" :sm="8" :xs="8">
 
             <el-select size="large" v-model="yan_value" @change="yan_value_change">
               <el-option
@@ -75,11 +78,14 @@
           </el-col>
 
         </el-row>
+        <!-- 作者产量排行柱状图 -->
         <div  ref="bar_echart" style="width:100%; height:600px;background-color: white;"></div>
 
+        <!-- 2.朝代、诗人 诗作用韵和种类 饼图分析 -->
+        <!-- 检索条件 -->
         <el-row justify="center" align="middle" :gutter="0" style="margin-bottom: 10px">
 
-          <el-col :xl="7" :lg="7" :md="6" :sm="6" :xs="6">
+          <el-col :xl="7" :lg="7" :md="7" :sm="7" :xs="7">
             <el-select size="large" v-model="dynasty2_value" @change="dynasty2_change">
               <!--              <template #prefix>诗:</template>-->
               <el-option
@@ -91,12 +97,12 @@
             </el-select>
           </el-col>
 
-          <el-col :xl="7" :lg="7" :md="6" :sm="6" :xs="6">
+          <el-col :xl="7" :lg="7" :md="7" :sm="7" :xs="7">
             <el-input size="large" v-model="author2_input" :disabled="author2_input_disable" placeholder="诗人(选填)" clearable>
             </el-input >
           </el-col>
 
-          <el-col :xl="7" :lg="7" :md="6" :sm="6" :xs="6">
+          <el-col :xl="7" :lg="7" :md="7" :sm="7" :xs="6">
             <el-input size="large" v-model="rhyme_num" placeholder="显示韵脚数" clearable>
               <!--              <template #prefix>
                               韵脚数:
@@ -110,12 +116,16 @@
           </el-col>
 
         </el-row>
+        <!-- 诗作用韵分析饼图 -->
         <div  ref="pie_echart" style="width:100%; height:400px;background-color: white;"></div>
+        <!-- 诗作种类分析饼图 -->
         <div  ref="pie2_echart" style="width:100%; height:400px;background-color: white;"></div>
 
+        <!-- 3.朝代、作者 诗词用词 饼图分析 -->
+        <!-- 检索条件1 -->
         <el-row justify="center" align="middle" :gutter="0" style="margin-bottom: 10px">
 
-          <el-col :xl="10" :lg="10" :md="10" :sm="10" :xs="9">
+          <el-col :xl="10" :lg="10" :md="10" :sm="10" :xs="10">
             <el-select size="large" v-model="dynasty3_value" @change="dynasty3_change">
               <!--              <template #prefix>诗:</template>-->
               <el-option
@@ -127,16 +137,25 @@
             </el-select>
           </el-col>
 
-          <el-col :xl="10" :lg="10" :md="10" :sm="10" :xs="9">
+          <el-col :xl="11" :lg="11" :md="11" :sm="11" :xs="10" v-if="dynasty3_value === 1">
+            <el-select size="large" v-model="author3_input">
+              <el-option label="纳兰性德" value="纳兰性德"/>
+              <el-option label="王国维" value="王国维"/>
+            </el-select>
+          </el-col>
+
+          <el-col :xl="11" :lg="11" :md="11" :sm="11" :xs="10" v-else>
             <el-input size="large" v-model="author3_input" :disabled="author3_input_disable" placeholder="诗人(选填)" clearable>
             </el-input >
           </el-col>
+
 
           <el-col :xl="2" :lg="2" :md="2" :sm="2" :xs="3">
             <el-button size="large" :icon="Search" @click="word_list_search" />
           </el-col>
 
         </el-row>
+        <!-- 检索条件2 -->
         <el-row justify="center" align="middle" :gutter="0" style="margin-bottom: 10px">
 
           <el-col :xl="23" :lg="23" :md="23" :sm="23" :xs="23">
@@ -145,11 +164,14 @@
           </el-col>
 
         </el-row>
+        <!-- 诗词用词饼图 -->
         <div  ref="pie3_echart" style="width:100%; height:400px;background-color: white;"></div>
 
+        <!-- 4.朝代、作者 用词 词云分析 -->
+        <!-- 检索条件1 -->
         <el-row justify="center" align="middle" :gutter="0" style="margin-bottom: 10px">
 
-          <el-col :xl="7" :lg="7" :md="6" :sm="6" :xs="6">
+          <el-col :xl="8" :lg="8" :md="8" :sm="8" :xs="8">
             <el-select size="large" v-model="dynasty4_value">
               <!--              <template #prefix>诗:</template>-->
               <el-option
@@ -161,7 +183,7 @@
             </el-select>
           </el-col>
 
-          <el-col :xl="7" :lg="7" :md="6" :sm="6" :xs="6">
+          <el-col :xl="7" :lg="7" :md="7" :sm="7" :xs="7">
             <el-select size="large" v-model="phrase_value">
               <!--              <template #prefix>诗:</template>-->
               <el-option
@@ -173,7 +195,7 @@
             </el-select>
           </el-col>
 
-          <el-col :xl="7" :lg="7" :md="6" :sm="6" :xs="6">
+          <el-col :xl="6" :lg="6" :md="6" :sm="6" :xs="5">
             <el-select size="large" v-model="word_num_value">
               <!--              <template #prefix>诗:</template>-->
               <el-option
@@ -190,11 +212,14 @@
           </el-col>
 
         </el-row>
+        <!-- 用词词云 -->
         <div  ref="wc_echart" style="width:100%; height:600px;background-color: white; margin-bottom: 20px"></div>
 
+        <!-- 5.词牌名 词云分析 -->
+        <!-- 检索条件1 -->
         <el-row justify="center" align="middle" :gutter="0" style="margin-bottom: 10px">
 
-          <el-col :xl="7" :lg="7" :md="6" :sm="6" :xs="6">
+          <el-col :xl="8" :lg="8" :md="8" :sm="8" :xs="8">
             <el-select size="large" v-model="dynasty5_value" @change="dynasty5_change">
               <!--              <template #prefix>诗:</template>-->
               <el-option
@@ -206,12 +231,12 @@
             </el-select>
           </el-col>
 
-          <el-col :xl="7" :lg="7" :md="6" :sm="6" :xs="6">
+          <el-col :xl="7" :lg="7" :md="7" :sm="7" :xs="7">
             <el-input size="large" v-model="author5_input" :disabled="author5_input_disable" placeholder="词人" clearable>
             </el-input >
           </el-col>
 
-          <el-col :xl="7" :lg="7" :md="6" :sm="6" :xs="6">
+          <el-col :xl="6" :lg="6" :md="6" :sm="6" :xs="5">
             <el-select size="large" v-model="rhythmic_num_value">
               <!--              <template #prefix>诗:</template>-->
               <el-option
@@ -228,12 +253,14 @@
           </el-col>
 
         </el-row>
+        <!-- 词牌名词云 -->
         <div  ref="wc2_echart" style="width:100%; height:600px;background-color: white; margin-bottom: 20px"></div>
 
       </el-col>
 
       <el-col :xl="4" :lg="4" :md="2" :sm="0" :xs="0"></el-col>
     </el-row>
+
   </div>
 </template>
 
@@ -412,7 +439,7 @@ export default {
         'three_hundred': three_hundred,
       }
 
-      await get('analyze/author_output', kwargs, true)
+      await get('analyze/author_output', kwargs, false)
       .then((resp) => {
         res_list = resp.data.res_list
       })
@@ -829,6 +856,10 @@ export default {
         value: '近现代',
         label: '近现代诗',
       },
+      {
+        value: '不限朝代',
+        label: '不限朝代',
+      },
     ])
     const dynasty2_value = ref('近现代')
     const author2_input = ref('毛泽东')
@@ -840,6 +871,9 @@ export default {
     const dynasty2_change = () => {
       if (dynasty2_value.value === '近现代') {
         author2_input.value = '毛泽东'
+        author2_input_disable.value = true
+      } else if (dynasty2_value.value === '不限朝代'){
+        author2_input.value = ''
         author2_input_disable.value = true
       } else {
         author2_input.value = ''
@@ -874,7 +908,7 @@ export default {
         'rhyme_num': num,
         'dynasty': dynasty2_value.value,
         'author': author,
-      }, true)
+      }, false)
           .then((resp) => {
             res_list = resp.data.res_list
           })
@@ -908,7 +942,7 @@ export default {
           show: true,
           feature: {
             dataView: { show: true, readOnly: true },
-            restore: { show: true },
+            // restore: { show: true },
             saveAsImage: { show: true }
           }
         },
@@ -963,7 +997,7 @@ export default {
           show: true,
           feature: {
             dataView: { show: true, readOnly: true },
-            restore: { show: true },
+            // restore: { show: true },
             saveAsImage: { show: true }
           }
         },
@@ -1022,7 +1056,7 @@ export default {
           show: true,
           feature: {
             dataView: { show: true, readOnly: true },
-            restore: { show: true },
+            // restore: { show: true },
             saveAsImage: { show: true }
           }
         },
@@ -1163,7 +1197,6 @@ export default {
         author3_input_disable.value = true
       } else if (dynasty3_value.value === 1) {
         author3_input.value = '纳兰性德'
-        author3_input_disable.value = true
       } else if (dynasty3_value.value === 6) {
         author3_input.value = ''
         author3_input_disable.value = true
@@ -1216,7 +1249,7 @@ export default {
         'dynasty': trans[dynasty3_value.value]['dynasty'],
         'shici': trans[dynasty3_value.value]['shici'],
         'author': author,
-      }, true)
+      }, false)
           .then((resp) => {
             res_list = resp.data.word_list
           })
@@ -1241,7 +1274,7 @@ export default {
           show: true,
           feature: {
             dataView: { show: true, readOnly: true },
-            restore: { show: true },
+            // restore: { show: true },
             saveAsImage: { show: true }
           }
         },
@@ -1303,6 +1336,10 @@ export default {
       {
         value: 5,
         label: '唐诗',
+      },
+      {
+        value: 6,
+        label: '王国维词',
       },
       {
         value: -1,
@@ -1381,7 +1418,7 @@ export default {
 
 
 
-      await get('analyze/word_frequency', kwargs, true)
+      await get('analyze/word_frequency', kwargs, false)
           .then((resp) => {
             word_list = resp.data.word_list
           })
@@ -1401,7 +1438,7 @@ export default {
           show: true,
           feature: {
             dataView: { show: true, readOnly: true },
-            restore: { show: true },
+            // restore: { show: true },
             saveAsImage: { show: true }
           }
         },
@@ -1519,8 +1556,8 @@ export default {
         author5_input.value = '毛泽东'
         author5_input_disable.value = true
       } else if (dynasty5_value.value === '清代') {
-        author5_input.value = '纳兰性德'
-        author5_input_disable.value = true
+        author5_input.value = ''
+        author5_input_disable.value = false
       } else if (dynasty5_value.value === '不限') {
         author5_input.value = ''
         author5_input_disable.value = true
@@ -1548,7 +1585,7 @@ export default {
         'num': rhythmic_num_value.value,
         'dynasty': dynasty5_value.value,
         'author': author,
-      }, true)
+      }, false)
       .then((resp) => {
         word_list = resp.data.word_list
       })
@@ -1577,7 +1614,7 @@ export default {
           show: true,
           feature: {
             dataView: { show: true, readOnly: true },
-            restore: { show: true },
+            // restore: { show: true },
             saveAsImage: { show: true }
           }
         },
@@ -1663,7 +1700,7 @@ export default {
         'jue': jue_value.value,
         'three_hundred': three_hundred,
       }
-      await get('analyze/author_output', kwargs, true)
+      await get('analyze/author_output', kwargs, false)
       .then((resp) => {
         res_list = resp.data.res_list
       })
@@ -2020,7 +2057,7 @@ export default {
           show: true,
           feature: {
             dataView: { show: true, readOnly: true },
-            // restore: { show: true },
+            // // restore: { show: true },
             saveAsImage: { show: true }
           }
         },
@@ -2093,7 +2130,7 @@ export default {
         'rhyme_num': num,
         'dynasty': dynasty2_value.value,
         'author': author,
-      }, true)
+      }, false)
       .then((resp) => {
         res_list = resp.data.res_list
       })
@@ -2120,7 +2157,7 @@ export default {
           show: true,
           feature: {
             dataView: { show: true, readOnly: true },
-            restore: { show: true },
+            // restore: { show: true },
             saveAsImage: { show: true }
           }
         },
@@ -2180,7 +2217,7 @@ export default {
           show: true,
           feature: {
             dataView: { show: true, readOnly: true },
-            restore: { show: true },
+            // restore: { show: true },
             saveAsImage: { show: true }
           }
         },
@@ -2291,7 +2328,7 @@ export default {
         'dynasty': trans[dynasty3_value.value]['dynasty'],
         'shici': trans[dynasty3_value.value]['shici'],
         'author': author,
-      }, true)
+      }, false)
       .then((resp) => {
         res_list = resp.data.word_list
       })
@@ -2316,7 +2353,7 @@ export default {
           show: true,
           feature: {
             dataView: { show: true, readOnly: true },
-            restore: { show: true },
+            // restore: { show: true },
             saveAsImage: { show: true }
           }
         },
@@ -2368,7 +2405,7 @@ export default {
 
 
       // await get('analyze/word_frequency', kwargs, false)
-      await get('analyze/word_frequency', kwargs, true)
+      await get('analyze/word_frequency', kwargs, false)
       .then((resp) => {
         word_list = resp.data.word_list
       })
@@ -2388,7 +2425,7 @@ export default {
           show: true,
           feature: {
             dataView: { show: true, readOnly: true },
-            restore: { show: true },
+            // restore: { show: true },
             saveAsImage: { show: true }
           }
         },
@@ -2466,7 +2503,7 @@ export default {
         'num': rhythmic_num_value.value,
         'dynasty': dynasty5_value.value,
         'author': author,
-      }, true)
+      }, false)
 
       .then((resp) => {
         word_list = resp.data.word_list
@@ -2491,7 +2528,7 @@ export default {
           show: true,
           feature: {
             dataView: { show: true, readOnly: true },
-            restore: { show: true },
+            // restore: { show: true },
             saveAsImage: { show: true }
           }
         },

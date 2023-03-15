@@ -2,11 +2,15 @@
 
   <div>
 
+    <!-- 检索条件输入 -->
     <el-row>
       <el-col :xl="2" :lg="2" :md="2" :sm="2" :xs="0">
 
       </el-col>
+
       <el-col :xl="20" :lg="20" :md="20" :sm="20" :xs="24">
+
+        <!-- 检索条件1 -->
         <el-row justify="center" align="middle" :gutter="0">
           <el-col :span="8">
             <el-cascader size="large" v-model="poetry_dynasty_value" :options="poetry_dynasty_options" @change="handleChange"
@@ -26,6 +30,7 @@
 
         </el-row>
 
+        <!-- 检索条件2 -->
         <el-row justify="center" align="middle" :gutter="0">
           <el-col :xl="22" :lg="22" :md="22" :sm="20" :xs="20">
             <el-input size="large" v-model="content_input" placeholder="内容，多关键词用空格隔开" clearable>
@@ -38,7 +43,8 @@
 
         </el-row>
 
-        <div  v-if="poetry_dynasty_value && poetry_dynasty_value[0] === 0">
+        <!-- 检索条件3（诗） -->
+        <div  v-if="poetry_dynasty_value && poetry_dynasty_value[0] === 'shi'">
 
           <el-row justify="center" align="middle" :gutter="0">
 
@@ -87,8 +93,13 @@
           </el-row>
         </div>
       </el-col>
+
+      <el-col :xl="2" :lg="2" :md="2" :sm="2" :xs="0">
+
+      </el-col>
     </el-row>
 
+    <!-- 检索结果展示栏 -->
     <div style="min-height: 600px">
       <el-space size="" wrap style="width: 100%; justify-content: center;">
         <!--      <el-col v-for="poetry in poetryList.slice((currentPage - 1) * pageSize, currentPage * pageSize)" :key="poetry.id">
@@ -106,7 +117,7 @@
       </el-space>
     </div>
 
-
+    <!-- 分页码 -->
     <el-pagination
         class="my-el-pagination"
         background
@@ -148,53 +159,57 @@ export default {
   setup() {
     const poetry_dynasty_options = ref([
       {
-        value: 0,
+        value: 'shi',
         label: '诗',
         children: [
           {
-            value: 0,
+            value: '唐代',
             label: '唐代',
           },
           {
-            value: 4,
+            value: '三百首',
             label: '唐诗三百首',
           },
           {
-            value: 1,
+            value: '宋代',
             label: '宋代',
           },
           {
-            value: 2,
-            label: '其他朝代',
+            value: '近现代',
+            label: '近现代',
           },
           {
-            value: 3,
+            value: '不限朝代',
             label: '不限朝代',
           },
         ]
       },
       {
-        value: 1,
+        value: 'ci',
         label: '词',
         children: [
           {
-            value: 0,
+            value: '五代',
             label: '五代',
           },
           {
-            value: 1,
+            value: '宋代',
             label: '宋代',
           },
           {
-            value: 4,
+            value: '三百首',
             label: '宋词三百首',
           },
           {
-            value: 2,
-            label: '其他朝代',
+            value: '清代',
+            label: '清代',
           },
           {
-            value: 3,
+            value: '近现代',
+            label: '近现代',
+          },
+          {
+            value: '不限朝代',
             label: '不限朝代',
           }
         ]
@@ -299,34 +314,18 @@ export default {
         return false
       }
 
-      shici.value = poetry_dynasty_value.value[0] === 0 ? 'shi' : 'ci'
-      let dynasty = poetry_dynasty_value.value[1]
+      shici.value = poetry_dynasty_value.value[0]
+      const dynasty = poetry_dynasty_value.value[1]
 
       console.log(shici.value, dynasty)
 
-      let query_url = shici.value // 需要发送axios请求的url
+      const query_url = "poetry/" + shici.value // 需要发送axios请求的url
       let kwargs: any = {};
 
-
-      if (dynasty === 0) {
-        if (shici.value === 'shi') { // 唐诗
-          query_url += '/tangshi'
-        } else if (shici.value === 'ci') { // 五代词
-          query_url += '/wudaici'
-        }
-      } else if (dynasty === 1) { // 宋代
-        query_url += '/song' + shici.value
-      } else if (dynasty === 2) { // 其他朝代
-        query_url += '/other' + shici.value
-      } else if (dynasty === 3) { // 所有朝代
-        query_url += '/all' + shici.value
-      } else if (dynasty === 4) { // 三百首
+      if (dynasty === '三百首') {
         kwargs['three_hundred'] = 1
-        if (shici.value === 'ci') { // 宋词三百首
-          query_url += '/songci'
-        } else if (shici.value === 'shi') { // 唐诗三百首
-          query_url += '/tangshi'
-        }
+      } else if (dynasty !== '不限朝代') {
+        kwargs['dynasty'] = dynasty
       }
 
       poetryList.value = [];

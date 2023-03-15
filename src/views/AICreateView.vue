@@ -6,16 +6,24 @@
     </el-col>
     <el-col :xl="14" :lg="14" :md="16" :sm="19" :xs="23">
 
+      <!-- LSTM模型 -->
       <el-card class="box-card" style="margin-bottom: 10px">
+        <!-- 标题 -->
         <div style="text-align: center; width: 100%; font-weight: bold; font-size: 18px">LSTM</div>
+
+        <!-- 生成诗文结果展示 -->
         <div class="card-body ai_content">
           <el-card class="box-card mx-card" shadow="never" v-loading="lstm_loading">
+
+            <!-- 空状态 -->
             <div v-if="lstm_display_state === 0">
               <div style="text-align: center; width: 100%">我是一个无情的作诗机器~</div>
             </div>
-            <div v-else-if="lstm_display_state === 1">
 
-            </div>
+            <!-- 作诗状态 -->
+            <div v-else-if="lstm_display_state === 1"></div>
+
+            <!-- 展示状态 -->
             <div v-else-if="lstm_display_state === 2">
               <div v-for="(poem, index) in lstmCreateList" :key="index">
                 <div v-if="poem[0] === 0">没有限制押韵</div>
@@ -27,6 +35,7 @@
 
         </div>
 
+        <!-- 选项 -->
         <el-row justify="center" align="middle" :gutter="30">
           <el-col :span="5">
             <el-switch v-model="yan" size="large" inline-prompt style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" active-text="七言" inactive-text="五言"/>
@@ -43,7 +52,6 @@
             </el-tooltip>
           </el-col>
         </el-row>
-
         <el-row justify="center" align="middle" :gutter="30">
           <el-col :span="10">
             <el-select v-model="use_rhyme" placeholder="选韵表" style="">
@@ -60,7 +68,6 @@
             </el-select>
           </el-col>
         </el-row>
-
         <el-row justify="center" align="middle" :gutter="30">
           <el-col :span="12">
             <el-input style="" v-model="text" placeholder="不用管标点符号" clearable>
@@ -77,16 +84,24 @@
 
       </el-card>
 
+      <!-- GPT2模型 -->
       <el-card class="box-card" >
+        <!-- 标题 -->
         <div style="text-align: center; width: 100%; font-weight: bold; font-size: 18px">GPT2</div>
+
+        <!-- 生成诗文结果展示 -->
         <div class="card-body ai_content">
           <el-card class="box-card mx-card" shadow="never" v-loading="gpt2_loading">
+
+            <!-- 空状态 -->
             <div v-if="gpt2_display_state === 0">
               <div style="text-align: center; width: 100%">我是一个无情但有素的作诗机器~</div>
             </div>
-            <div v-else-if="gpt2_display_state === 1">
 
-            </div>
+            <!-- 作诗状态 -->
+            <div v-else-if="gpt2_display_state === 1"></div>
+
+            <!-- 展示状态 -->
             <div v-else-if="gpt2_display_state === 2">
               <div v-for="(poem, index) in gpt2CreateList" :key="index">
                 <div v-if="poem[0] === 0">没有限制押韵</div>
@@ -98,6 +113,7 @@
 
         </div>
 
+        <!-- 选项 -->
         <el-row justify="center" align="middle" :gutter="30">
           <el-col :span="5">
             <el-switch v-model="yan2" size="large" inline-prompt style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" active-text="七言" inactive-text="五言"/>
@@ -114,7 +130,6 @@
             </el-tooltip>
           </el-col>
         </el-row>
-
         <el-row justify="center" align="middle" :gutter="30">
           <el-col :span="10">
             <el-select v-model="use_rhyme2" placeholder="选韵表" style="">
@@ -131,7 +146,6 @@
             </el-select>
           </el-col>
         </el-row>
-
         <el-row justify="center" align="middle" :gutter="30">
           <el-col :span="12">
             <el-input style="" v-model="text2" placeholder="不用管标点符号" clearable>
@@ -145,6 +159,7 @@
                         </el-col>-->
 
         </el-row>
+
       </el-card>
 
     </el-col>
@@ -218,7 +233,8 @@
   text-align: center;
 }
 .ai_create_poetry {
-  //font-family: '华文楷体';
+  font-family:Georgia,"Nimbus Roman No9 L","Songti SC",STSong,"AR PL New Sung","AR PL SungtiL GB",NSimSun,SimSun,"TW\-Sung","WenQuanYi Bitmap Song","AR PL UMing CN","AR PL UMing HK","AR PL UMing TW","AR PL UMing TW MBE",sans-serif;
+
   font-size: 18px;
 }
 

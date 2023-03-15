@@ -5,25 +5,26 @@
     <el-col :xl="14" :lg="16" :md="20" :sm="22" :xs="24">
 
       <!-- 规则-作品栏 -->
-      <el-card class="my">
+      <div class="my">
+        <el-card >
 
-        <!-- 头部 -->
-        <el-row style="margin-top: 5px">
-          <el-col :span="11">
-            <div style="text-align: center; font-size: 18px; font-weight: bold">规则</div>
-          </el-col>
+          <!-- 头部 -->
+          <el-row style="margin-top: 5px">
+            <el-col :span="11">
+              <div style="text-align: center; font-size: 18px; font-weight: bold">规则</div>
+            </el-col>
 
-          <el-col :span="13">
-            <div style="text-align: center; font-size: 18px; font-weight: bold">{{detect_text === '' ? '例子' : '作品'}}</div>
-          </el-col>
+            <el-col :span="13">
+              <div style="text-align: center; font-size: 18px; font-weight: bold">{{detect_text === '' ? '例子' : '作品'}}</div>
+            </el-col>
 
-        </el-row>
+          </el-row>
 
-        <!-- 身体 -->
-        <el-row style="font-size: 20px; height: 220px">
-          <!-- 平仄规则展示 -->
-          <el-col :span="11" style="text-align: center;">
-            <div v-for="(tone_sen, index1) in tones.split('/')" :key="index1">
+          <!-- 身体 -->
+          <el-row style="font-size: 20px; height: 220px">
+            <!-- 平仄规则展示 -->
+            <el-col :span="11" style="text-align: center;">
+              <div v-for="(tone_sen, index1) in tones.split('/')" :key="index1">
               <span v-for="(tone, index2) in tone_sen" :key="index1-index2">
                 <span v-if="tone === '0' && index2 === (yan ? 7 : 5) - 1">
                   <span style="color: #EA3323">平</span>
@@ -41,32 +42,31 @@
                   <span style="color: #AAAAAA">仄</span>
                 </span>
               </span>
-              <span>{{(index1 % 2) === 1 ? '。' : '，'}}</span>
-            </div>
-          </el-col>
-
-
-          <el-col :span="13">
-
-            <!-- 格律诗例子 -->
-            <div style="font-size: 20px; text-align: center" v-if="detect_text === ''">
-              <div v-for="(sen, index) in example_poetry" :key="index">
-                {{sen}}
+                <span>{{(index1 % 2) === 1 ? '。' : '，'}}</span>
               </div>
-              <!--              <div>剑外忽传收蓟北</div>
-                            <div>初闻涕泪满衣裳</div>
-                            <div>却看妻子愁何在</div>
-                            <div>漫卷诗书喜欲狂</div>
-                            <div>白日放歌须纵酒</div>
-                            <div>青春作伴好还乡</div>
-                            <div>即从巴峡穿巫峡</div>
-                            <div>便下襄阳向洛阳</div>-->
-            </div >
+            </el-col>
 
-            <!-- 检测的作品 -->
-            <el-space  style="align-items: start;">
-              <div style="font-size: 20px; width: 400px">
-                <div v-for="jue_id in jue_list" :key="jue_id">
+
+            <el-col :span="13">
+              <!-- 格律诗例子 -->
+              <div style="font-size: 20px; text-align: center" v-if="detect_text === ''">
+                <div v-for="(sen, index) in example_poetry" :key="index">
+                  {{sen}}
+                </div>
+                <!--              <div>剑外忽传收蓟北</div>
+                              <div>初闻涕泪满衣裳</div>
+                              <div>却看妻子愁何在</div>
+                              <div>漫卷诗书喜欲狂</div>
+                              <div>白日放歌须纵酒</div>
+                              <div>青春作伴好还乡</div>
+                              <div>即从巴峡穿巫峡</div>
+                              <div>便下襄阳向洛阳</div>-->
+              </div >
+
+              <!-- 检测的作品 -->
+              <el-space  style="align-items: start;">
+                <div style="font-size: 20px; width: 400px">
+                  <div v-for="jue_id in jue_list" :key="jue_id">
                   <span v-for="yan_id in yan_list" :key="yan_id">
 
                     <!--如果该字有平仄错误-->
@@ -103,339 +103,137 @@
                       <span>]</span>
                     </span>
                   </span>
+                  </div>
                 </div>
-              </div>
 
-            </el-space>
-          </el-col>
+              </el-space>
+            </el-col>
 
-        </el-row>
+          </el-row>
 
-        <!-- 输入作品栏   -->
-        <el-row>
-          <el-col>
-            <!-- 输入框 -->
-            <el-row justify="center" align="middle">
-              <el-col :span="20">
-                <el-input style=" font-size: 18px; margin-right:20px"
-                          type="textarea" :autosize="{ minRows: 5, maxRows: 5 }"
-                          v-model="text" placeholder="不用管换行">
-                </el-input>
-              </el-col>
-            </el-row>
+          <!-- 输入作品栏   -->
+          <el-row>
+            <el-col>
+              <!-- 输入框 -->
+              <el-row justify="center" align="middle">
+                <el-col :span="20">
+                  <el-input style=" font-size: 18px; margin-right:20px"
+                            type="textarea" :autosize="{ minRows: 5, maxRows: 5 }"
+                            v-model="text" placeholder="不用管换行">
+                  </el-input>
+                </el-col>
+              </el-row>
 
-            <!-- 选择格律诗种类 -->
-            <el-row justify="center" align="middle" :gutter="30">
-              <el-col :span="5">
-                <el-switch v-model="yan" size="large" inline-prompt
-                           style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
-                           active-text="七言" inactive-text="五言" @change="metric_type_change"/>
-              </el-col>
-              <el-col :span="5">
-                <el-switch v-model="jue" size="large" inline-prompt
-                           style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
-                           active-text="绝句" inactive-text="律句" @change="metric_type_change"/>
-              </el-col>
-              <el-col :span="5">
-                <el-switch v-model="qi" size="large" inline-prompt
-                           style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
-                           active-text="平起" inactive-text="仄起" @change="metric_type_change"/>
-              </el-col>
-              <el-col :span="5">
-                <el-tooltip content="首句是否押(入)韵" placement="top">
-                  <el-switch v-model="ru" size="large" inline-prompt
-                             active-text="入韵" inactive-text="不入" @change="metric_type_change"/>
-                </el-tooltip>
-              </el-col>
-            </el-row>
-            <el-row justify="center" align="middle" :gutter="30">
-              <el-col :span="9">
-                <el-select v-model="use_rhyme" class="m-2" placeholder="选韵表" style="width: 100px">
-                  <el-option :key="1" :label="'平水韵'" :value="1"/>
-                  <el-option :key="2" :label="'中华新韵'" :value="2"/>
-                </el-select>
-              </el-col>
-              <el-col :span="7">
-                <el-button type="primary" id="lstm_create_button" @click="metric_detection">开始检测</el-button>
-              </el-col>
+              <!-- 选择格律诗种类 -->
+              <el-row justify="center" align="middle" :gutter="30">
+                <el-col :span="5">
+                  <el-switch v-model="yan" size="large" inline-prompt
+                             style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+                             active-text="七言" inactive-text="五言" @change="metric_type_change"/>
+                </el-col>
+                <el-col :span="5">
+                  <el-switch v-model="jue" size="large" inline-prompt
+                             style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+                             active-text="绝句" inactive-text="律句" @change="metric_type_change"/>
+                </el-col>
+                <el-col :span="5">
+                  <el-switch v-model="qi" size="large" inline-prompt
+                             style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+                             active-text="平起" inactive-text="仄起" @change="metric_type_change"/>
+                </el-col>
+                <el-col :span="5">
+                  <el-tooltip content="首句是否押(入)韵" placement="top">
+                    <el-switch v-model="ru" size="large" inline-prompt
+                               active-text="入韵" inactive-text="不入" @change="metric_type_change"/>
+                  </el-tooltip>
+                </el-col>
+              </el-row>
+              <el-row justify="center" align="middle" :gutter="30">
+                <el-col :span="9">
+                  <el-select v-model="use_rhyme" class="m-2" placeholder="选韵表" style="width: 100px">
+                    <el-option :key="1" :label="'平水韵'" :value="1"/>
+                    <el-option :key="2" :label="'中华新韵'" :value="2"/>
+                  </el-select>
+                </el-col>
+                <el-col :span="7">
+                  <el-button type="primary" id="lstm_create_button" @click="metric_detection">开始检测</el-button>
+                </el-col>
 
-              <el-col :span="4">
-                <el-button link @click="clear_input">清空</el-button>
-              </el-col>
+                <el-col :span="4">
+                  <el-button link @click="clear_input">清空</el-button>
+                </el-col>
 
 
-            </el-row>
-          </el-col>
-        </el-row >
+              </el-row>
+            </el-col>
+          </el-row >
 
-        <!-- 检测结果展示栏 -->
-        <div v-show="detect_text">
-          <div style="display: flex; justify-content: center">
-            <h3 style="margin: 0">检测结果 · {{detect_use_rhyme === 1 ? '平水韵' : '中华新韵'}}</h3>
-          </div>
+          <!-- 检测结果展示栏 -->
+          <div v-show="detect_text">
+            <div style="display: flex; justify-content: center">
+              <h3 style="margin: 0">检测结果 · {{detect_use_rhyme === 1 ? '平水韵' : '中华新韵'}}</h3>
+            </div>
 
-          <div style="display: flex; justify-content: center; margin-top: 5px">
+            <div style="display: flex; justify-content: center; margin-top: 5px">
           <span v-if="rhyme_foot === ''">
             押韵存在问题。
           </span>
-            <span v-if="pz_err_dict && Object.keys(pz_err_dict).length">
+              <span v-if="pz_err_dict && Object.keys(pz_err_dict).length">
             平仄存在{{Object.keys(pz_err_dict).length}}个问题：
           </span>
-            <span v-if="rhyme_foot !== '' && Object.keys(pz_err_dict).length === 0">
+              <span v-if="rhyme_foot !== '' && Object.keys(pz_err_dict).length === 0">
             平仄押韵都符合规则，押韵:<span style="color: #EA3323">{{rhyme_foot}}</span>
           </span>
-          </div>
+            </div>
 
-          <div style="display: flex; justify-content: center; margin-top: 5px">
-            <el-space wrap style="display: flex; justify-content: center;">
+            <div style="display: flex; justify-content: center; margin-top: 5px">
+              <el-space wrap style="display: flex; justify-content: center;">
 
-              <div v-for="(value,key) in pz_err_dict" :key="key">第{{key}}字
-                <span v-if="value === 1" style="color: red">
+                <div v-for="(value,key) in pz_err_dict" :key="key">第{{key}}字
+                  <span v-if="value === 1" style="color: red">
                 {{detect_text[key]}}
               </span>
 
-                <span v-else style="color: blue">
+                  <span v-else style="color: blue">
                 {{detect_text[key]}}
               </span>应{{value === 1 ? '仄' : '平'}}&nbsp;
-              </div>
+                </div>
 
-            </el-space>
-          </div>
+              </el-space>
+            </div>
 
-          <div style="width: 100%; justify-content: center; display: flex; margin-top: 5px" v-if="duo_yin_pos.length">
-            多音字：
-            <span v-for="duo_id in duo_yin_pos" :key="duo_id" style="font-weight: bold">
+            <div style="width: 100%; justify-content: center; display: flex; margin-top: 5px" v-if="duo_yin_pos.length">
+              多音字：
+              <span v-for="duo_id in duo_yin_pos" :key="duo_id" style="font-weight: bold">
             {{detect_text[duo_id]}}&nbsp;
           </span>
-            ，请根据词意判断平仄。
+              ，请根据词意判断平仄。
+            </div>
+
+            <div style="width: 100%; text-align: center; font-size: 16px; margin-top: 5px; color: darkorange" v-if="Object.keys(pz_err_dict).length === 0 && rhyme_foot !== ''">{{arr[arr_idx]}}</div>
           </div>
 
-          <div style="width: 100%; text-align: center; font-size: 16px; margin-top: 5px; color: darkorange" v-if="Object.keys(pz_err_dict).length === 0 && rhyme_foot !== ''">{{arr[arr_idx]}}</div>
-        </div>
-
-        <el-card style="width: 100%; margin-top: 20px" shadow="never" v-show="detect_text">
+          <el-card style="width: 100%; margin-top: 20px" shadow="never" v-show="detect_text">
 
 
+
+          </el-card>
 
         </el-card>
-
-      </el-card>
+      </div>
 
       <!-- 打开韵表 和 说明 -->
-      <el-card class="my">
-
-        <!-- 头部 -->
-        <el-row style="margin-top: 5px">
-          <el-col :span="11">
-            <div style="text-align: center; font-size: 18px; font-weight: bold">规则</div>
-          </el-col>
-
-          <el-col :span="13">
-            <div style="text-align: center; font-size: 18px; font-weight: bold">{{detect_text === '' ? '例子' : '作品'}}</div>
-          </el-col>
-
-        </el-row>
-
-        <!-- 身体 -->
-        <el-row style="font-size: 20px; height: 220px">
-          <!-- 平仄规则展示 -->
-          <el-col :span="11" style="text-align: center;">
-            <div v-for="(tone_sen, index1) in tones.split('/')" :key="index1">
-              <span v-for="(tone, index2) in tone_sen" :key="index1-index2">
-                <span v-if="tone === '0' && index2 === (yan ? 7 : 5) - 1">
-                  <span style="color: #EA3323">平</span>
-                </span>
-                <span v-else-if="tone === '0'">
-                  <span style="color: black">平</span>
-                </span>
-                <span v-else-if="tone === '1'">
-                  <span style="color: black">仄</span>
-                </span>
-                <span v-else-if="tone === 'x'">
-                  <span style="color: #AAAAAA">平</span>
-                </span>
-                <span v-else-if="tone === 'y'">
-                  <span style="color: #AAAAAA">仄</span>
-                </span>
-              </span>
-              <span>{{(index1 % 2) === 1 ? '。' : '，'}}</span>
-            </div>
-          </el-col>
-
-
-          <el-col :span="13">
-
-            <!-- 格律诗例子 -->
-            <div style="font-size: 20px; text-align: center" v-if="detect_text === ''">
-              <div v-for="(sen, index) in example_poetry" :key="index">
-                {{sen}}
-              </div>
-              <!--              <div>剑外忽传收蓟北</div>
-                            <div>初闻涕泪满衣裳</div>
-                            <div>却看妻子愁何在</div>
-                            <div>漫卷诗书喜欲狂</div>
-                            <div>白日放歌须纵酒</div>
-                            <div>青春作伴好还乡</div>
-                            <div>即从巴峡穿巫峡</div>
-                            <div>便下襄阳向洛阳</div>-->
-            </div >
-
-            <!-- 检测的作品 -->
-            <el-space  style="align-items: start;">
-              <div style="font-size: 20px; width: 400px">
-                <div v-for="jue_id in jue_list" :key="jue_id">
-                  <span v-for="yan_id in yan_list" :key="yan_id">
-
-                    <!--如果该字有平仄错误-->
-                    <span v-if="(jue_id * (detect_yan ? 7 : 5) + yan_id) in pz_err_dict">
-
-                      <!--应为仄-->
-                      <span v-if="pz_err_dict[jue_id * (detect_yan ? 7 : 5) + yan_id] === 1" style="color: red">{{detect_text[jue_id * (detect_yan ? 7 : 5) + yan_id]}}
-                      </span>
-
-                      <!--应为平-->
-                      <span v-else style="color: blue">{{detect_text[jue_id * (detect_yan ? 7 : 5) + yan_id]}}
-                      </span>
-                    </span>
-
-                    <!--该字是平仄多音字-->
-                    <span v-else-if="duo_yin_pos.includes(jue_id * (detect_yan ? 7 : 5) + yan_id)" style="font-weight: bold">{{detect_text[jue_id * (detect_yan ? 7 : 5) + yan_id]}}
-                    </span>
-
-                    <!--没什么特殊，那就黑色-->
-                    <span v-else>{{detect_text[jue_id * (detect_yan ? 7 : 5) + yan_id]}}
-                    </span>
-
-                    <!--如果该字是韵脚-->
-                    <span v-if="(jue_id * (detect_yan ? 7 : 5) + yan_id) in yun_pos_dict">
-                      <span>&nbsp;[</span>
-                      <span style="color: #EA3323">
-                        {{yun_pos_dict[jue_id * (detect_yan ? 7 : 5) + yan_id][0]}}
-                      </span>
-                      <span v-for="(yun, index) in yun_pos_dict[jue_id * (detect_yan ? 7 : 5) + yan_id].slice(1)" :key="index">,
-                        <span style="color: #EA3323">
-                          {{yun}}
-                        </span>
-                      </span>
-                      <span>]</span>
-                    </span>
-                  </span>
-                </div>
-              </div>
-
-            </el-space>
-          </el-col>
-
-        </el-row>
-
-        <!-- 输入作品栏   -->
-        <el-row>
-          <el-col>
-            <!-- 输入框 -->
-            <el-row justify="center" align="middle">
-              <el-col :span="20">
-                <el-input style=" font-size: 18px; margin-right:20px"
-                          type="textarea" :autosize="{ minRows: 5, maxRows: 5 }"
-                          v-model="text" placeholder="不用管换行">
-                </el-input>
-              </el-col>
-            </el-row>
-
-            <!-- 选择格律诗种类 -->
-            <el-row justify="center" align="middle" :gutter="30">
-              <el-col :span="5">
-                <el-switch v-model="yan" size="large" inline-prompt
-                           style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
-                           active-text="七言" inactive-text="五言" @change="metric_type_change"/>
-              </el-col>
-              <el-col :span="5">
-                <el-switch v-model="jue" size="large" inline-prompt
-                           style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
-                           active-text="绝句" inactive-text="律句" @change="metric_type_change"/>
-              </el-col>
-              <el-col :span="5">
-                <el-switch v-model="qi" size="large" inline-prompt
-                           style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
-                           active-text="平起" inactive-text="仄起" @change="metric_type_change"/>
-              </el-col>
-              <el-col :span="5">
-                <el-tooltip content="首句是否押(入)韵" placement="top">
-                  <el-switch v-model="ru" size="large" inline-prompt
-                             active-text="入韵" inactive-text="不入" @change="metric_type_change"/>
-                </el-tooltip>
-              </el-col>
-            </el-row>
-            <el-row justify="center" align="middle" :gutter="30">
-              <el-col :span="9">
-                <el-select v-model="use_rhyme" class="m-2" placeholder="选韵表" style="width: 100px">
-                  <el-option :key="1" :label="'平水韵'" :value="1"/>
-                  <el-option :key="2" :label="'中华新韵'" :value="2"/>
-                </el-select>
-              </el-col>
-              <el-col :span="7">
-                <el-button type="primary" id="lstm_create_button" @click="metric_detection">开始检测</el-button>
-              </el-col>
-
-              <el-col :span="4">
-                <el-button link @click="clear_input">清空</el-button>
-              </el-col>
-
-
-            </el-row>
-          </el-col>
-        </el-row >
-
-        <!-- 检测结果展示栏 -->
-        <div v-show="detect_text">
-          <div style="display: flex; justify-content: center">
-            <h3 style="margin: 0">检测结果 · {{detect_use_rhyme === 1 ? '平水韵' : '中华新韵'}}</h3>
+      <el-card style="--el-card-padding: 20px; margin: 10px 0">
+        <div style="width: 100%; justify-content: center; display: flex; margin-bottom: 10px">
+          <div style="font-size: 14px; color: #99a9bf">
+            说明：本系统只提供标准句式的检测。特殊句式、拗救、可变通处请自行判断。
           </div>
-
-          <div style="display: flex; justify-content: center; margin-top: 5px">
-          <span v-if="rhyme_foot === ''">
-            押韵存在问题。
-          </span>
-            <span v-if="pz_err_dict && Object.keys(pz_err_dict).length">
-            平仄存在{{Object.keys(pz_err_dict).length}}个问题：
-          </span>
-            <span v-if="rhyme_foot !== '' && Object.keys(pz_err_dict).length === 0">
-            平仄押韵都符合规则，押韵:<span style="color: #EA3323">{{rhyme_foot}}</span>
-          </span>
-          </div>
-
-          <div style="display: flex; justify-content: center; margin-top: 5px">
-            <el-space wrap style="display: flex; justify-content: center;">
-
-              <div v-for="(value,key) in pz_err_dict" :key="key">第{{key}}字
-                <span v-if="value === 1" style="color: red">
-                {{detect_text[key]}}
-              </span>
-
-                <span v-else style="color: blue">
-                {{detect_text[key]}}
-              </span>应{{value === 1 ? '仄' : '平'}}&nbsp;
-              </div>
-
-            </el-space>
-          </div>
-
-          <div style="width: 100%; justify-content: center; display: flex; margin-top: 5px" v-if="duo_yin_pos.length">
-            多音字：
-            <span v-for="duo_id in duo_yin_pos" :key="duo_id" style="font-weight: bold">
-            {{detect_text[duo_id]}}&nbsp;
-          </span>
-            ，请根据词意判断平仄。
-          </div>
-
-          <div style="width: 100%; text-align: center; font-size: 16px; margin-top: 5px; color: darkorange" v-if="Object.keys(pz_err_dict).length === 0 && rhyme_foot !== ''">{{arr[arr_idx]}}</div>
         </div>
 
-        <el-card style="width: 100%; margin-top: 20px" shadow="never" v-show="detect_text">
-
-
-
-        </el-card>
-
+        <div style="width: 100%; justify-content: center; display: flex; ">
+          <el-button type="primary" @click="open_rhyme_table" v-if="!rhyme_table_show">打开韵表</el-button>
+          <el-button type="primary" @click="close_rhyme_table" v-else>关闭韵表</el-button>
+        </div>
       </el-card>
 
       <!-- 韵表 -->
@@ -658,10 +456,7 @@
   margin-bottom: 18px;
 }
 
-.box-card {
-  width: 500px;
-  //width: 50%;
-}
+
 
 .mx-card {
   height: 220px;

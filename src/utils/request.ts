@@ -11,7 +11,7 @@ const refreshToken = () => {
 const instance = axios.create({
     baseURL: 'http://127.0.0.1:8000',
     // baseURL: 'http://1.12.62.89:8080',
-    timeout: 10000,
+    timeout: 60000,
     headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
     }

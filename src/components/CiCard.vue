@@ -84,7 +84,8 @@ export default {
   text-align: center;
 }
 .poetry-detail-div {
-  font-family: '华文楷体';
+  //font-family: '华文楷体';
+  font-family:Georgia,"Nimbus Roman No9 L","Songti SC",STSong,"AR PL New Sung","AR PL SungtiL GB",NSimSun,SimSun,"TW\-Sung","WenQuanYi Bitmap Song","AR PL UMing CN","AR PL UMing HK","AR PL UMing TW","AR PL UMing TW MBE",sans-serif;
   font-size: 20px;
 }
 

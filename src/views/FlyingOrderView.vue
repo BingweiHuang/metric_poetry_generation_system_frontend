@@ -1,9 +1,13 @@
 <template>
+
   <el-row justify="center" align="middle">
     <el-col :xl="2" :lg="2" :md="2" :sm="2" :xs="0">
 
     </el-col>
+    <!-- 主体页面 -->
     <el-col :xl="20" :lg="20" :md="20" :sm="20" :xs="23">
+
+      <!-- 检索条件1 -->
       <el-row justify="center" align="middle" :gutter="10">
 
         <el-col :xl="8" :lg="8" :md="9" :sm="10" :xs="11">
@@ -20,6 +24,7 @@
 
       </el-row>
 
+      <!-- 检索条件2 -->
       <el-row justify="center" align="middle" :gutter="10">
         <el-col :xl="7" :lg="7" :md="8" :sm="9" :xs="11">
           <el-select size="large" v-model="belong_value" @change="handleChange">
@@ -50,7 +55,9 @@
         </el-col>
 
       </el-row>
-      <el-row justify="center" align="middle" :gutter="10">
+
+      <!-- 检索条件3 -->
+      <el-row justify="center" align="middle" :gutter="10" style="margin-bottom: 10px">
 
         <el-col :xl="7" :lg="7" :md="8" :sm="9" :xs="11">
           <el-select size="large" v-model="poetry_value" @change="handleChange">
@@ -65,49 +72,42 @@
             />
           </el-select>
         </el-col>
-
-
-
         <el-col :xl="7" :lg="7" :md="8" :sm="9" :xs="11">
           <el-button size="large" :icon="Search" @click="poetry_search" />
         </el-col>
 
       </el-row>
+
+      <!-- 展示栏（如果没有搜索结果） -->
+      <div v-if="flyList.length === 0" style="width: 100%;">
+        <el-empty description="浅浅检索一下吧"/>
+      </div>
+
+      <!-- 展示栏（有搜索结果） -->
+      <template v-else>
+
+        <!-- 无限滑动 结果展示 -->
+        <el-scrollbar ref="scrollbarRef" height="600px" always @scroll="scroll">
+          <template v-for="(item, index) in flyList" :key="index">
+            <p  class="scrollbar-demo-item-shi" v-if="Object.keys(item).includes('title')">
+              <!--            {{ item.content }} - {{item.author}} <span class="sheng_lue">《{{item.title}}》</span>-->
+              {{index + 1}}.{{ item.content }}- {{item.author}} 《<template v-for="(word, index2) in item.title.slice(0,7)" :key="index + index2">{{word}}</template><template v-if="item.title.length > 7">...</template>》
+            </p>
+            <p  class="scrollbar-demo-item-ci" v-else>
+              {{index + 1}}.{{ item.content }}- {{item.author}} 《{{item.rhythmic.split('·')[0]}}》
+            </p>
+          </template>
+        </el-scrollbar>
+
+      </template>
+
     </el-col>
+
     <el-col :xl="2" :lg="2" :md="2" :sm="2" :xs="0">
 
     </el-col>
   </el-row>
 
-  <div style="min-height: 600px">
-
-    <div v-if="flyList.length === 0" style="width: 100%;">
-      <el-empty description="浅浅检索一下吧"/>
-    </div>
-
-    <template v-else>
-      <el-row>
-        <el-col :xl="2" :lg="2" :md="2" :sm="2" :xs="0">
-
-        </el-col>
-        <el-col :xl="20" :lg="20" :md="20" :sm="20" :xs="24">
-          <el-scrollbar ref="scrollbarRef" height="600px" always @scroll="scroll">
-            <template v-for="(item, index) in flyList" :key="index">
-              <p  class="scrollbar-demo-item-shi" v-if="Object.keys(item).includes('title')">
-                <!--            {{ item.content }} - {{item.author}} <span class="sheng_lue">《{{item.title}}》</span>-->
-                {{index + 1}}.{{ item.content }}- {{item.author}} 《<template v-for="(word, index2) in item.title.slice(0,7)" :key="index + index2">{{word}}</template><template v-if="item.title.length > 7">...</template>》
-              </p>
-              <p  class="scrollbar-demo-item-ci" v-else>
-                {{index + 1}}.{{ item.content }}- {{item.author}} 《{{item.rhythmic.split('·')[0]}}》
-              </p>
-            </template>
-
-          </el-scrollbar>
-        </el-col>
-      </el-row>
-
-    </template>
-  </div>
 </template>
 
 <script lang="ts">
@@ -428,7 +428,7 @@ export default {
 
 <style lang="scss" scoped>
 .el-row {
-  margin-bottom: 10px;
+  margin-bottom: 0px;
 }
 
 .my-el-pagination {

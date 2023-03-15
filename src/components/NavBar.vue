@@ -15,7 +15,8 @@
 
 
 -->
-  <!-- 小窗隐藏 -->
+
+  <!-- 小窗隐藏 web端显示 -->
   <div class="hidden-md-and-down">
     <el-row style="height: 58px">
       <el-col :span="4"></el-col>
@@ -65,7 +66,7 @@
 
   </div>
 
-  <!-- 大窗隐藏 -->
+  <!-- 大窗隐藏 移动端显示 -->
   <div class="hidden-lg-and-up">
 
     <el-row style="height: 58px">
@@ -73,7 +74,7 @@
 
       <el-col :xl="16" :lg="16" :md="18" :sm="20" :xs="24">
         <el-menu router
-                 :default-active="activeIndex2"
+                 default-active="/"
                  class="el-menu-demo"
                  mode="horizontal"
                  background-color="#2775B6"
@@ -121,6 +122,7 @@
 
   </div>
 
+  <!-- 登陆注册框 -->
   <div class="my-dialog">
     <el-dialog v-model="dialogFormVisible" :title="form_state">
       <el-form :model="form" :rules="rules" ref="dom">
@@ -182,10 +184,6 @@
   </div>
 
 
-
-
-
-
 </template>
 
 <script lang="ts">
@@ -232,7 +230,6 @@ export default {
       }
       return { time, start }
     }
-
     const { start, time } = useCountDown()
 
 
@@ -278,7 +275,6 @@ export default {
       })
 
     }
-
 
 
     const store = useStore();
@@ -333,7 +329,7 @@ export default {
         ()=>(route.path),
         (val,preVal)=>{
           //val为修改后的值,preVal为修改前的值
-          // console.log(val, preVal)
+          console.log(val, preVal)
           if (activeIndex.value !== val) {
             activeIndex.value = val;
           }
@@ -580,9 +576,6 @@ export default {
   cursor: pointer;
 }
 
-.my {
-  margin-right: 10px;
-}
 
 .my-dialog .el-dialog {
   width: 380px !important;

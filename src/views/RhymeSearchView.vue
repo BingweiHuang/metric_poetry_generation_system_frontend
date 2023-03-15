@@ -4,9 +4,12 @@
     <el-col :xl="2" :lg="2" :md="2" :sm="1" :xs="0"></el-col>
 
     <el-col :xl="20" :lg="20" :md="20" :sm="22" :xs="24">
+      <!-- 标签页 -->
       <el-tabs type="border-card" @tab-change="tab_change">
+        <!-- 平水韵 -->
         <el-tab-pane label="平水韵">
 
+          <!-- 声部 -->
           <el-space size="large" class="yun" style="display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; margin-bottom: 10px">
             <el-radio-group v-model="ps_sheng_select" size="small" @change="change_ps_sheng_select">
               <el-radio :label="'平声'" style="font-weight: bold; color: black"/>
@@ -16,6 +19,7 @@
             </el-radio-group>
           </el-space>
 
+          <!-- 韵部 -->
           <div class="yun" style="margin-bottom: 10px">
             <el-radio-group v-model="ps_yin_select" size="small" @change="change_ps_display">
               <span v-for="(value, index) in ps_yin_tag[ps_sheng_select]" :key="index + value" style="display: flex; align-items: baseline; justify-content: start">
@@ -24,6 +28,7 @@
             </el-radio-group>
           </div>
 
+          <!-- 字 -->
           <el-space wrap size="small" class="yun" style="display: flex; align-items: baseline; justify-content: start" v-if="ps_display && ps_display.length > 0">
             <span v-for="(value, index) in (ps_display[0])" :key="index" style="display: flex; align-items: baseline; justify-content: start">
               <el-link type="primary" :underline="false" style="font-size: 18px;" @click="search_baidu(value[0])">{{value[0]}}</el-link>
@@ -46,8 +51,10 @@
 
         </el-tab-pane>
 
+        <!-- 中华新韵 -->
         <el-tab-pane label="中华新韵">
 
+          <!-- 韵部 -->
           <div class="yun" style="margin-bottom: 10px">
             <el-radio-group v-model="xin_sheng_yin_select" size="small" @change="change_xin_display">
               <span v-for="(yun_tag, index) in xin_yin_tag" :key="index" style="display: flex; align-items: center">
@@ -57,7 +64,7 @@
             </el-radio-group>
           </div>
 
-
+          <!-- 字 -->
           <el-space wrap size="small" class="yun" style="display: flex; align-items: baseline; justify-content: start" v-if="xin_display && xin_display.length > 0">
             <span v-for="(value, index) in xin_display[0]" :key="'xin' + index + value[0]" style="display: flex; align-items: baseline; justify-content: start">
               <el-link type="primary" :underline="false" style="font-size: 18px;" @click="search_baidu(value[0])">{{value[0]}}</el-link>
@@ -79,7 +86,9 @@
 
         </el-tab-pane>
 
+        <!-- 搜索 -->
         <el-tab-pane label="搜索">
+          <!-- 搜索输入栏 -->
           <el-row justify="center" align="middle" :gutter="0">
             <el-col :xl="8" :lg="8" :md="10" :sm="12" :xs="12">
               <el-input size="large" v-model="word_input" placeholder="请输入需要查的字" clearable></el-input>
@@ -91,8 +100,10 @@
 
           </el-row>
 
+          <!-- 搜索展示栏 -->
           <el-row>
             <el-col>
+              <!-- 平水韵展示 -->
               <el-card shadow="never" style="margin-top: 15px; background-color: #F3F3F3" v-if="ps_word2rhyme && ps_word2rhyme.length > 0">
                 <template v-for="(rhyme, index) in ps_word2rhyme" :key="index">
 
@@ -134,6 +145,7 @@
                 </template>
               </el-card>
 
+              <!-- 中华新韵展示 -->
               <el-card shadow="never" style="margin-top: 15px; background-color: #F3F3F3" v-if="xin_word2rhyme && xin_word2rhyme.length > 0">
                 <template v-for="(rhyme, index) in xin_word2rhyme" :key="index">
 
@@ -173,11 +185,8 @@
 
                 </template>
               </el-card>
-
-
             </el-col>
           </el-row>
-
 
         </el-tab-pane>
 
