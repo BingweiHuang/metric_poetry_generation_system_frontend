@@ -102,25 +102,43 @@
     <!-- 检索结果展示栏 -->
     <div style="min-height: 600px">
       <el-space size="" wrap style="width: 100%; justify-content: center;">
-        <!--      <el-col v-for="poetry in poetryList.slice((currentPage - 1) * pageSize, currentPage * pageSize)" :key="poetry.id">
-
-                <ShiCard :poetry="poetry" v-if="shici === 'shi'" />
-                <CiCard :poetry="poetry" v-else-if="shici === 'ci'"/>
-              </el-col>-->
-        <div v-for="poetry in poetryList.slice((currentPage - 1) * pageSize, currentPage * pageSize)" :key="poetry.id">
+        <template v-for="poetry in poetryList.slice((currentPage - 1) * pageSize, currentPage * pageSize)" :key="poetry.id">
           <ShiCard :poetry="poetry" v-if="shici === 'shi'" />
           <CiCard :poetry="poetry" v-else-if="shici === 'ci'"/>
-        </div>
-        <div v-if="poetryList.length === 0" style="width: 100%;">
+        </template>
+        <template v-if="poetryList.length === 0">
           <el-empty description="浅浅检索一下吧"/>
-        </div>
+        </template>
+        <template v-else>
+          <el-button type="primary" text size="large"
+                     v-if="(currentPage >= (poetryList.length / pageSize)) && have_more"
+                     @click="load" style="font-size: 20px; font-weight: bold">
+            加载更多...
+          </el-button>
+        </template>
       </el-space>
     </div>
 
-    <!-- 分页码 -->
+    <!-- web端分页码 -->
     <el-pagination
-        class="my-el-pagination"
+        class="my-el-pagination hidden-xs-only"
         background
+        :small="false"
+        :hide-on-single-page="true"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-size="pageSize"
+        :pager-count="6"
+        layout=" prev, pager, next"
+        :total="poetryList.length">
+    </el-pagination>
+
+    <!-- 移动端分页码 -->
+    <el-pagination
+        class="my-el-pagination hidden-sm-and-up"
+        background
+        :small="true"
         :hide-on-single-page="true"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
@@ -285,6 +303,8 @@ export default {
     const currentPage = ref(1);
     const pageSize = ref(12);
 
+
+
     const handleChange = () => {
       if (poetry_dynasty_value.value) {
         console.log(poetry_dynasty_value.value[0])
@@ -303,6 +323,9 @@ export default {
       currentPage.value = val
     };
 
+    let kwargs = {};
+    let idx = 0
+    let query_url = ''
     const poetry_search = async () => {
       if (!poetry_dynasty_value.value) {
         ElMessage({
@@ -317,10 +340,10 @@ export default {
       shici.value = poetry_dynasty_value.value[0]
       const dynasty = poetry_dynasty_value.value[1]
 
-      console.log(shici.value, dynasty)
-
-      const query_url = "poetry/" + shici.value // 需要发送axios请求的url
-      let kwargs: any = {};
+      query_url = "poetry/" + shici.value // 需要发送axios请求的url
+      kwargs = {};
+      idx = 0
+      kwargs['idx'] = idx
 
       if (dynasty === '三百首') {
         kwargs['three_hundred'] = 1
@@ -358,7 +381,6 @@ export default {
         kwargs['content'] = content_input.value;
       }
 
-      console.log(kwargs)
 
       let ret = await get(query_url, kwargs, false)
 
@@ -369,15 +391,40 @@ export default {
         })
       }
       poetryList.value = ret.data.poetryList
-      console.log(poetryList.value)
+      console.log(ret.data.poetryList)
     }
 
-    const all_buxian = () => { // 所有格律诗筛选条件变成 不限
-      metric_value.value = -1
-      yan_value.value = -1
-      jue_value.value = -1
-    }
+    const have_more = ref(true)
 
+    const load = () => {
+      console.log('触发load')
+      kwargs['idx'] = kwargs['idx'] + 1 // 下一页
+      get(query_url, kwargs, false)
+      .then((resp) => {
+        let result = resp.data.poetryList
+        console.log('result:', result)
+        if (result.length === 0) {
+          have_more.value = false
+          ElMessage({
+            showClose: true,
+            message: '已经没有数据咯~',
+            type: 'warning',
+            duration: 5000,
+          })
+        } else {
+          poetryList.value = poetryList.value.concat(result)
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        ElMessage({
+          showClose: true,
+          message: '刷新出错！',
+          type: 'error',
+          duration: 5000,
+        })
+      })
+    }
 
     return {
       poetry_dynasty_options,
@@ -399,11 +446,15 @@ export default {
       currentPage,
       pageSize,
 
+
+
       handleSizeChange,
       handleCurrentChange,
       handleChange,
       poetry_search,
-      all_buxian,
+
+      have_more,
+      load,
 
       Search,
       User,

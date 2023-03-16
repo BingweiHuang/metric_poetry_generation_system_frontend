@@ -9,6 +9,9 @@ import RhymeSearchView from '@/views/RhymeSearchView.vue'
 import FlyingOrderView from '@/views/FlyingOrderView.vue'
 import AnalyzeView from '@/views/AnalyzeView.vue'
 import HomeView from '@/views/HomeView.vue'
+import ProfileView from '@/views/ProfileView.vue'
+import NotFoundView from '@/views/NotFoundView.vue'
+import WorldCircleView from '@/views/WorldCircleView.vue'
 
 // 路由懒加载 需要时才导入组件
 
@@ -59,7 +62,21 @@ const routes: Array<RouteRecordRaw> = [
     path: '/',
     name: 'HomeView',
     // component: () => import('@/views/HomeView.vue'), // 懒加载
-    component: HomeView, // 懒加载
+    component: HomeView,
+
+  },
+  {
+    path: '/Profile',
+    name: 'ProfileView',
+    // component: () => import('@/views/HomeView.vue'), // 懒加载
+    component: ProfileView,
+
+  },
+  {
+    path: '/WorldCircle',
+    name: 'WorldCircleView',
+    // component: () => import('@/views/HomeView.vue'), // 懒加载
+    component: WorldCircleView,
 
   },
 
@@ -77,11 +94,11 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
 
-  /*{
+  {
     path: '/:path(.*)',
     name: 'NotFoundView',
     component: NotFoundView
-  },*/
+  },
 ]
 
 const router = createRouter({

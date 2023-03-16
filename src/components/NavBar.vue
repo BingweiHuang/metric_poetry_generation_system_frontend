@@ -74,7 +74,8 @@
 
       <el-col :xl="16" :lg="16" :md="18" :sm="20" :xs="24">
         <el-menu router
-                 default-active="/"
+                 menu-trigger="click"
+                 default-active=""
                  class="el-menu-demo"
                  mode="horizontal"
                  background-color="#2775B6"
@@ -125,15 +126,15 @@
   <!-- 登陆注册框 -->
   <div class="my-dialog">
     <el-dialog v-model="dialogFormVisible" :title="form_state">
-      <el-form :model="form" :rules="rules" ref="dom">
-        <el-form-item label="邮箱" :label-width="formLabelWidth" prop="email" v-if="login_style">
+      <el-form :model="form" :rules="rules" ref="dom" :label-width="formLabelWidth">
+        <el-form-item label="邮箱"  prop="email" v-if="login_style">
           <!--        <el-input v-model="form.email" placeholder="请输入邮箱" oninput ="value=value.replace(/[^\d]/g,'')" />-->
           <el-input v-model="form.email" placeholder="请输入邮箱" />
         </el-form-item>
-        <el-form-item label="账号" :label-width="formLabelWidth" v-if="!login_style">
+        <el-form-item label="账号"  v-if="!login_style">
           <el-input v-model="form.username" placeholder="请输入账号" />
         </el-form-item>
-        <el-form-item label="验证码" :label-width="formLabelWidth" v-if="['注册','忘记密码'].includes(form_state)">
+        <el-form-item label="验证码"  v-if="['注册','忘记密码'].includes(form_state)">
           <el-input v-model="form.code" placeholder="请输入验证码">
             <template #append>
               <el-button @click="send_email">
@@ -142,16 +143,16 @@
             </template>
           </el-input>
         </el-form-item>
-        <el-form-item label="密码" :label-width="formLabelWidth" v-if="['注册', '忘记密码'].includes(form_state)" prop="password">
+        <el-form-item label="密码"  v-if="['注册', '忘记密码'].includes(form_state)" prop="password">
           <el-input v-model="form.password" type="password" show-password placeholder="请输入密码" />
         </el-form-item>
-        <el-form-item label="密码" :label-width="formLabelWidth" v-if="['登录'].includes(form_state)">
+        <el-form-item label="密码"  v-if="['登录'].includes(form_state)">
           <el-input v-model="form.password" type="password" show-password placeholder="请输入密码" />
         </el-form-item>
-        <el-form-item label="确认密码" :label-width="formLabelWidth" v-if="['注册', '忘记密码'].includes(form_state)" prop="password2">
+        <el-form-item label="确认密码"  v-if="['注册', '忘记密码'].includes(form_state)" prop="password2">
           <el-input v-model="form.password2" type="password" show-password placeholder="请再次输入密码" />
         </el-form-item>
-        <el-form-item label="登陆方式" :label-width="formLabelWidth" v-if="form_state === '登录'">
+        <el-form-item label="登陆方式"  v-if="form_state === '登录'">
           <el-switch v-model="login_style" size="" inline-prompt active-text="邮箱" inactive-text="账号"/>
         </el-form-item>
 
@@ -294,30 +295,34 @@ export default {
       },
       {
         index: '/AICreate',
-        content: 'AI作诗',
+        content: '引玉才华',
       },
       {
         index: '/MetricDetection',
-        content: '格律检测',
+        content: '吹毛求瑕',
       },
       {
         index: '/RhymeSearch',
-        content: '韵表检索',
+        content: '顺藤摸瓜',
       },
       {
         index: '/PoetrySearch',
-        content: '诗词检索',
+        content: '大浪淘沙',
       },
       {
         index: '/FlyingOrder',
-        content: '飞花检索',
+        content: '春城飞花',
       },
       {
         index: '/Analyze',
-        content: '一览无余',
+        content: '收割如麻',
       },
       {
-        index: '/Test',
+        index: '/WorldCircle',
+        content: '游子天涯',
+      },
+      {
+        index: '/Profile',
         content: '个人中心',
       },
 

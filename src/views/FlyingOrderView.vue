@@ -1,32 +1,36 @@
 <template>
 
   <el-row justify="center" align="middle">
-    <el-col :xl="2" :lg="2" :md="2" :sm="2" :xs="0">
+    <el-col :xl="2" :lg="2" :md="2" :sm="1" :xs="0">
 
     </el-col>
     <!-- 主体页面 -->
-    <el-col :xl="20" :lg="20" :md="20" :sm="20" :xs="23">
+    <el-col :xl="20" :lg="20" :md="20" :sm="22" :xs="24">
 
       <!-- 检索条件1 -->
-      <el-row justify="center" align="middle" :gutter="10">
+      <el-row justify="center" align="middle">
 
-        <el-col :xl="8" :lg="8" :md="9" :sm="10" :xs="11">
+        <el-col :xl="11" :lg="11" :md="11" :sm="11" :xs="10">
           <el-input size="large" v-model="have_input" placeholder="含有(如有多关键字)" clearable>
 <!--            <template #prefix>含:</template>-->
           </el-input >
         </el-col>
 
-        <el-col :xl="8" :lg="8" :md="9" :sm="10" :xs="11">
+        <el-col :xl="11" :lg="11" :md="11" :sm="11" :xs="10">
           <el-input size="large" v-model="no_have_input" placeholder="不含(用空格隔开)" clearable>
 <!--            <template #prefix>不含:</template>-->
           </el-input>
         </el-col>
 
+        <el-col :xl="2" :lg="2" :md="2" :sm="2" :xs="3">
+          <el-button size="large" :icon="Search" @click="poetry_search" />
+        </el-col>
+
       </el-row>
 
-      <!-- 检索条件2 -->
-      <el-row justify="center" align="middle" :gutter="10">
-        <el-col :xl="7" :lg="7" :md="8" :sm="9" :xs="11">
+
+      <el-row justify="center" align="middle" style="margin-bottom: 10px">
+        <el-col :xl="8" :lg="8" :md="8" :sm="8" :xs="8">
           <el-select size="large" v-model="belong_value" @change="handleChange">
             <template #prefix>
               含有:
@@ -40,7 +44,53 @@
           </el-select>
         </el-col>
 
-        <el-col :xl="7" :lg="7" :md="8" :sm="9" :xs="11">
+        <el-col :xl="8" :lg="8" :md="8" :sm="8" :xs="8">
+          <el-select size="large" v-model="not_belong_value" @change="handleChange">
+            <template #prefix>
+              不含:
+            </template>
+            <el-option
+                v-for="item in not_belong_options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+            />
+          </el-select>
+        </el-col>
+        <el-col :xl="8" :lg="8" :md="8" :sm="8" :xs="8">
+          <el-select size="large" v-model="poetry_value" @change="handleChange">
+            <template #prefix>
+              诗词:
+            </template>
+            <el-option
+                v-for="item in poetry_options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+            />
+          </el-select>
+        </el-col>
+
+
+      </el-row>
+
+<!--      &lt;!&ndash; 检索条件2 &ndash;&gt;
+      <el-row justify="center" align="middle">
+        <el-col :xl="10" :lg="10" :md="10" :sm="11" :xs="12">
+          <el-select size="large" v-model="belong_value" @change="handleChange">
+            <template #prefix>
+              含有:
+            </template>
+            <el-option
+                v-for="item in belong_options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+            />
+          </el-select>
+        </el-col>
+
+        <el-col :xl="10" :lg="10" :md="10" :sm="11" :xs="12">
           <el-select size="large" v-model="not_belong_value" @change="handleChange">
             <template #prefix>
               不含:
@@ -56,10 +106,10 @@
 
       </el-row>
 
-      <!-- 检索条件3 -->
-      <el-row justify="center" align="middle" :gutter="10" style="margin-bottom: 10px">
+      &lt;!&ndash; 检索条件3 &ndash;&gt;
+      <el-row justify="center" align="middle" style="margin-bottom: 10px">
 
-        <el-col :xl="7" :lg="7" :md="8" :sm="9" :xs="11">
+        <el-col :xl="10" :lg="10" :md="10" :sm="11" :xs="12">
           <el-select size="large" v-model="poetry_value" @change="handleChange">
             <template #prefix>
               诗词:
@@ -72,11 +122,11 @@
             />
           </el-select>
         </el-col>
-        <el-col :xl="7" :lg="7" :md="8" :sm="9" :xs="11">
+        <el-col :xl="10" :lg="10" :md="10" :sm="11" :xs="12">
           <el-button size="large" :icon="Search" @click="poetry_search" />
         </el-col>
 
-      </el-row>
+      </el-row>-->
 
       <!-- 展示栏（如果没有搜索结果） -->
       <div v-if="flyList.length === 0" style="width: 100%;">
@@ -87,8 +137,8 @@
       <template v-else>
 
         <!-- 无限滑动 结果展示 -->
-        <el-scrollbar ref="scrollbarRef" height="600px" always @scroll="scroll">
-          <template v-for="(item, index) in flyList" :key="index">
+        <ul v-infinite-scroll="load" infinite-scroll-distance="30" class="infinite-list" style="overflow: auto; height: 600px" always>
+          <li v-for="(item, index) in flyList" :key="index">
             <p  class="scrollbar-demo-item-shi" v-if="Object.keys(item).includes('title')">
               <!--            {{ item.content }} - {{item.author}} <span class="sheng_lue">《{{item.title}}》</span>-->
               {{index + 1}}.{{ item.content }}- {{item.author}} 《<template v-for="(word, index2) in item.title.slice(0,7)" :key="index + index2">{{word}}</template><template v-if="item.title.length > 7">...</template>》
@@ -96,14 +146,14 @@
             <p  class="scrollbar-demo-item-ci" v-else>
               {{index + 1}}.{{ item.content }}- {{item.author}} 《{{item.rhythmic.split('·')[0]}}》
             </p>
-          </template>
-        </el-scrollbar>
+          </li>
+        </ul>
 
       </template>
 
     </el-col>
 
-    <el-col :xl="2" :lg="2" :md="2" :sm="2" :xs="0">
+    <el-col :xl="2" :lg="2" :md="2" :sm="1" :xs="0">
 
     </el-col>
   </el-row>
@@ -133,8 +183,13 @@ export default {
   },
   setup() {
 
+    let idx = 0
+    let kwargs
+
     const have_input = ref('')
+    let search_have_list = []
     const no_have_input = ref('')
+    let search_no_have_list = []
 
     const poetry_options = ref([
       {
@@ -151,6 +206,7 @@ export default {
       },
     ])
     const poetry_value = ref(-1)
+    let search_poetry_value = -1
 
     const belong_options = ref([
       {
@@ -187,6 +243,7 @@ export default {
       },
     ])
     const belong_value = ref('bu_xian')
+    let search_belong_value = 'bu_xian'
 
     const not_belong_options = ref([
       {
@@ -223,14 +280,13 @@ export default {
       },
     ])
     const not_belong_value = ref('bu_xian')
+    let search_not_belong_value = 'bu_xian'
 
-
-    const shici = ref('')
     const author_input = ref('')
     const title_input = ref('')
     const content_input = ref('')
 
-    let flyList = ref([])
+    const flyList = ref([])
     const currentPage = ref(1);
     const pageSize = ref(12);
 
@@ -255,17 +311,16 @@ export default {
       return text.replace(regEx, '');
     }
 
-    const search_have_list = ref()
-    const search_belong_value = ref()
-    const search_no_have_list = ref()
-    const search_not_belong_value = ref()
-
     const poetry_search = async () => {
-
       let have_str = have_input.value
-      let the_have_list = []
       let no_have_str = no_have_input.value
-      let the_no_have_list = []
+      search_have_list = []
+      search_no_have_list = []
+
+      search_poetry_value = poetry_value.value
+      search_belong_value = belong_value.value
+
+      search_not_belong_value = not_belong_value.value
 
       if (have_str !== '' && no_have_str !== '') { // 同一个字出现在"含"和"不含"条件中
         let tmp1 = reserved_chinese_word(have_str)
@@ -285,7 +340,7 @@ export default {
         }
       }
 
-      if (belong_value.value !== 'bu_xian' && belong_value.value === not_belong_value.value) { // 含和不含种类相同
+      if (search_belong_value !== 'bu_xian' && (search_belong_value === search_not_belong_value)) { // 含和不含种类相同
         ElMessage({
           showClose: true,
           message: '"含有"和"不含"的种类不能相同哦~',
@@ -295,12 +350,15 @@ export default {
         return false
       }
 
+      idx = 0
+      flyList.value = []
+
       if (have_str !== '') { // 如果 含 输入了
         let tmp_list = have_str.split(' ')
         for (let i=0,len=tmp_list.length; i<len; i++) {
           let word = reserved_chinese_word(tmp_list[i])
           if (word !== '') {
-            the_have_list.push(word)
+            search_have_list.push(word)
           }
         }
       }
@@ -310,13 +368,14 @@ export default {
         for (let i=0,len=tmp_list.length; i<len; i++) {
           let word = reserved_chinese_word(tmp_list[i])
           if (word !== '') {
-            the_no_have_list.push(word)
+            search_no_have_list.push(word)
           }
         }
       }
-
-      if (have_str !== '' && the_have_list.length === 0 ||
-          no_have_str !== '' && the_no_have_list.length === 0) {
+      // console.log(have_str, search_have_list)
+      // console.log(no_have_str, search_no_have_list)
+      if (have_str !== '' && search_have_list.length === 0 ||
+          no_have_str !== '' && search_no_have_list.length === 0) {
         ElMessage({
           showClose: true,
           message: '非汉字不识别，请输入汉字哦~',
@@ -325,7 +384,7 @@ export default {
         })
       }
 
-      if (belong_value.value === 'bu_xian' && the_have_list.length === 0) {
+      if (search_belong_value === 'bu_xian' && search_have_list.length === 0) {
         ElMessage({
           showClose: true,
           message: '请至少输入或选择一个有效的"含有"条件',
@@ -335,40 +394,30 @@ export default {
         return false
       }
 
-      search_have_list.value = the_have_list
-      search_belong_value.value = belong_value.value
-      search_no_have_list.value = the_no_have_list
-      search_not_belong_value.value = not_belong_value.value
-
-
-      shici.value = poetry_value.value === 0 ? 'shi' : poetry_value.value === 1 ? 'ci' : 'all'
-
-      // console.log(shici.value)
-
-      let query_url = 'fly/fly_' + shici.value // 需要发送axios请求的url
-      let kwargs: any = {};
-
-
-      // flyList.value = [];
-
-      if (the_have_list.length !== 0) { // 含
-        kwargs['have'] = the_have_list.join(' '); // 数组元素加起来转str
-      }
-      if (the_no_have_list.length !== 0) { // 不含
-        kwargs['no_have'] = the_no_have_list.join(' '); // 数组元素加起来转str
+      kwargs = {};
+      kwargs['idx'] = idx;
+      // console.log('诗词:', search_poetry_value)
+      if (search_poetry_value !== -1) {
+        kwargs['kind'] = search_poetry_value
+        console.log('诗词:', search_poetry_value)
       }
 
-      if (belong_value.value !== 'bu_xian') { // 含
-        kwargs[belong_value.value] = 1;
+      if (search_have_list.length !== 0) { // 含
+        kwargs['have'] = search_have_list.join(' '); // 数组元素加起来转str
       }
-      if (not_belong_value.value !== 'bu_xian') { // 不含
-        kwargs[not_belong_value.value] = 0;
+      if (search_no_have_list.length !== 0) { // 不含
+        kwargs['no_have'] = search_no_have_list.join(' '); // 数组元素加起来转str
       }
 
-      // console.log(kwargs)
+      if (search_belong_value !== 'bu_xian') { // 含
+        kwargs[search_belong_value] = 1;
+      }
+      if (search_not_belong_value !== 'bu_xian') { // 不含
+        kwargs[search_not_belong_value] = 0;
+      }
 
-      await get(query_url, kwargs, false)
-      let ret = await get(query_url, kwargs, false)
+
+      let ret = await get('fly/fly', kwargs, false)
 
       if (ret.data.flyList.length === 0) {
         ElMessage({
@@ -377,9 +426,35 @@ export default {
         })
       }
       flyList.value = ret.data.flyList
-      // console.log(flyList.value)
     }
 
+    const load = () => {
+      kwargs['idx'] = kwargs['idx'] + 1 // 下一页
+      get('fly/fly', kwargs, false)
+      .then((resp) => {
+        let result = resp.data.flyList
+        if (result.length === 0) {
+          ElMessage({
+            showClose: true,
+            message: '已经没有数据咯~',
+            type: 'warning',
+            duration: 5000,
+          })
+        } else {
+          flyList.value = flyList.value.concat(result)
+        }
+
+      })
+      .catch((error) => {
+        console.log(error);
+        ElMessage({
+          showClose: true,
+          message: '刷新出错！',
+          type: 'error',
+          duration: 5000,
+        })
+      })
+    }
 
     return {
 
@@ -397,7 +472,6 @@ export default {
       not_belong_value,
 
 
-      shici,
       author_input,
       title_input,
       content_input,
@@ -406,15 +480,12 @@ export default {
       currentPage,
       pageSize,
 
-      search_have_list,
-      search_belong_value,
-      search_no_have_list,
-      search_not_belong_value,
 
       handleSizeChange,
       handleCurrentChange,
       handleChange,
       poetry_search,
+      load,
 
 
       Search,
@@ -431,11 +502,23 @@ export default {
   margin-bottom: 0px;
 }
 
-.my-el-pagination {
-  align-items: center; /*竖直居中*/
-  justify-content: center; /*水平居中*/
-  margin-top: 20px;
-  margin-bottom: 20px;
+.infinite-list {
+  height: 300px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.infinite-list .infinite-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  background: var(--el-color-primary-light-9);
+  margin: 10px;
+  color: var(--el-color-primary);
+}
+.infinite-list .infinite-list-item + .list-item {
+  margin-top: 10px;
 }
 
 .scrollbar-demo-item-shi {

@@ -387,7 +387,7 @@ export default {
         ru: ru.value ? 0 : 1,
         use_rhyme: use_rhyme.value,
         style: style.value,
-      }, false)
+      }, false, 1)
       .then((resp) => {
         lstm_change_state(2)
         console.log(resp.data);
@@ -456,7 +456,7 @@ export default {
         ru: ru2.value ? 0 : 1,
         use_rhyme: use_rhyme2.value,
         style: style2.value,
-      }, false)
+      }, false, 1)
       .then((resp) => {
         gpt2_change_state(2)
         console.log(resp.data);
