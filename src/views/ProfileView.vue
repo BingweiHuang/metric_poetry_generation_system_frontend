@@ -11,7 +11,7 @@
           <!-- 头像 昵称 -->
           <el-col :span="8">
             <div style="text-align: center">
-              <el-avatar :size="100" :src="touxiang_url"/>
+              <el-avatar :size="100" :src="avatarUrl"/>
               <div>{{my_nickname}}</div>
             </div>
           </el-col>
@@ -64,26 +64,30 @@
 
               <el-form-item label="头像" style="display: flex; align-items: center; justify-content: start">
 
-                <el-avatar :size="80" :src="touxiang_url"/>
-
                 <el-upload
                     ref="upload"
-                    class="upload-demo"
-                    action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+                    class="avatar-uploader"
+                    action="http://upload-z1.qiniup.com"
+                    list-type="picture-card"
+                    v-model:file-list="fileList"
                     :limit="1"
-                    :on-exceed="handleExceed"
                     :auto-upload="false"
+                    accept=".jpg, .png, .jpeg"
+                    :on-success="handleAvatarSuccess"
+                    :data="upload_data"
+                    :before-upload="beforeAvatarUpload"
+                    :on-error="uploadError"
+                    :show-file-list="true"
                 >
-                  <el-button type="primary">选择</el-button>
-                  <el-button class="ml-3" type="success" @click="submitUpload">
-                    上传
-                  </el-button>
-                  <template #tip>
-                    <div class="el-upload__tip text-red">
-                      新头像会覆盖旧头像
-                    </div>
-                  </template>
+
+                  <el-icon class="avatar-uploader-icon"><Plus /></el-icon>
+
                 </el-upload>
+
+                <el-button class="ml-3" type="success" @click="submitUpload">
+                  修改
+                </el-button>
+
 
               </el-form-item>
 
@@ -148,17 +152,18 @@
     <el-col :xl="0" :lg="0" :md="0" :sm="0" :xs="0"></el-col>
   </el-row>
 
-
 </template>
 
 <script lang="ts">
 
-import { ref, reactive } from 'vue'
+import {ref, reactive, onMounted} from 'vue'
 import type { TabsPaneContext } from 'element-plus'
 import {ElMessage, genFileId} from 'element-plus'
-import type { UploadInstance, UploadProps, UploadRawFile } from 'element-plus'
+import type { UploadInstance, UploadProps, UploadRawFile, UploadUserFile } from 'element-plus'
 import {useIntervalFn} from "@vueuse/core";
 import {get} from "@/utils/request";
+import * as echarts from "echarts";
+
 
 export default {
   name: "ProfileView",
@@ -172,6 +177,10 @@ export default {
     }
 
     const upload = ref<UploadInstance>()
+    const upload_data = ref({
+      key: "",
+      token: "",
+    })
 
     const my_nickname = ref('踏云')
     const follow_count = ref(1)
@@ -180,12 +189,66 @@ export default {
     const my_username = ref('Binigwei_Huang')
     const my_introduction = ref('哈哈哈哈哈哈，哈哈哈哈哈哈哈。这个人很懒，没留下简介...')
 
-    const handleExceed: UploadProps['onExceed'] = (files) => {
-      upload.value!.clearFiles()
-      const file = files[0] as UploadRawFile
-      file.uid = genFileId()
-      upload.value!.handleStart(file)
+    const avatarUrl = ref('https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png');
+    const fileList = ref<UploadUserFile[]>([
+      {
+        name: 'food.jpeg',
+        url: avatarUrl.value,
+      },
+    ])
+
+    const beforeAvatarUpload = (file) => {
+      upload_data.value.key = my_email.value;
+      const isJPG = file.type === "image/jpeg";
+      const isPNG = file.type === "image/png";
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isJPG && !isPNG) {
+        ElMessage({
+          showClose: true,
+          message: '图片只能是 JPG/PNG 格式！',
+          type: 'error',
+          duration: 5000,
+        })
+        return false;
+      }
+      if (!isLt2M) {
+        ElMessage({
+          showClose: true,
+          message: '图片大小不能超过 2MB！',
+          type: 'error',
+          duration: 5000,
+        })
+        return false;
+      }
     }
+
+    onMounted(() => {
+      get('analyze/poetry_statistics', false)
+          .then((resp) => {
+            upload_data.value.token = resp.data.qn_token
+          })
+          .catch((error) => {
+            console.log(error);
+          })
+
+    });
+
+
+    const baseUrl = 'http://bwhlifetimelove.top/'
+    
+    //上传成功后执行的代码
+    const handleAvatarSuccess: UploadProps['onSuccess'] = (
+        response,
+        uploadFile
+    ) => {
+      avatarUrl.value = URL.createObjectURL(uploadFile.raw!)
+      console.log('上传成功')
+    }
+    //上传失败后执行的代码
+    const uploadError = (err) => {
+      console.log("上传失败", err);
+    }
+
 
     const submitUpload = () => {
       upload.value!.submit()
@@ -315,7 +378,7 @@ export default {
       console.log('submit!')
     }
 
-    const touxiang_url = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png';
+    
 
     return {
       form,
@@ -336,10 +399,14 @@ export default {
 
       activeName,
       handleClick,
-      touxiang_url,
+      avatarUrl,
+      fileList,
 
       upload,
-      handleExceed,
+      upload_data,
+      handleAvatarSuccess,
+      uploadError,
+      beforeAvatarUpload,
       submitUpload,
     }
   }
@@ -347,6 +414,27 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
+.avatar-uploader .el-upload {
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: var(--el-color-primary);
+}
+
+.el-icon.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 100px;
+  height: 100px;
+  text-align: center;
+}
 
 .demo-tabs > .el-tabs__content {
   padding: 32px;
