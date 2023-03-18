@@ -42,8 +42,6 @@ instance.interceptors.request.use(
             config.headers.Authorization = "Bearer " + store.getters.get_access;
         }
 
-        // console.log('config',config)
-
         return config;
     },
     error => {
@@ -55,7 +53,14 @@ let isRefreshing = false // 标记是否正在刷新 token
 let requests = [] // 存储待重发请求的数组
 instance.interceptors.response.use(response => {
     instance.defaults.headers.Loading && closeLoading() // 关闭loading
-
+    if (response.data.result && response.data.result !== '') {
+        ElMessage({
+            showClose: true,
+            type: 'success',
+            message: response.data.result,
+            duration: 5000,
+        })
+    }
     return response
 }, error => {
 
@@ -78,42 +83,49 @@ instance.interceptors.response.use(response => {
         })
     }
     else if (error.response.status && error.response.status === 401) {
-        if (!error.config.url.includes('api/token/refresh/')) {
+
+        // 不是refresh 而且 也是有token的（登陆过） 就只能是登陆过期后的token请求
+        if (!error.config.url.includes('api/token/refresh/') && store.getters.get_access !== '') {
             const { config } = error
-            if (!isRefreshing) {
-                isRefreshing = true
-                return refreshToken().then(res=> {
-                    const access_token = res.data.access
-                    // console.log("刷新token成功,res.data.access:", access_token)
-                    store.commit("set_access", access_token)
-                    config.headers.Authorization = `Bearer ${access_token}`
-                    // token 刷新后将数组的方法重新执行
-                    requests.forEach((cb) => cb(access_token))
-                    requests = [] // 重新请求完清空
-                    return instance(config)
-                }).catch(err => {
-                    console.log('抱歉，您的登录状态已失效，请重新登录！')
-                    store.commit('clear_account')
-                    ElMessage({
-                        showClose: true,
-                        type: 'error',
-                        message: '登录已超时，请重新登录！',
-                        duration: 5000,
+
+            // 如果需要refresh刷新access_token 则必须要存有refresh
+            if (store.getters.get_refresh !== '') {
+
+                if (!isRefreshing) {
+                    isRefreshing = true
+                    return refreshToken().then(res=> {
+                        const access_token = res.data.access
+                        // console.log("刷新token成功,res.data.access:", access_token)
+                        store.commit("set_access", access_token)
+                        config.headers.Authorization = `Bearer ${access_token}`
+                        // token 刷新后将数组的方法重新执行
+                        requests.forEach((cb) => cb(access_token))
+                        requests = [] // 重新请求完清空
+                        return instance(config)
+                    }).catch(err => {
+                        store.commit('clear_account')
+                        ElMessage({
+                            showClose: true,
+                            type: 'error',
+                            message: '登录已超时，请重新登录！',
+                            duration: 5000,
+                        })
+                        return Promise.reject(err)
+                    }).finally(() => {
+                        isRefreshing = false
                     })
-                    return Promise.reject(err)
-                }).finally(() => {
-                    isRefreshing = false
-                })
-            } else {
-                // 返回未执行 resolve 的 Promise
-                return new Promise(resolve => {
-                    // 用函数形式将 resolve 存入，等待刷新后再执行
-                    requests.push(token => {
-                        config.headers.Authorization = `Bearer ${token}`
-                        resolve(instance(config))
+                } else {
+                    // 返回未执行 resolve 的 Promise
+                    return new Promise(resolve => {
+                        // 用函数形式将 resolve 存入，等待刷新后再执行
+                        requests.push(token => {
+                            config.headers.Authorization = `Bearer ${token}`
+                            resolve(instance(config))
+                        })
                     })
-                })
+                }
             }
+
         }
     } else {
         httpErrorStatusHandle(error)
@@ -157,7 +169,7 @@ const httpErrorStatusHandle = (error) => {
         case 404: message = `请求地址出错: ${error.response.config.url}`; break; // 在正确域名下
         case 408: message = '请求超时！'; break;
         case 409: message = '系统已存在相同数据！'; break;
-        case 500: message = '服务器内部错误！'; break;
+        case 500: message = error.response.data.result ? error.response.data.result : '服务器内部错误！'; break;
         case 501: message = '服务未实现！'; break;
         case 502: message = '网关错误！'; break;
         case 503: message = '服务不可用！'; break;
@@ -174,7 +186,6 @@ const httpErrorStatusHandle = (error) => {
             duration: 5000,
         })
     }
-
 }
 
 // 有些 api 并不需要用户授权使用，则无需携带 access_token；默认不携带，需要传则设置第三个参数为 true

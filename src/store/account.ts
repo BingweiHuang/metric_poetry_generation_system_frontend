@@ -1,6 +1,7 @@
 // import $ from 'jquery';
 import {get, post} from "@/utils/request";
 import jwt_decode from 'jwt-decode';
+import {ElMessage} from "element-plus";
 
 const ModuleAccount = {
     state: {
@@ -53,15 +54,18 @@ const ModuleAccount = {
     },
     actions: {
         login(context, data) {
-            // 邮箱或者用户名登录
-            const the_username = (data.email && (data.email !== '')) ? data.email : data.username
 
             post('account/login', {
-                username: the_username,
+                username: data.username,
                 password: data.password,
             }, false)
             .then((resp) => {
-
+                ElMessage({
+                    showClose: true,
+                    type: 'success',
+                    message: '登陆成功~',
+                    duration: 5000,
+                })
                 const {access, refresh} = resp.data;
                 const access_obj:any = jwt_decode(access);
                 console.log('access:',access)
@@ -70,8 +74,9 @@ const ModuleAccount = {
                 // console.log('access的存储情况:', context.getters('get_access'))
                 context.commit('set_refresh', refresh)
 
-                get('account/get_info', {
-                    'user_id': access_obj.user_id,
+                get('account/account', {
+                    'account_id': access_obj.user_id,
+                    'my_id': access_obj.user_id,
                 }, true)
                 .then((resp) => {
 

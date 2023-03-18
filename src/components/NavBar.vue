@@ -134,7 +134,7 @@
         <el-form-item label="账号"  v-if="!login_style">
           <el-input v-model="form.username" placeholder="请输入账号" />
         </el-form-item>
-        <el-form-item label="验证码"  v-if="['注册','忘记密码'].includes(form_state)">
+        <el-form-item label="验证码"  v-if="['注册','找回密码'].includes(form_state)" prop="code">
           <el-input v-model="form.code" placeholder="请输入验证码">
             <template #append>
               <el-button @click="send_email">
@@ -143,13 +143,13 @@
             </template>
           </el-input>
         </el-form-item>
-        <el-form-item label="密码"  v-if="['注册', '忘记密码'].includes(form_state)" prop="password">
+        <el-form-item label="密码"  v-if="['注册', '找回密码'].includes(form_state)" prop="password">
           <el-input v-model="form.password" type="password" show-password placeholder="请输入密码" />
         </el-form-item>
         <el-form-item label="密码"  v-if="['登录'].includes(form_state)">
           <el-input v-model="form.password" type="password" show-password placeholder="请输入密码" />
         </el-form-item>
-        <el-form-item label="确认密码"  v-if="['注册', '忘记密码'].includes(form_state)" prop="password2">
+        <el-form-item label="确认密码"  v-if="['注册', '找回密码'].includes(form_state)" prop="password2">
           <el-input v-model="form.password2" type="password" show-password placeholder="请再次输入密码" />
         </el-form-item>
         <el-form-item label="登陆方式"  v-if="form_state === '登录'">
@@ -166,7 +166,7 @@
         <div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px;">
           <el-button type="primary" class="my-button" @click="log_in" v-if="form_state === '登录'">登 录</el-button>
           <el-button type="primary" class="my-button" @click="sign_in" v-if="form_state === '注册'">注 册</el-button>
-          <el-button type="primary" class="my-button" @click="update_password" v-if="form_state === '忘记密码'">修改密码</el-button>
+          <el-button type="primary" class="my-button" @click="update_password" v-if="form_state === '找回密码'">修改密码</el-button>
         </div>
       </div>
 
@@ -177,7 +177,7 @@
         <div style="display: flex; justify-content: space-around; align-items: center; width: 260px">
           <el-link @click="trans_forget" v-if="form_state === '登录'" >忘记密码</el-link>
           <el-link @click="trans_sign_in" v-if="form_state === '登录'">注册</el-link>
-          <el-link @click="trans_login" v-if="['注册', '忘记密码'].includes(form_state)">登录</el-link>
+          <el-link @click="trans_login" v-if="['注册', '找回密码'].includes(form_state)">登录</el-link>
         </div>
       </div>
 
@@ -242,32 +242,63 @@ export default {
           // 如果大于0  直接return
           if (time.value > 0) return
 
-          // 发送axios
-          await get('account/sign_in', {
-            'email' : form.email
-          }, false)
-          .then((resp) => {
-            console.log(resp.data.result)
-            ElMessage({
-              showClose: true,
-              message: '邮件发送成功~',
-              type: 'success',
-              duration: 5000,
-            })
-            start(60)
-          })
-          .catch((error) => {
-            console.log(error);
-            if (error.response.data.result === '邮箱已被注册') {
-              ElMessage({
-                showClose: true,
-                message: '邮箱已被注册！',
-                type: 'error',
-                duration: 5000,
-              })
-            }
-            console.log("error.response.data.result:",error.response.data.result);
-          })
+          if (form_state.value === '注册') {
+            // 发送axios
+            await get('account/sign_in', {
+              'email' : form.email
+            }, false)
+                .then((resp) => {
+                  console.log(resp.data.result)
+                  ElMessage({
+                    showClose: true,
+                    message: '邮件发送成功~',
+                    type: 'success',
+                    duration: 5000,
+                  })
+                  start(60)
+                })
+                .catch((error) => {
+                  console.log(error);
+                  if (error.response.data.result === '邮箱已被注册') {
+                    ElMessage({
+                      showClose: true,
+                      message: '邮箱已被注册！',
+                      type: 'error',
+                      duration: 5000,
+                    })
+                  }
+                  console.log("error.response.data.result:",error.response.data.result);
+                })
+          } else if (form_state.value === '找回密码') {
+            // 发送axios
+            console.log('走的找回密码')
+            await get('account/update_password', {
+              'email' : form.email
+            }, false)
+                .then((resp) => {
+                  console.log(resp.data.result)
+                  ElMessage({
+                    showClose: true,
+                    message: '邮件发送成功~',
+                    type: 'success',
+                    duration: 5000,
+                  })
+                  start(60)
+                })
+                .catch((error) => {
+                  console.log(error);
+                  if (error.response.data.result === '邮箱不存在') {
+                    ElMessage({
+                      showClose: true,
+                      message: '邮箱不存在！',
+                      type: 'error',
+                      duration: 5000,
+                    })
+                  }
+                  console.log("error.response.data.result:",error.response.data.result);
+                })
+          }
+
 
         } else {
           console.log('邮箱格式不对');
@@ -358,7 +389,7 @@ export default {
       password: '',
       password2: '',
     })
-    const form_state = ref('登录') // 登录 注册 忘记密码
+    const form_state = ref('登录') // 登录 注册 找回密码
     const login_style = ref(true) // 登录方式
     const dom = ref(null)
     const rules = ref({
@@ -445,6 +476,21 @@ export default {
           trigger: "blur"
         }
       ],
+
+      code: [
+        { required: true, message: '请输入6位数字验证码', trigger: 'blur'},
+        {
+          validator: function(rule, value, callback) {
+            if (/^\d{6}$/.test(value) == false) {
+              callback(new Error("验证码是6位数字"));
+            } else {
+              //校验通过
+              callback();
+            }
+          },
+          trigger: "blur"
+        }
+      ],
     })
 
 
@@ -453,10 +499,10 @@ export default {
     }
 
     const log_in = () => {
-      // console.log('提交数据', form)
+      // 邮箱或者用户名登录
+      const the_username = (login_style.value) ? form.email : form.username;
       store.dispatch("login", {
-        email: form.email,
-        // username: form.username,
+        username: the_username,
         password: form.password,
         success() {
           dialogFormVisible.value = false
@@ -487,13 +533,11 @@ export default {
 
           post('account/sign_in', form, false)
           .then((resp) => {
-            console.log(resp.data.result)
             dialogFormVisible.value = false
             clear_form()
           })
           .catch((error) => {
-            console.log(error);
-            console.log(error.responce.data.result);
+            console.log(error.response.data.result);
           })
 
         } else {
@@ -502,6 +546,27 @@ export default {
       })
     }
 
+    const update_password = () => {
+      console.log('提交数据', form)
+
+      dom.value.validate((valid) => {
+        console.log('校验结果', valid)
+        if (valid) {
+
+          post('account/update_password', form, false)
+          .then((resp) => {
+            dialogFormVisible.value = false
+            clear_form()
+          })
+          .catch((error) => {
+            console.log('error.response.data.result:', error.response.data.result);
+          })
+
+        } else {
+          console.log('校验不通过')
+        }
+      })
+    }
 
     const clear_form = () => {
       login_style.value = true
@@ -517,7 +582,7 @@ export default {
     }
 
     const trans_forget = () => {
-      form_state.value = '忘记密码'
+      form_state.value = '找回密码'
       clear_form()
     }
 
@@ -527,6 +592,7 @@ export default {
     }
 
     const open_login_table = () => {
+      form_state.value = '登录'
       dialogFormVisible.value = true
       clear_form()
     }
@@ -547,6 +613,7 @@ export default {
       log_out,
       log_in,
       sign_in,
+      update_password,
       send_email,
       trans_sign_in,
       trans_login,

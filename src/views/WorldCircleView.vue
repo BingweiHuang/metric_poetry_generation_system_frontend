@@ -12,7 +12,7 @@
           <el-card>
             <el-row justify="start" align="middle">
               <!-- 头像 -->
-              <el-avatar :size="50" :src="touxiang_url" style="margin-right: 10px"/>
+              <el-avatar :size="50" :src="avatarUrl" style="margin-right: 10px"/>
               <!-- 昵称 和 时间-->
               <div>
                 <div style="margin-bottom: 6px">{{my_nickname}}</div>
@@ -59,7 +59,7 @@ export default {
     const my_email = ref('909140058@qq.com')
     const my_username = ref('Binigwei_Huang')
     const my_introduction = ref('哈哈哈哈哈哈，哈哈哈哈哈哈哈。这个人很懒，没留下简介...')
-    const touxiang_url = 'http://bwhlifetimelove.top/metric_poetry/avatar/default.png';
+    const avatarUrl = 'https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png';
 
     return {
       count,
@@ -71,7 +71,7 @@ export default {
       my_email,
       my_username,
       my_introduction,
-      touxiang_url,
+      avatarUrl,
     }
   }
 }
