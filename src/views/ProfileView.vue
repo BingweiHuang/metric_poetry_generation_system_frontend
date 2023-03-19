@@ -11,17 +11,17 @@
           <!-- 头像 昵称 -->
           <el-col :span="8">
             <div style="text-align: center">
-              <el-avatar :size="100" :src="avatarUrl"/>
-              <div>{{my_nickname}}</div>
+              <el-avatar :size="100" :src="the_account.photo"/>
+              <div>{{the_account.nickname}}</div>
             </div>
           </el-col>
 
           <!-- 其他资料 -->
           <el-col :span="16">
-            <div> <span>关注：{{follow_count}}</span> &nbsp; <span>粉丝：{{fans_count}}</span></div>
-            <div>邮箱：{{my_email}}</div>
-            <div>账号：{{ my_username }}</div>
-            <div>个人简介：{{ my_introduction }}</div>
+            <div> <span>关注：{{the_account.followCount}}</span> &nbsp; <span>粉丝：{{the_account.fanCount}}</span></div>
+            <div>邮箱：{{the_account.email}}</div>
+            <div>账号：{{ the_account.username }}</div>
+            <div>个人简介：{{ the_account.introduction }}</div>
           </el-col>
         </el-row>
       </el-card>
@@ -92,25 +92,25 @@
               </el-form-item>
 
               <el-form-item label="昵称">
-                <el-input v-model="form.nickname" show-word-limit maxlength="10" />
+                <el-input v-model="the_account.nickname" show-word-limit maxlength="10" />
               </el-form-item>
               <el-form-item label="账号">
-                <el-input v-model="form.username" show-word-limit maxlength="16" />
+                <el-input v-model="the_account.username" show-word-limit maxlength="16" />
               </el-form-item>
 
               <el-form-item label="公开作品">
-                <el-switch v-model="form.display_works" />
+                <el-switch v-model="the_account.displayWorks" />
               </el-form-item>
               <el-form-item label="公开收藏">
-                <el-switch v-model="form.display_collections" />
+                <el-switch v-model="the_account.displayCollections" />
               </el-form-item>
               <el-form-item label="个人简介">
-                <el-input v-model="form.introduction" type="textarea" :autosize="{ minRows: 3, maxRows: 3 }" show-word-limit maxlength="30">
+                <el-input v-model="the_account.introduction" type="textarea" :autosize="{ minRows: 3, maxRows: 3 }" show-word-limit maxlength="30">
 
                 </el-input>
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" @click="onSubmit">Create</el-button>
+                <el-button type="primary" @click="update_profile">确认修改</el-button>
                 <el-button>Cancel</el-button>
               </el-form-item>
             </el-form>
@@ -118,29 +118,28 @@
           </el-tab-pane>
           <el-tab-pane label="修改密码" name="修改密码">
 
-            <el-form :model="form2" :rules="rules" ref="dom" label-width="80px">
+            <el-form :model="form" :rules="rules" ref="dom" label-width="80px">
 
               <el-form-item label="验证码">
-                <el-input v-model="form2.code" placeholder="请输入验证码">
+                <el-input v-model="form.code" placeholder="请输入验证码">
                   <template #append>
                     <el-button @click="send_email">
-                      {{time === 0 ? "发送验证码" : time+'秒后获取'}}
+                      {{clock.countDownTime <= 0 ? "发送验证码" : clock.countDownTime+'秒后获取'}}
                     </el-button>
                   </template>
                 </el-input>
               </el-form-item>
               <el-form-item label="密码" prop="password">
-                <el-input v-model="form2.password" type="password" show-password placeholder="请输入密码" />
+                <el-input v-model="form.password" type="password" show-password placeholder="请输入密码" />
               </el-form-item>
 
               <el-form-item label="确认密码" prop="password2">
-                <el-input v-model="form2.password2" type="password" show-password placeholder="请再次输入密码" />
+                <el-input v-model="form.password2" type="password" show-password placeholder="请再次输入密码" />
               </el-form-item>
 
-              <el-form-item>
-                <el-button type="primary" @click="onSubmit">Create</el-button>
-                <el-button>Cancel</el-button>
-              </el-form-item>
+              <div style="display: flex; justify-content: space-around; align-items: center;">
+                <el-button type="primary" @click="update_password">修 改</el-button>
+              </div>
             </el-form>
 
           </el-tab-pane>
@@ -156,13 +155,15 @@
 
 <script lang="ts">
 
-import {ref, reactive, onMounted} from 'vue'
+import {ref, reactive, onMounted, toRaw} from 'vue'
 import type { TabsPaneContext } from 'element-plus'
 import {ElMessage, genFileId} from 'element-plus'
 import type { UploadInstance, UploadProps, UploadRawFile, UploadUserFile } from 'element-plus'
 import {useIntervalFn} from "@vueuse/core";
-import {get} from "@/utils/request";
+import {Get, Post} from "@/utils/request";
 import * as echarts from "echarts";
+import {useRoute, useRouter} from "vue-router";
+import store from "@/store";
 
 
 export default {
@@ -170,7 +171,7 @@ export default {
   components: {},
   setup() {
 
-    const activeName = ref('first')
+    const activeName = ref('我的作品')
 
     const handleClick = (tab: TabsPaneContext, event: Event) => {
       // console.log(tab, event)
@@ -182,23 +183,32 @@ export default {
       token: "",
     })
 
-    const my_nickname = ref('踏云')
-    const follow_count = ref(1)
-    const fans_count = ref(0)
-    const my_email = ref('909140058@qq.com')
-    const my_username = ref('Binigwei_Huang')
-    const my_introduction = ref('哈哈哈哈哈哈，哈哈哈哈哈哈哈。这个人很懒，没留下简介...')
+    const route = useRoute();
 
-    const avatarUrl = ref('https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png');
+    const the_account = reactive({
+      photo: '',
+      nickname: '',
+      followCount: 0,
+      fanCount: 0,
+      email: '',
+      username: '',
+      introduction: '',
+      displayWorks: true,
+      displayCollections: true,
+    });
+    const is_followed = ref();
+
+
+
     const fileList = ref<UploadUserFile[]>([
       /*{
         name: 'food.jpeg',
-        url: avatarUrl.value,
+        url: photoUrl.value,
       },*/
     ])
 
     const beforeAvatarUpload = (file) => {
-      upload_data.value.key = my_email.value;
+      upload_data.value.key = the_account.email;
       const isJPG = file.type === "image/jpeg";
       const isPNG = file.type === "image/png";
       const isLt2M = file.size / 1024 / 1024 < 2;
@@ -222,17 +232,6 @@ export default {
       }
     }
 
-    onMounted(() => {
-      get('analyze/poetry_statistics', false)
-          .then((resp) => {
-            upload_data.value.token = resp.data.qn_token
-          })
-          .catch((error) => {
-            console.log(error);
-          })
-
-    });
-
 
     const baseUrl = 'http://bwhlifetimelove.top/'
     
@@ -241,7 +240,7 @@ export default {
         response,
         uploadFile
     ) => {
-      avatarUrl.value = URL.createObjectURL(uploadFile.raw!)
+      the_account.photo = URL.createObjectURL(uploadFile.raw!)
       console.log('上传成功')
     }
     //上传失败后执行的代码
@@ -250,21 +249,11 @@ export default {
     }
 
 
-    const submitUpload = () => {
-      upload.value!.submit()
-    }
 
 
-    // do not use same name with ref
+
     const form = reactive({
-      nickname: my_nickname,
-      username: my_username,
-      display_works: false,
-      display_collections: false,
-      introduction: my_introduction,
-    })
-
-    const form2 = reactive({
+      email: '',
       code: '',
       password: '',
       password2: '',
@@ -292,7 +281,7 @@ export default {
         { required: true, message: "请再次输入密码", trigger: "blur" },
         {
           validator: function(rule, value, callback) {
-            if (form2.password !== form2.password2) {
+            if (form.password !== form.password2) {
               callback(new Error("两次输入密码不同"));
             } else {
               //校验通过
@@ -302,33 +291,75 @@ export default {
           trigger: "blur"
         }
       ],
-
-
     })
 
-    const useCountDown = () => {
-      const time = ref(0)
-      // pause 停止  resume继续
-      const { pause, resume } = useIntervalFn(
-          () => {
-            time.value--
-            if (time.value <= 0) {
-              pause()
-            }
-          },
-          1000,
-          { immediate: false }
-      )
+    const email_clock_seconds = 60
+    // 倒计时
+    const clock = reactive({
+      // 倒计时
+      countDownTime: 0,
+      timer: null,
+    })
+    const countDown = (the_seconds) => {
 
-      const start = (num) => {
-        // 赋值
-        time.value = num
-        // 调用
-        resume()
+      let startTime = localStorage.getItem('clockStartTime');
+      let nowTime = new Date().getTime();
+      if (startTime) {
+        let surplus = the_seconds - parseInt(((nowTime - parseInt(startTime)) / 1000).toString(), 10);
+        // let surplus = the_seconds - ((nowTime - parseInt(startTime)) / 1000)
+        clock.countDownTime = (surplus <= 0) ? 0 : surplus;
+      } else {
+        clock.countDownTime = the_seconds;
+        localStorage.setItem('clockStartTime', nowTime.toString());
       }
-      return { time, start }
+
+      if (clock.timer === null) {
+        clock.timer = setInterval(() => {
+          clock.countDownTime--;
+          if (clock.countDownTime <= 0) {
+            localStorage.removeItem('clockStartTime');
+            clearInterval(clock.timer);
+            clock.countDownTime = 0;
+          }
+        }, 1000)
+      }
     }
-    const { start, time } = useCountDown()
+
+    onMounted(() => {
+      let sendEndTime = localStorage.getItem('clockStartTime');
+      if (sendEndTime) countDown(email_clock_seconds)
+      /*Get('analyze/get_qiniu_token', {}, false)
+      .then((resp) => {
+        upload_data.value.token = resp.data.qn_token
+      })
+      .catch((error) => {
+        console.log(error);
+      })*/
+      const the_account_id = (route.params.account_id);
+      Get('account/account', {
+        account_id: the_account_id,
+        my_id: store.getters.get_account.id
+      }, false)
+      .then((resp) => {
+        // console.log('resp.data.account:', resp.data.account)
+        the_account.photo = resp.data.account.photo
+        the_account.nickname = resp.data.account.nickname
+        the_account.followCount = resp.data.account.followCount
+        the_account.fanCount = resp.data.account.fanCount
+        the_account.email = resp.data.account.email
+        form.email = resp.data.account.email
+        the_account.username = resp.data.account.username
+        the_account.introduction = resp.data.account.introduction
+        the_account.displayWorks = resp.data.account.displayWorks
+        the_account.displayCollections = resp.data.account.displayCollections
+
+        is_followed.value = resp.data.is_followed
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+
+    })
 
 
     const send_email = () => {
@@ -337,34 +368,17 @@ export default {
           // console.log('邮箱验证通过')
 
           // 如果大于0  直接return
-          if (time.value > 0) return
-
+          if (clock.countDownTime > 0) return false
           // 发送axios
-          await get('account/sign_in', {
-            'email' : my_email
+          await Get('account/update_password', {
+            'email' : form.email,
           }, false)
-              .then((resp) => {
-                console.log(resp.data.result)
-                ElMessage({
-                  showClose: true,
-                  message: '邮件发送成功~',
-                  type: 'success',
-                  duration: 5000,
-                })
-                start(60)
-              })
-              .catch((error) => {
-                console.log(error);
-                if (error.response.data.result === '邮箱已被注册') {
-                  ElMessage({
-                    showClose: true,
-                    message: '邮箱已被注册！',
-                    type: 'error',
-                    duration: 5000,
-                  })
-                }
-                console.log("error.response.data.result:",error.response.data.result);
-              })
+          .then((resp) => {
+            countDown(email_clock_seconds)
+          })
+          .catch((error) => {
+            console.log(error.response)
+          })
 
         } else {
           console.log('邮箱格式不对');
@@ -374,32 +388,74 @@ export default {
 
     }
 
-    const onSubmit = () => {
-      console.log('submit!')
+    const clear_form = () => {
+      Object.keys(form).map(key => {
+        form[key] = ''
+      })
+      // console.log('清空情况:', form)
+    }
+
+    const router = useRouter();
+    const update_password = () => {
+
+      dom.value.validate((valid) => {
+        console.log('校验结果', valid)
+        if (valid) {
+          console.log('form:', form)
+          Post('account/update_password', form, false)
+          .then((resp) => {
+            store.dispatch('logout')
+            router.push('/')
+            clear_form()
+          })
+          .catch((error) => {
+            console.log('error.response.data.result:', error.response.data.result);
+          })
+
+        } else {
+          console.log('校验不通过')
+        }
+      })
+    }
+    const update_profile = () => {
+      console.log('提交数据', form)
+
+      dom.value.validate((valid) => {
+        console.log('校验结果', valid)
+        if (valid) {
+
+          Post('account/update_password', form, false)
+          .then((resp) => {
+
+            clear_form()
+          })
+          .catch((error) => {
+            console.log('error.response.data.result:', error.response.data.result);
+          })
+
+        } else {
+          console.log('校验不通过')
+        }
+      })
     }
 
     
 
     return {
+      update_password,
+      update_profile,
+
+      the_account,
+      is_followed,
+
       form,
-      onSubmit,
-
-      my_nickname,
-      follow_count,
-      fans_count,
-      my_email,
-      my_username,
-      my_introduction,
-
-      form2,
       dom,
       rules,
-      time,
+      clock,
       send_email,
 
       activeName,
       handleClick,
-      avatarUrl,
       fileList,
 
       upload,
@@ -407,7 +463,6 @@ export default {
       handleAvatarSuccess,
       uploadError,
       beforeAvatarUpload,
-      submitUpload,
     }
   }
 }

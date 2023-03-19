@@ -189,21 +189,30 @@ const httpErrorStatusHandle = (error) => {
 }
 
 // 有些 api 并不需要用户授权使用，则无需携带 access_token；默认不携带，需要传则设置第三个参数为 true
-export const get = (url, params = {}, isNeedToken = false, Loading = 0) => {
+export const Get = (url, params = {}, isNeedToken = false, Loading = 0) => {
     setHeaderToken(isNeedToken)
     instance.defaults.headers.Loading = Loading
-    const ret = instance({
+    return instance({
         method: 'get',
         url,
         params,
     })
-    return ret
 }
-export const post = (url, params = {}, isNeedToken = false) => {
+export const Post = (url, params = {}, isNeedToken = false) => {
     setHeaderToken(isNeedToken)
     return instance({
         method: 'post',
         url,
         data: params
+    })
+}
+
+export const Delete = (url, params = {}, isNeedToken = false, Loading = 0) => {
+    setHeaderToken(isNeedToken)
+    instance.defaults.headers.Loading = Loading
+    return instance({
+        method: 'delete',
+        url,
+        params,
     })
 }

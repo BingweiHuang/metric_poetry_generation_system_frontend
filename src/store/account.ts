@@ -1,5 +1,5 @@
 // import $ from 'jquery';
-import {get, post} from "@/utils/request";
+import {Get, Post} from "@/utils/request";
 import jwt_decode from 'jwt-decode';
 import {ElMessage} from "element-plus";
 
@@ -55,7 +55,7 @@ const ModuleAccount = {
     actions: {
         login(context, data) {
 
-            post('account/login', {
+            Post('account/login', {
                 username: data.username,
                 password: data.password,
             }, false)
@@ -68,20 +68,19 @@ const ModuleAccount = {
                 })
                 const {access, refresh} = resp.data;
                 const access_obj:any = jwt_decode(access);
-                console.log('access:',access)
-                console.log('refresh:',refresh)
+                // console.log('access:',access)
+                // console.log('refresh:',refresh)
                 context.commit('set_access', access)
                 // console.log('access的存储情况:', context.getters('get_access'))
                 context.commit('set_refresh', refresh)
 
-                get('account/account', {
+                Get('account/account', {
                     'account_id': access_obj.user_id,
                     'my_id': access_obj.user_id,
                 }, true)
                 .then((resp) => {
 
-                    console.log('resp.data:',resp.data)
-                    context.commit("set_account", resp.data);
+                    context.commit("set_account", resp.data.account);
 
                     data.success();
                 });

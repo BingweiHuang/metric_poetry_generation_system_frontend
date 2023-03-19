@@ -481,7 +481,7 @@ import {
   Search,
 } from '@element-plus/icons-vue'
 import {useStore} from "vuex";
-import {get} from "@/utils/request";
+import {Get} from "@/utils/request";
 export default {
   name: "MetricDetectionView",
   components: {},
@@ -543,7 +543,7 @@ export default {
       }
 
 
-      const ret = await get('detection/metric_poetry', {
+      const ret = await Get('detection/metric_poetry', {
         text: text_filter,
         yan: yan.value ? 7 : 5,
         jue: jue.value ? 0 : 1,
@@ -847,7 +847,7 @@ export default {
       } else {
         searched_word.value = word
 
-        get('rhyme/search_rhyme', {
+        Get('rhyme/search_rhyme', {
           'word': word,
         }, false)
         .then((resp) => {

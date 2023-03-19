@@ -167,7 +167,7 @@ import ShiCard from "@/components/ShiCard.vue";
 import CiCard from "@/components/CiCard.vue";
 import {instance} from "@/utils/utils";
 import {ElMessage} from "element-plus";
-import {get} from "@/utils/request";
+import {Get} from "@/utils/request";
 export default {
   name: "PoetrySearchView",
   components: {
@@ -382,7 +382,7 @@ export default {
       }
 
 
-      let ret = await get(query_url, kwargs, false)
+      let ret = await Get(query_url, kwargs, false)
 
       if (ret.data.poetryList.length === 0) {
         ElMessage({
@@ -399,7 +399,7 @@ export default {
     const load = () => {
       console.log('触发load')
       kwargs['idx'] = kwargs['idx'] + 1 // 下一页
-      get(query_url, kwargs, false)
+      Get(query_url, kwargs, false)
       .then((resp) => {
         let result = resp.data.poetryList
         console.log('result:', result)

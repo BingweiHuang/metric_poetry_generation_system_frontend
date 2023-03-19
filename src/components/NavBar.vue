@@ -43,18 +43,15 @@
 
           <div class="flex-grow" />
 
-<!--          <el-menu-item index="/My" v-if="store.getters.get_is_login === true">
-            我的
-          </el-menu-item>
-          <el-menu-item index="/Login" v-else>
-            登录
-          </el-menu-item>-->
 
-          <el-button link type="info" v-if="$store.state.account.is_login === true" @click="log_out">
-              退出登录
-          </el-button>
+          <el-menu-item :index="'/Profile/' + $store.getters.get_account.id" v-if="$store.getters.get_is_login">
+            家
+          </el-menu-item>
           <el-button link type="info" v-else @click="open_login_table">
               登录
+          </el-button>
+          <el-button link type="info" @click="log_out">
+            退出登录
           </el-button>
 
         </el-menu>
@@ -97,18 +94,14 @@
               {{ item.content }}
             </el-menu-item>
 
-<!--            <el-menu-item index="/My" v-if="store.getters.get_is_login === true">
-              退出登录
+            <el-menu-item :index="'/Profile/' + $store.getters.get_account.id" v-if="$store.getters.get_is_login">
+              家
             </el-menu-item>
-            <el-menu-item index="/Login" v-else>
-              登录
-            </el-menu-item>-->
-
-            <el-button link type="info" v-if="$store.state.account.is_login === true" @click="log_out">
-              退出登录
-            </el-button>
             <el-button link type="info" v-else @click="open_login_table">
               登录
+            </el-button>
+            <el-button link type="info" @click="log_out">
+              退出登录
             </el-button>
 
 
@@ -138,7 +131,7 @@
           <el-input v-model="form.code" placeholder="请输入验证码">
             <template #append>
               <el-button @click="send_email">
-                {{time === 0 ? "发送验证码" : time+'秒后获取'}}
+                {{clock.countDownTime <= 0 ? "发送验证码" : clock.countDownTime+'秒后获取'}}
               </el-button>
             </template>
           </el-input>
@@ -194,8 +187,9 @@ import {onMounted, reactive, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useStore} from "vuex";
 import {ElMessage} from "element-plus";
-import {get, post} from "@/utils/request";
+import {Get, Post} from "@/utils/request";
 import { useIntervalFn } from '@vueuse/core'
+import store from "@/store";
 
 
 export default {
@@ -207,95 +201,76 @@ export default {
 
   },
   setup() {
+    const email_clock_seconds = 60
 
     // 倒计时
-    const useCountDown = () => {
-      const time = ref(0)
-      // pause 停止  resume继续
-      const { pause, resume } = useIntervalFn(
-          () => {
-            time.value--
-            if (time.value <= 0) {
-              pause()
-            }
-          },
-          1000,
-          { immediate: false }
-      )
+    const clock = reactive({
+      // 倒计时
+      countDownTime: 0,
+      timer: null,
+    })
+    const countDown = (the_seconds) => {
 
-      const start = (num) => {
-        // 赋值
-        time.value = num
-        // 调用
-        resume()
+      let startTime = localStorage.getItem('clockStartTime');
+      let nowTime = new Date().getTime();
+      if (startTime) {
+        let surplus = the_seconds - parseInt(((nowTime - parseInt(startTime)) / 1000).toString(), 10);
+        // let surplus = the_seconds - ((nowTime - parseInt(startTime)) / 1000)
+        clock.countDownTime = (surplus <= 0) ? 0 : surplus;
+      } else {
+        clock.countDownTime = the_seconds;
+        localStorage.setItem('clockStartTime', nowTime.toString());
       }
-      return { time, start }
+
+      if (clock.timer === null) {
+        clock.timer = setInterval(() => {
+          clock.countDownTime--;
+          if (clock.countDownTime <= 0) {
+            localStorage.removeItem('clockStartTime');
+            clearInterval(clock.timer);
+            clock.countDownTime = 0;
+          }
+        }, 1000)
+      }
     }
-    const { start, time } = useCountDown()
+
+    onMounted(() => {
+      let sendEndTime = localStorage.getItem('clockStartTime');
+      if (sendEndTime) countDown(email_clock_seconds)
+      console.log('store.getters.get_is_login:', store.getters.get_is_login)
+    })
+
 
 
     const send_email = () => {
       dom.value.validateField('email', async (valid) => {
         if (valid) {
-          // console.log('邮箱验证通过')
 
           // 如果大于0  直接return
-          if (time.value > 0) return
+          if (clock.countDownTime > 0) return false
 
           if (form_state.value === '注册') {
             // 发送axios
-            await get('account/sign_in', {
+            await Get('account/sign_in', {
               'email' : form.email
             }, false)
                 .then((resp) => {
-                  console.log(resp.data.result)
-                  ElMessage({
-                    showClose: true,
-                    message: '邮件发送成功~',
-                    type: 'success',
-                    duration: 5000,
-                  })
-                  start(60)
+                  countDown(email_clock_seconds)
                 })
                 .catch((error) => {
-                  console.log(error);
-                  if (error.response.data.result === '邮箱已被注册') {
-                    ElMessage({
-                      showClose: true,
-                      message: '邮箱已被注册！',
-                      type: 'error',
-                      duration: 5000,
-                    })
-                  }
-                  console.log("error.response.data.result:",error.response.data.result);
+                  console.log(error.response)
                 })
           } else if (form_state.value === '找回密码') {
             // 发送axios
-            console.log('走的找回密码')
-            await get('account/update_password', {
+            await Get('account/update_password', {
               'email' : form.email
             }, false)
                 .then((resp) => {
                   console.log(resp.data.result)
-                  ElMessage({
-                    showClose: true,
-                    message: '邮件发送成功~',
-                    type: 'success',
-                    duration: 5000,
-                  })
-                  start(60)
+                  countDown(email_clock_seconds)
                 })
                 .catch((error) => {
-                  console.log(error);
-                  if (error.response.data.result === '邮箱不存在') {
-                    ElMessage({
-                      showClose: true,
-                      message: '邮箱不存在！',
-                      type: 'error',
-                      duration: 5000,
-                    })
-                  }
-                  console.log("error.response.data.result:",error.response.data.result);
+                  console.log(error.response)
                 })
           }
 
@@ -308,14 +283,13 @@ export default {
 
     }
 
-
     const store = useStore();
 
 
-    console.log(store.state.account.account)
-    console.log(store.state.account.access)
-    console.log(store.state.account.refresh)
-    console.log(store.state.account.is_login)
+    console.log(store.getters.get_account)
+    console.log(store.getters.get_access)
+    console.log(store.getters.get_refresh)
+    console.log(store.getters.get_is_login)
 
     const activeIndex = ref('/')
     const activeIndex2 = ref('1')
@@ -352,20 +326,21 @@ export default {
         index: '/WorldCircle',
         content: '游子天涯',
       },
-      {
+      /*{
         index: '/Profile',
         content: '个人中心',
-      },
+      },*/
 
     ]
 
     const route = useRoute();
+    const router = useRouter();
 
     watch(
         ()=>(route.path),
         (val,preVal)=>{
           //val为修改后的值,preVal为修改前的值
-          console.log(val, preVal)
+          // console.log(val, preVal)
           if (activeIndex.value !== val) {
             activeIndex.value = val;
           }
@@ -495,6 +470,7 @@ export default {
 
 
     const log_out = () => {
+      router.push('/')
       store.dispatch('logout');
     }
 
@@ -509,9 +485,7 @@ export default {
           clear_form()
         },
         error() {
-          form.email = ''
-          form.password = ''
-          form.password2 = ''
+          clear_form()
           ElMessage({
             showClose: true,
             message: '用户名或密码错误~',
@@ -531,10 +505,12 @@ export default {
         console.log('校验结果', valid)
         if (valid) {
 
-          post('account/sign_in', form, false)
+          Post('account/sign_in', form, false)
           .then((resp) => {
-            dialogFormVisible.value = false
+            router.push('/')
             clear_form()
+            dialogFormVisible.value = true
+            form_state.value = '登录'
           })
           .catch((error) => {
             console.log(error.response.data.result);
@@ -553,10 +529,14 @@ export default {
         console.log('校验结果', valid)
         if (valid) {
 
-          post('account/update_password', form, false)
+          Post('account/update_password', form, false)
           .then((resp) => {
-            dialogFormVisible.value = false
+
+            store.dispatch('logout')
+            router.push('/')
             clear_form()
+            dialogFormVisible.value = true
+
           })
           .catch((error) => {
             console.log('error.response.data.result:', error.response.data.result);
@@ -619,8 +599,7 @@ export default {
       trans_login,
       trans_forget,
       open_login_table,
-
-      time,
+      clock,
     }
 },
 

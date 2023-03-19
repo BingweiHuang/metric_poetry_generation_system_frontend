@@ -66,7 +66,7 @@ const routes: Array<RouteRecordRaw> = [
 
   },
   {
-    path: '/Profile',
+    path: '/Profile/:account_id',
     name: 'ProfileView',
     // component: () => import('@/views/HomeView.vue'), // 懒加载
     component: ProfileView,

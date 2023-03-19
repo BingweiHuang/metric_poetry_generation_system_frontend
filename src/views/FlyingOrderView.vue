@@ -173,7 +173,7 @@ import ShiCard from "@/components/ShiCard.vue";
 import CiCard from "@/components/CiCard.vue";
 import {instance} from "@/utils/utils";
 import {ElMessage} from "element-plus";
-import {get} from "@/utils/request";
+import {Get} from "@/utils/request";
 
 export default {
   name: "FlyingOrderView",
@@ -417,7 +417,7 @@ export default {
       }
 
 
-      let ret = await get('fly/fly', kwargs, false)
+      let ret = await Get('fly/fly', kwargs, false)
 
       if (ret.data.flyList.length === 0) {
         ElMessage({
@@ -430,7 +430,7 @@ export default {
 
     const load = () => {
       kwargs['idx'] = kwargs['idx'] + 1 // 下一页
-      get('fly/fly', kwargs, false)
+      Get('fly/fly', kwargs, false)
       .then((resp) => {
         let result = resp.data.flyList
         if (result.length === 0) {
