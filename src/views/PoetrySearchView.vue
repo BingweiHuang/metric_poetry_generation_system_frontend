@@ -44,7 +44,7 @@
         </el-row>
 
         <!-- 检索条件3（诗） -->
-        <div  v-if="poetry_dynasty_value && poetry_dynasty_value[0] === 'shi'">
+        <div  v-if="poetry_dynasty_value && poetry_dynasty_value[0] === 'shis'">
 
           <el-row justify="center" align="middle" :gutter="0">
 
@@ -103,8 +103,8 @@
     <div style="min-height: 600px">
       <el-space size="" wrap style="width: 100%; justify-content: center;">
         <template v-for="poetry in poetryList.slice((currentPage - 1) * pageSize, currentPage * pageSize)" :key="poetry.id">
-          <ShiCard :poetry="poetry" v-if="shici === 'shi'" />
-          <CiCard :poetry="poetry" v-else-if="shici === 'ci'"/>
+          <ShiCard :poetry="poetry" v-if="shici === 'shis'" />
+          <CiCard :poetry="poetry" v-else-if="shici === 'cis'"/>
         </template>
         <template v-if="poetryList.length === 0">
           <el-empty description="浅浅检索一下吧"/>
@@ -177,7 +177,7 @@ export default {
   setup() {
     const poetry_dynasty_options = ref([
       {
-        value: 'shi',
+        value: 'shis',
         label: '诗',
         children: [
           {
@@ -203,7 +203,7 @@ export default {
         ]
       },
       {
-        value: 'ci',
+        value: 'cis',
         label: '词',
         children: [
           {
@@ -324,7 +324,8 @@ export default {
     };
 
     let kwargs = {};
-    let idx = 0
+    let default_limit = 24; // 一页多少条数据
+    let next_url = ''
     let query_url = ''
     const poetry_search = async () => {
       if (!poetry_dynasty_value.value) {
@@ -340,10 +341,10 @@ export default {
       shici.value = poetry_dynasty_value.value[0]
       const dynasty = poetry_dynasty_value.value[1]
 
-      query_url = "poetry/" + shici.value // 需要发送axios请求的url
-      kwargs = {};
-      idx = 0
-      kwargs['idx'] = idx
+      query_url = "search/" + shici.value + '/' // 需要发送axios请求的url
+      kwargs = {
+        limit: default_limit,
+      };
 
       if (dynasty === '三百首') {
         kwargs['three_hundred'] = 1
@@ -354,7 +355,7 @@ export default {
       poetryList.value = [];
 
 
-      if (shici.value === 'shi') { // 如果选的是诗
+      if (shici.value === 'shis') { // 如果选的是诗
 
         if (metric_value.value !== -1) { // 如果选了古近体
           kwargs['metric'] = metric_value.value
@@ -384,36 +385,40 @@ export default {
 
       let ret = await Get(query_url, kwargs, false)
 
-      if (ret.data.poetryList.length === 0) {
+      if (ret.data.results.length === 0) {
         ElMessage({
           message:'喏哦~ 没有符合条件的诗词喔~ 换个条件戏一下的喔',
           duration: 5000
         })
       }
-      poetryList.value = ret.data.poetryList
-      console.log(ret.data.poetryList)
+      poetryList.value = ret.data.results
+      next_url = ret.data.next
+      if (ret.data.results.length < default_limit) have_more.value = false
     }
 
     const have_more = ref(true)
 
     const load = () => {
       console.log('触发load')
-      kwargs['idx'] = kwargs['idx'] + 1 // 下一页
-      Get(query_url, kwargs, false)
+
+      if (next_url === null || next_url === '') {
+        have_more.value = false
+        ElMessage({
+          showClose: true,
+          message: '已经没有数据咯~',
+          type: 'warning',
+          duration: 5000,
+        })
+        return false
+      }
+
+      Get(next_url, kwargs, false)
       .then((resp) => {
-        let result = resp.data.poetryList
-        console.log('result:', result)
-        if (result.length === 0) {
-          have_more.value = false
-          ElMessage({
-            showClose: true,
-            message: '已经没有数据咯~',
-            type: 'warning',
-            duration: 5000,
-          })
-        } else {
-          poetryList.value = poetryList.value.concat(result)
-        }
+        let result = resp.data.results
+        next_url = resp.data.next
+        if (result.length < default_limit) have_more.value = false
+        poetryList.value = poetryList.value.concat(result)
+
       })
       .catch((error) => {
         console.log(error);

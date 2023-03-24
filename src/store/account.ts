@@ -55,7 +55,7 @@ const ModuleAccount = {
     actions: {
         login(context, data) {
 
-            Post('account/login', {
+            Post('account/login/', {
                 username: data.username,
                 password: data.password,
             }, false)
@@ -74,14 +74,9 @@ const ModuleAccount = {
                 // console.log('access的存储情况:', context.getters('get_access'))
                 context.commit('set_refresh', refresh)
 
-                Get('account/account', {
-                    'account_id': access_obj.user_id,
-                    'my_id': access_obj.user_id,
-                }, true)
+                Get('account/accounts/' + access_obj.user_id, {}, true)
                 .then((resp) => {
-
-                    context.commit("set_account", resp.data.account);
-
+                    context.commit("set_account", resp.data);
                     data.success();
                 });
             }).catch((error) => {

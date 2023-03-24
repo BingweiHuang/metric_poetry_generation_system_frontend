@@ -21,7 +21,7 @@ const instance = axios.create({
     }
 })
 
-const indx2text = ['', '作诗中']
+const indx2text = ['', '作诗中', '邮件发送中']
 
 instance.interceptors.request.use(
     config => {
@@ -160,15 +160,21 @@ function closeLoading() {
 
 const httpErrorStatusHandle = (error) => {
     let message = '';
-
+    const dict = error.response.data;
     switch(error.response.status) {
         case 302: message = '接口重定向了！';break;
-        case 400: message = '参数不正确！';break;
+        // case 400: message = '参数不正确！';break;
+        case 400:
+            for (const key in dict) {
+                message += dict[key] + '\n';
+            }
+            break;
         // case 401: message = '您未登录，或者登录已经超时，请先登录！';break;
         case 403: message = '您没有权限操作！'; break;
         case 404: message = `请求地址出错: ${error.response.config.url}`; break; // 在正确域名下
         case 408: message = '请求超时！'; break;
         case 409: message = '系统已存在相同数据！'; break;
+        case 429: message = '系统限流'; break;
         case 500: message = error.response.data.result ? error.response.data.result : '服务器内部错误！'; break;
         case 501: message = '服务未实现！'; break;
         case 502: message = '网关错误！'; break;

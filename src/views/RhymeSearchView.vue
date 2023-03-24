@@ -326,7 +326,7 @@ export default {
       } else {
         searched_word.value = word
 
-        Get('rhyme/search_rhyme', {
+        Get('rhyme/search_rhyme/', {
           'word': word,
         }, false)
         .then((resp) => {

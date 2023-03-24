@@ -1,4 +1,5 @@
 import {instance} from "@/utils/utils";
+import {Get} from "@/utils/request";
 
 const ModuleRhyme = {
     state: {
@@ -27,21 +28,7 @@ const ModuleRhyme = {
     },
     actions: {
         async updateAllRhyme(context: any, data: any) {
-            await instance({
-                url:'rhyme/all_rhyme',
-                method:'get',
-                headers: {
-                    // 'Authorization': "Bearer " + store.state.user.access,
-                },
-                // params: data.args,
-            },
-                {
-                    loading: true
-                },
-                {
-                    text: '登录....'
-                }
-                )
+            await Get('rhyme/all_rhyme/', {}, true)
             .then((resp) => {
                 context.commit('set_xinyun', resp.data.xinyun2word);
                 context.commit('set_pingshui', resp.data.pingshui2word);

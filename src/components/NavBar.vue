@@ -251,9 +251,9 @@ export default {
 
           if (form_state.value === '注册') {
             // 发送axios
-            await Get('account/sign_in', {
+            await Get('account/sign_in/', {
               'email' : form.email
-            }, false)
+            }, false, 2)
                 .then((resp) => {
                   countDown(email_clock_seconds)
                 })
@@ -262,9 +262,9 @@ export default {
                 })
           } else if (form_state.value === '找回密码') {
             // 发送axios
-            await Get('account/update_password', {
+            await Get('account/update_password/', {
               'email' : form.email
-            }, false)
+            }, false, 2)
                 .then((resp) => {
                   console.log(resp.data.result)
                   countDown(email_clock_seconds)
@@ -388,7 +388,7 @@ export default {
         {
           validator: function(rule, value, callback) {
             if (/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#.$@!%&*?])[A-Za-z\d#.$@!%&*?]{8,16}$/.test(value) == false) {
-              callback(new Error("密码必须为8~16位，数字+英文字母+特殊符号"));
+              callback(new Error("密码必须为8~16位，数字+大写和小写英文+特殊符号"));
             } else {
               //校验通过
               callback();
@@ -505,7 +505,7 @@ export default {
         console.log('校验结果', valid)
         if (valid) {
 
-          Post('account/sign_in', form, false)
+          Post('account/sign_in/', form, false)
           .then((resp) => {
             router.push('/')
             clear_form()
@@ -529,7 +529,7 @@ export default {
         console.log('校验结果', valid)
         if (valid) {
 
-          Post('account/update_password', form, false)
+          Post('account/update_password/', form, false)
           .then((resp) => {
 
             store.dispatch('logout')

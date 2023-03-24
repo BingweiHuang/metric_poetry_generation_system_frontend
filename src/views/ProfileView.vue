@@ -196,7 +196,7 @@ export default {
       displayWorks: true,
       displayCollections: true,
     });
-    const is_followed = ref();
+    const is_followed = ref(true);
 
 
 
@@ -336,28 +336,39 @@ export default {
         console.log(error);
       })*/
       const the_account_id = (route.params.account_id);
-      Get('account/account', {
-        account_id: the_account_id,
-        my_id: store.getters.get_account.id
-      }, false)
+      Get('account/accounts/' + the_account_id, {}, false)
       .then((resp) => {
         // console.log('resp.data.account:', resp.data.account)
-        the_account.photo = resp.data.account.photo
-        the_account.nickname = resp.data.account.nickname
-        the_account.followCount = resp.data.account.followCount
-        the_account.fanCount = resp.data.account.fanCount
-        the_account.email = resp.data.account.email
-        form.email = resp.data.account.email
-        the_account.username = resp.data.account.username
-        the_account.introduction = resp.data.account.introduction
-        the_account.displayWorks = resp.data.account.displayWorks
-        the_account.displayCollections = resp.data.account.displayCollections
-
-        is_followed.value = resp.data.is_followed
+        the_account.photo = resp.data.photo
+        the_account.nickname = resp.data.nickname
+        the_account.followCount = resp.data.followCount
+        the_account.fanCount = resp.data.fanCount
+        the_account.email = resp.data.email
+        form.email = resp.data.email
+        the_account.username = resp.data.username
+        the_account.introduction = resp.data.introduction
+        the_account.displayWorks = resp.data.displayWorks
+        the_account.displayCollections = resp.data.displayCollections
       })
       .catch((error) => {
         console.log(error);
       })
+
+      const my_id = store.getters.get_account.id;
+      if (my_id !== the_account_id) {
+        Get('account/follows/', {
+          fan: my_id,
+          follow: the_account_id,
+        }, false)
+            .then((resp) => {
+              if (resp.data.id && 1) is_followed.value = true;
+              else is_followed.value = false;
+            })
+            .catch((error) => {
+              console.log(error);
+            })
+      }
+
 
     })
 
@@ -370,7 +381,7 @@ export default {
           // 如果大于0  直接return
           if (clock.countDownTime > 0) return false
           // 发送axios
-          await Get('account/update_password', {
+          await Get('account/update_password/', {
             'email' : form.email,
           }, false)
           .then((resp) => {
@@ -402,7 +413,7 @@ export default {
         console.log('校验结果', valid)
         if (valid) {
           console.log('form:', form)
-          Post('account/update_password', form, false)
+          Post('account/update_password/', form, false)
           .then((resp) => {
             store.dispatch('logout')
             router.push('/')
@@ -424,7 +435,7 @@ export default {
         console.log('校验结果', valid)
         if (valid) {
 
-          Post('account/update_password', form, false)
+          Post('account/update_password/', form, false)
           .then((resp) => {
 
             clear_form()

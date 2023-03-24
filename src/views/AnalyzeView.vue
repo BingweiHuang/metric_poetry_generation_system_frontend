@@ -269,8 +269,9 @@
 <script lang="ts">
 import {onMounted, ref} from "vue";
 import {ElMessage} from "element-plus";
-import {instance} from "@/utils/utils";
 import * as echarts from "echarts";
+import 'echarts-wordcloud';
+
 import {
   Search,
   User,
@@ -439,7 +440,7 @@ export default {
         'three_hundred': three_hundred,
       }
 
-      await Get('analyze/author_output', kwargs, false)
+      await Get('analyze/author_output/', kwargs, false)
       .then((resp) => {
         res_list = resp.data.res_list
       })
@@ -904,7 +905,7 @@ export default {
 
       let res_list = []
 
-      await Get('analyze/poetry_statistics', {
+      await Get('analyze/poetry_statistics/', {
         'rhyme_num': num,
         'dynasty': dynasty2_value.value,
         'author': author,
@@ -1244,7 +1245,7 @@ export default {
 
       let res_list = []
 
-      await Get('analyze/word_list', {
+      await Get('analyze/word_list/', {
         'word_list': the_word_list.join(' '),
         'dynasty': trans[dynasty3_value.value]['dynasty'],
         'shici': trans[dynasty3_value.value]['shici'],
@@ -1418,8 +1419,9 @@ export default {
 
 
 
-      await Get('analyze/word_frequency', kwargs, false)
+      await Get('analyze/word_frequency/', kwargs, false)
           .then((resp) => {
+            console.log('resp.data.word_list:', word_list)
             word_list = resp.data.word_list
           })
           .catch((error) => {
@@ -1581,13 +1583,14 @@ export default {
 
       console.log(author)
 
-      await Get('analyze/rhythmic_statistics', {
+      await Get('analyze/rhythmic_statistics/', {
         'num': rhythmic_num_value.value,
         'dynasty': dynasty5_value.value,
         'author': author,
       }, false)
       .then((resp) => {
         word_list = resp.data.word_list
+        console.log('resp.data.word_list:', word_list)
       })
       .catch((error) => {
         console.log(error);
@@ -1700,7 +1703,7 @@ export default {
         'jue': jue_value.value,
         'three_hundred': three_hundred,
       }
-      await Get('analyze/author_output', kwargs, false)
+      await Get('analyze/author_output/', kwargs, false)
       .then((resp) => {
         res_list = resp.data.res_list
       })
@@ -2126,7 +2129,7 @@ export default {
 
       let res_list = []
 
-      await Get('analyze/poetry_statistics', {
+      await Get('analyze/poetry_statistics/', {
         'rhyme_num': num,
         'dynasty': dynasty2_value.value,
         'author': author,
@@ -2323,7 +2326,7 @@ export default {
 
       let res_list = []
 
-      await Get('analyze/word_list', {
+      await Get('analyze/word_list/', {
         'word_list': the_word_list.join(' '),
         'dynasty': trans[dynasty3_value.value]['dynasty'],
         'shici': trans[dynasty3_value.value]['shici'],
@@ -2404,10 +2407,11 @@ export default {
       else if (phrase_value.value === 1) kwargs['word_len'] = 2
 
 
-      // await Get('analyze/word_frequency', kwargs, false)
-      await Get('analyze/word_frequency', kwargs, false)
+      // await Get('analyze/word_frequency/', kwargs, false)
+      await Get('analyze/word_frequency/', kwargs, false)
       .then((resp) => {
         word_list = resp.data.word_list
+        console.log('resp.data.word_list:', word_list)
       })
       .catch((error) => {
         console.log(error);
@@ -2499,7 +2503,7 @@ export default {
         })
       }
 
-      await Get('analyze/rhythmic_statistics', {
+      await Get('analyze/rhythmic_statistics/', {
         'num': rhythmic_num_value.value,
         'dynasty': dynasty5_value.value,
         'author': author,
@@ -2507,6 +2511,7 @@ export default {
 
       .then((resp) => {
         word_list = resp.data.word_list
+        console.log('resp.data.word_list:', word_list)
       })
       .catch((error) => {
         console.log(error);

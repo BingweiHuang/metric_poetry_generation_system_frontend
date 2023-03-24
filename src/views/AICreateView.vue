@@ -289,7 +289,7 @@ export default {
 
       //axios是异步请求（返回Promise对象），想要让ret获取到他的结果然后给flag 必须用async/await使其同步
 
-      const ret = await Get('detection/first_sentence', {
+      const ret = await Get('rhyme/first_sentence/', {
         text: text,
         yan: yan ? 7 : 5,
         qi: qi ? 1 : 0,
@@ -379,7 +379,7 @@ export default {
 
       lstm_change_state(1) // 字数和韵律都符合规范 切换状态 开始作诗
 
-      await Get('create/lstm', {
+      await Get('create/lstm/', {
         text: text_filter,
         yan: yan.value ? 7 : 5,
         jue: jue.value ? 0 : 1,
@@ -448,7 +448,7 @@ export default {
       }
 
       gpt2_change_state(1);
-      await Get('create/gpt2', {
+      await Get('create/gpt2/', {
         text: text_filter,
         yan: yan2.value ? 7 : 5,
         jue: jue2.value ? 0 : 1,

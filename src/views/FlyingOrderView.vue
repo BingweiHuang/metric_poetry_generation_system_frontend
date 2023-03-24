@@ -183,8 +183,9 @@ export default {
   },
   setup() {
 
-    let idx = 0
+    let next_url = ''
     let kwargs
+    let default_limit = 24; // 一页多少条数据
 
     const have_input = ref('')
     let search_have_list = []
@@ -311,6 +312,8 @@ export default {
       return text.replace(regEx, '');
     }
 
+
+
     const poetry_search = async () => {
       let have_str = have_input.value
       let no_have_str = no_have_input.value
@@ -350,7 +353,7 @@ export default {
         return false
       }
 
-      idx = 0
+
       flyList.value = []
 
       if (have_str !== '') { // 如果 含 输入了
@@ -394,8 +397,9 @@ export default {
         return false
       }
 
-      kwargs = {};
-      kwargs['idx'] = idx;
+      kwargs = {
+        limit: default_limit,
+      };
       // console.log('诗词:', search_poetry_value)
       if (search_poetry_value !== -1) {
         kwargs['kind'] = search_poetry_value
@@ -417,33 +421,34 @@ export default {
       }
 
 
-      let ret = await Get('fly/fly', kwargs, false)
-
-      if (ret.data.flyList.length === 0) {
+      let ret = await Get('search/flys/', kwargs, false)
+      next_url = ret.data.next
+      if (ret.data.results.length === 0) {
         ElMessage({
           message:'喏哦~ 条件太复杂，飞不出来了喔~ 换个条件飞一下的喔',
           duration: 5000
         })
       }
-      flyList.value = ret.data.flyList
+      flyList.value = ret.data.results
     }
 
     const load = () => {
-      kwargs['idx'] = kwargs['idx'] + 1 // 下一页
-      Get('fly/fly', kwargs, false)
-      .then((resp) => {
-        let result = resp.data.flyList
-        if (result.length === 0) {
-          ElMessage({
-            showClose: true,
-            message: '已经没有数据咯~',
-            type: 'warning',
-            duration: 5000,
-          })
-        } else {
-          flyList.value = flyList.value.concat(result)
-        }
 
+      if (next_url === null || next_url === '') {
+        ElMessage({
+          showClose: true,
+          message: '已经没有数据咯~',
+          type: 'warning',
+          duration: 5000,
+        })
+        return false
+      }
+
+      Get(next_url, kwargs, false)
+      .then((resp) => {
+        let result = resp.data.results
+        next_url = resp.data.next
+        flyList.value = flyList.value.concat(result)
       })
       .catch((error) => {
         console.log(error);

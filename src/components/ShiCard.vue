@@ -19,7 +19,7 @@
 
     <div class="poetry-tags">
       <el-tag class="mx-1" effect="light" type="" :round="true">
-        {{poetry.metric === 1 ? '近体' : '古体'}}
+        {{poetry.metric ? '近体' : '古体'}}
       </el-tag>
       <template v-if="poetry.jue !== 3">
         <el-tag class="mx-1" effect="light" type="" :round="true">
@@ -32,16 +32,16 @@
           {{poetry.rhyme}}
         </el-tag>
         <el-tag class="mx-1" effect="light" type="" :round="true">
-          {{poetry.ru === 0 ? '入韵' : '不入韵'}}
+          {{poetry.ru === false ? '入韵' : '不入韵'}}
         </el-tag>
       </template>
 
       <template v-if="poetry.metric === 1">
         <el-tag class="mx-1" effect="light" type="" :round="true" >
-          {{poetry.qi === 1 ? '平起' : '仄起'}}
+          {{poetry.qi ? '平起' : '仄起'}}
         </el-tag>
       </template>
-      <template v-if="poetry.three_hundred && poetry.three_hundred === 1">
+      <template v-if="poetry.three_hundred">
         <el-tag class="mx-1" effect="light" type="" :round="true" >
           唐诗三百首
         </el-tag>
