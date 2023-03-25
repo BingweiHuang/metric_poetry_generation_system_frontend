@@ -38,7 +38,6 @@ instance.interceptors.request.use(
         config.headers["Content-Type"] = 'application/x-www-form-urlencoded;charset=UTF-8';
         // 携带token验证
         if (!config.headers.Authorization && store.getters.get_access !== '') {
-            // console.log('store.getters.get_access:',store.getters.get_access)
             config.headers.Authorization = "Bearer " + store.getters.get_access;
         }
 
@@ -58,7 +57,7 @@ instance.interceptors.response.use(response => {
             showClose: true,
             type: 'success',
             message: response.data.result,
-            duration: 5000,
+            duration: 3000,
         })
     }
     return response
@@ -70,30 +69,37 @@ instance.interceptors.response.use(response => {
             showClose: true,
             type: 'error',
             message: '服务器太拉，压力大。请求超时！',
-            duration: 5000,
+            duration: 3000,
         })
     }
     else if (error.message && error.message.includes('Network')) {
-        const message = window.navigator.onLine ? '服务端异常！' : '您断网了！';
+        const message = window.navigator.onLine ? '服务器端异常！' : '您断网了！';
         ElMessage({
             showClose: true,
             type: 'error',
             message,
-            duration: 5000,
+            duration: 3000,
         })
     }
     else if (error.response.status && error.response.status === 401) {
-
-        // 不是refresh 而且 也是有token的（登陆过） 就只能是登陆过期后的token请求
-        if (!error.config.url.includes('api/token/refresh/') && store.getters.get_access !== '') {
-            const { config } = error
-
-            // 如果需要refresh刷新access_token 则必须要存有refresh
-            if (store.getters.get_refresh !== '') {
-
+        // 是需要token验证的请求
+        if (!error.config.url.includes('api/token/refresh/')) {
+            // 没有token（没登陆过）
+            if (store.getters.get_access === '') {
+                if (!error.config.url.includes('account/login/')) {
+                    ElMessage({
+                        showClose: true,
+                        type: 'error',
+                        message: '您未登录，请先登录！',
+                        duration: 3000,
+                    })
+                }
+                return Promise.reject(error)
+            } else { // 有token （登陆token过期后的请求）
+                const { config } = error
                 if (!isRefreshing) {
                     isRefreshing = true
-                    return refreshToken().then(res=> {
+                    return refreshToken().then(res=> { // 用refresh刷新 token
                         const access_token = res.data.access
                         // console.log("刷新token成功,res.data.access:", access_token)
                         store.commit("set_access", access_token)
@@ -108,7 +114,7 @@ instance.interceptors.response.use(response => {
                             showClose: true,
                             type: 'error',
                             message: '登录已超时，请重新登录！',
-                            duration: 5000,
+                            duration: 3000,
                         })
                         return Promise.reject(err)
                     }).finally(() => {
@@ -125,29 +131,33 @@ instance.interceptors.response.use(response => {
                     })
                 }
             }
-
+        } else {
+            return Promise.reject(error)
         }
     } else {
         httpErrorStatusHandle(error)
+        return Promise.reject(error)
     }
     return Promise.reject(error)
 })
 // 给请求头添加 access_token
 const setHeaderToken = (isNeedToken) => {
-    const accessToken = isNeedToken ? store.getters.get_access : null
-    if (isNeedToken) { // api 请求需要携带 access_token
-        if (!accessToken) {
-            console.log('不存在 access_token 则跳转回登录页')
+    if (isNeedToken) {
+        const accessToken = store.getters.get_access;
+        /*if (!accessToken) {
             store.commit('clear_account')
             ElMessage({
                 showClose: true,
                 type: 'error',
                 message: '您未登录，请先登录！',
-                duration: 5000,
+                duration: 3000,
             })
-        }
+        }*/
         instance.defaults.headers.Authorization = `Bearer ${accessToken}`
+    } else {
+        instance.defaults.headers.Authorization = ''
     }
+    // console.log('instance.defaults.headers.Authorization:', instance.defaults.headers.Authorization)
 }
 
 function closeLoading() {
@@ -170,7 +180,7 @@ const httpErrorStatusHandle = (error) => {
             }
             break;
         // case 401: message = '您未登录，或者登录已经超时，请先登录！';break;
-        case 403: message = '您没有权限操作！'; break;
+        case 403: message = '您没有权限操作，请联系管理员。'; break;
         case 404: message = `请求地址出错: ${error.response.config.url}`; break; // 在正确域名下
         case 408: message = '请求超时！'; break;
         case 409: message = '系统已存在相同数据！'; break;
@@ -189,7 +199,7 @@ const httpErrorStatusHandle = (error) => {
             showClose: true,
             type: 'error',
             message,
-            duration: 5000,
+            duration: 3000,
         })
     }
 }
@@ -208,6 +218,15 @@ export const Post = (url, params = {}, isNeedToken = false) => {
     setHeaderToken(isNeedToken)
     return instance({
         method: 'post',
+        url,
+        data: params
+    })
+}
+
+export const Put = (url, params = {}, isNeedToken = false) => {
+    setHeaderToken(isNeedToken)
+    return instance({
+        method: 'put',
         url,
         data: params
     })

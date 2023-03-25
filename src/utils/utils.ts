@@ -143,7 +143,7 @@ function httpErrorStatusHandle(error) {
             showClose: true,
             type: 'error',
             message,
-            duration: 5000,
+            duration: 3000,
         })
     }
 

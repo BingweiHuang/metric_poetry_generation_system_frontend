@@ -28,8 +28,10 @@ const ModuleRhyme = {
     },
     actions: {
         async updateAllRhyme(context: any, data: any) {
-            await Get('rhyme/all_rhyme/', {}, true)
+            await Get('rhyme/all_rhyme/', {}, false)
             .then((resp) => {
+                console.log('resp.data.xinyun2word:', resp.data.xinyun2word)
+                console.log('resp.data.pingshui2word:', resp.data.pingshui2word)
                 context.commit('set_xinyun', resp.data.xinyun2word);
                 context.commit('set_pingshui', resp.data.pingshui2word);
                 data.success();

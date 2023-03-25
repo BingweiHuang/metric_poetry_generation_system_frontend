@@ -137,7 +137,7 @@
       <template v-else>
 
         <!-- 无限滑动 结果展示 -->
-        <ul v-infinite-scroll="load" infinite-scroll-distance="30" class="infinite-list" style="overflow: auto; height: 600px" always>
+        <ul v-infinite-scroll="load" infinite-scroll-distance="1" class="infinite-list" style="overflow: auto; height: 600px" always>
           <li v-for="(item, index) in flyList" :key="index">
             <p  class="scrollbar-demo-item-shi" v-if="Object.keys(item).includes('title')">
               <!--            {{ item.content }} - {{item.author}} <span class="sheng_lue">《{{item.title}}》</span>-->
@@ -421,15 +421,23 @@ export default {
       }
 
 
-      let ret = await Get('search/flys/', kwargs, false)
-      next_url = ret.data.next
-      if (ret.data.results.length === 0) {
-        ElMessage({
-          message:'喏哦~ 条件太复杂，飞不出来了喔~ 换个条件飞一下的喔',
-          duration: 5000
-        })
-      }
-      flyList.value = ret.data.results
+      let ret = await Get('search/flys/', kwargs, true)
+          .then((resp) => {
+            let result = resp.data.results
+            next_url = resp.data.next
+            flyList.value = flyList.value.concat(result)
+            if (resp.data.results.length === 0) {
+              ElMessage({
+                message:'喏哦~ 条件太复杂，飞不出来了喔~ 换个条件飞一下的喔',
+                duration: 3000
+              })
+            } else flyList.value = resp.data.results;
+          })
+          .catch((error) => {
+            console.log(error);
+          })
+
+
     }
 
     const load = () => {
@@ -444,7 +452,7 @@ export default {
         return false
       }
 
-      Get(next_url, kwargs, false)
+      Get(next_url, kwargs, true)
       .then((resp) => {
         let result = resp.data.results
         next_url = resp.data.next

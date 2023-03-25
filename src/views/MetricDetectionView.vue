@@ -482,6 +482,7 @@ import {
 } from '@element-plus/icons-vue'
 import {useStore} from "vuex";
 import {Get} from "@/utils/request";
+import store from "@/store";
 export default {
   name: "MetricDetectionView",
   components: {},
@@ -706,32 +707,31 @@ export default {
     const pingshui2word = ref()
 
     const store = useStore();
-    const open_rhyme_table = () => {
+    const open_rhyme_table = async () => {
       ps_sp_word.value = false;
       xin_sp_word.value = false;
-      (async function() { // 自执行函数
+      if (Object.keys(store.getters.get_xinyun).length === 0 ||
+          Object.keys(store.getters.get_pingshui).length === 0) {
 
-        if (Object.keys(store.getters.get_xinyun).length === 0 ||
-            Object.keys(store.getters.get_pingshui).length === 0) {
+        // store.dispatch 是异步
+        await store.dispatch("updateAllRhyme", {
+          args: { // 参数
 
-          // store.dispatch 是异步
-          await store.dispatch("updateAllRhyme", {
-            args: { // 参数
-
-            },
-            success() {
-              console.log("selectRhyme 成功");
-            },
-            error() {
-              console.log("selectRhyme 失败");
-            }
-          })
-        }
-        // xinyun2word.value = store.state.rhyme.xinyun2word;
+          },
+          success() {
+            // xinyun2word.value = store.state.rhyme.xinyun2word;
+            xinyun2word.value = store.getters.get_xinyun;
+            // pingshui2word.value = store.state.rhyme.pingshui2word;
+            pingshui2word.value = store.getters.get_pingshui;
+          },
+          error() {
+            console.log("selectRhyme 失败");
+          }
+        })
+      } else {
         xinyun2word.value = store.getters.get_xinyun;
-        // pingshui2word.value = store.state.rhyme.pingshui2word;
         pingshui2word.value = store.getters.get_pingshui;
-      }());
+      }
 
       rhyme_table_show.value = true
     }
@@ -841,7 +841,7 @@ export default {
           showClose: true,
           message: '请输入一个汉字。',
           type: 'error',
-          duration: 5000,
+          duration: 3000,
         })
         return false
       } else {

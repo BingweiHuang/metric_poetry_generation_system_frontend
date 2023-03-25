@@ -200,7 +200,7 @@
 
 <script lang="ts">
 import {instance} from "@/utils/utils";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import {useStore} from "vuex";
 
 import {
@@ -208,6 +208,7 @@ import {
 } from '@element-plus/icons-vue'
 import {ElMessage} from "element-plus";
 import {Get} from "@/utils/request";
+import store from "@/store";
 
 export default {
   name: "RhymeSearchView",
@@ -284,6 +285,8 @@ export default {
       
       ps_sp_word.value = false
       ps_display.value = pingshui2word.value[ps_sheng_select.value][ps_yin_select.value]
+
+
     }
 
 
@@ -320,7 +323,7 @@ export default {
           showClose: true,
           message: '请输入一个汉字。',
           type: 'error',
-          duration: 5000,
+          duration: 3000,
         })
         return false
       } else {
@@ -332,6 +335,7 @@ export default {
         .then((resp) => {
           ps_word2rhyme.value = resp.data.ps_word2rhyme;
           xin_word2rhyme.value = resp.data.xin_word2rhyme;
+
         })
         .catch((error) => {
           console.log(error);
@@ -340,8 +344,7 @@ export default {
     }
 
 
-    (async function() { // 自执行函数
-      const store = useStore();
+    onMounted(async () => {
       if (Object.keys(store.getters.get_xinyun).length === 0 ||
           Object.keys(store.getters.get_pingshui).length === 0) {
 
@@ -351,18 +354,20 @@ export default {
 
           },
           success() {
-            console.log("selectRhyme 成功");
+            // xinyun2word.value = store.state.rhyme.xinyun2word;
+            xinyun2word.value = store.getters.get_xinyun;
+            // pingshui2word.value = store.state.rhyme.pingshui2word;
+            pingshui2word.value = store.getters.get_pingshui;
           },
           error() {
             console.log("selectRhyme 失败");
           }
         })
+      } else {
+        xinyun2word.value = store.getters.get_xinyun;
+        pingshui2word.value = store.getters.get_pingshui;
       }
-      // xinyun2word.value = store.state.rhyme.xinyun2word;
-      xinyun2word.value = store.getters.get_xinyun;
-      // pingshui2word.value = store.state.rhyme.pingshui2word;
-      pingshui2word.value = store.getters.get_pingshui;
-    }());
+    })
 
 
     return {

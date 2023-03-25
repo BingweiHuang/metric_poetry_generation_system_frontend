@@ -16,7 +16,7 @@
 
       <!-- 帖子展示无限滑动栏 -->
       <div style="overflow-y:hidden">
-        <ul v-infinite-scroll="load" infinite-scroll-distance="0" class="infinite-list" style="overflow: auto" infinite-scroll-immediate="false">
+        <ul v-infinite-scroll="load" infinite-scroll-distance="1" class="infinite-list" style="overflow: auto" infinite-scroll-immediate="false">
           <li v-for="(post, idx1) in post_list" :key="post.id" style="margin: 10px">
             <!-- 帖子 -->
             <el-card style="width: 100%">
@@ -77,7 +77,7 @@
                   </div>
 
                   <!-- 评论展示 -->
-                  <ul v-infinite-scroll="load2" infinite-scroll-distance="0" infinite-scroll-immediate="false" class="infinite-list" style="overflow: auto; max-height: 300px;">
+                  <ul v-infinite-scroll="load2" infinite-scroll-distance="1" infinite-scroll-immediate="false" class="infinite-list" style="overflow: auto; max-height: 300px;">
                     <template v-if="post.post_comments.length > 0">
                       <li v-for="(comment) in post.post_comments" :key="comment.id" class="infinite-list-item">
                         <div>
@@ -164,15 +164,13 @@ export default {
     const count = ref(10)
     const post_list = ref([])
     const load = async () => {
-      console.log('load')
-      console.log('next_url:', next_url)
 
       if (next_url === null || next_url === '') {
         ElMessage({
           showClose: true,
           message: '已经没有数据咯~',
           type: 'warning',
-          duration: 5000,
+          duration: 3000,
         })
         return false
       }
@@ -180,9 +178,7 @@ export default {
       await Get(next_url, {}, true)
           .then((resp) => {
 
-
             next_url = resp.data.next
-            console.log('next_url:', next_url)
             const ofs = resp.data.count - last_len;
             last_len = resp.data.count;
             post_list.value.push(...(resp.data.results.splice(ofs)))
@@ -194,18 +190,13 @@ export default {
               console.log('after_next_url:', next_url)
             }*/
 
-
-            console.log('数组之后：', post_list.value)
-
           })
           .catch((error) => {
-            console.log('error:', error)
-            console.log('error.response:', error.response)
             ElMessage({
               showClose: true,
               message: '刷新出错！',
               type: 'error',
-              duration: 5000,
+              duration: 3000,
             })
           })
 
@@ -223,7 +214,6 @@ export default {
       .then((resp) => {
         post_list.value = resp.data.results
         next_url = resp.data.next
-        console.log('next_url:', next_url)
         last_len = resp.data.count
       })
       .catch((error) => {
@@ -260,14 +250,12 @@ export default {
     }
 
     const get_comment = async (post_id, pos) => {
-      console.log('post_id:', post_id)
       await Get('account/comments/', {
         post: post_id,
       }, true)
           .then((resp) => {
-            console.log(resp.data.results)
             post_list.value[pos].post_comments = resp.data.results
-            console.log('post_list.value:', post_list.value)
+            post_list.value[pos].comment_count = resp.data.results.length
           })
           .catch((error) => {
             console.log('error:', error)
@@ -277,7 +265,6 @@ export default {
     const open_plq = async (post_id, pos) => {
       const the_plq = document.getElementById(pos + '_plq')
       if (the_plq.style.display === 'block') {
-        alert('打开的也来点，点你吗')
         return false
       }
       await get_comment(post_id, pos)
@@ -290,7 +277,7 @@ export default {
           showClose: true,
           type: 'error',
           message: '请输入内容！',
-          duration: 5000,
+          duration: 3000,
         })
         return false
       }
@@ -306,14 +293,11 @@ export default {
       })
       .catch((error) => {
         console.log('error:', error)
-        // console.log(error.response)
       })
     }
     const delete_comment = (comment_id, post_id, pos) => {
 
-      Delete('account/comments/', {
-        id: comment_id,
-      }, true)
+      Delete('account/comments/' + comment_id, {}, true)
       .then((resp) => {
         get_comment(post_id, pos)
       })
@@ -325,7 +309,7 @@ export default {
           showClose: true,
           type: 'error',
           message: '请输入不少于十个字符内容！',
-          duration: 5000,
+          duration: 3000,
         })
         return false
       }
@@ -352,11 +336,8 @@ export default {
     }
 
     const delete_post = (post_id, pos) => {
-      Delete('account/posts/', {
-        id: post_id,
-      }, true)
+      Delete('account/posts/' + post_id, {}, true)
       .then((resp) => {
-        console.log(resp)
         post_list.value.splice(pos, 1)
       })
     }

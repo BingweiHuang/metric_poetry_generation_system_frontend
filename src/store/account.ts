@@ -64,7 +64,7 @@ const ModuleAccount = {
                     showClose: true,
                     type: 'success',
                     message: '登陆成功~',
-                    duration: 5000,
+                    duration: 3000,
                 })
                 const {access, refresh} = resp.data;
                 const access_obj:any = jwt_decode(access);

@@ -352,7 +352,7 @@ export default {
           showClose: true,
           message: msg,
           type: 'error',
-          duration: 5000,
+          duration: 3000,
         })
         return false
       }
@@ -371,7 +371,7 @@ export default {
             showClose: true,
             message: '您输入的首句不符合' + the_yan + the_qi + the_ru + '的' + yun_table + '标准。\n请查阅韵表进行修改，或选择不押韵生成。',
             type: 'error',
-            duration: 5000,
+            duration: 3000,
           })
           return false
         }
@@ -387,7 +387,7 @@ export default {
         ru: ru.value ? 0 : 1,
         use_rhyme: use_rhyme.value,
         style: style.value,
-      }, false, 1)
+      }, true, 1)
       .then((resp) => {
         lstm_change_state(2)
         console.log(resp.data);
@@ -422,7 +422,7 @@ export default {
           showClose: true,
           message: msg,
           type: 'error',
-          duration: 5000,
+          duration: 3000,
         })
         return false
       }
@@ -441,7 +441,7 @@ export default {
             showClose: true,
             message: '您输入的首句不符合' + the_yan + the_qi + the_ru + '的' + yun_table + '标准。\n请查阅韵表进行修改，或选择不押韵生成。',
             type: 'error',
-            duration: 5000,
+            duration: 3000,
           })
           return false
         }
@@ -456,7 +456,7 @@ export default {
         ru: ru2.value ? 0 : 1,
         use_rhyme: use_rhyme2.value,
         style: style2.value,
-      }, false, 1)
+      }, true, 1)
       .then((resp) => {
         gpt2_change_state(2)
         console.log(resp.data);

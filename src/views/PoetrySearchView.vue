@@ -13,7 +13,7 @@
         <!-- 检索条件1 -->
         <el-row justify="center" align="middle" :gutter="0">
           <el-col :span="8">
-            <el-cascader size="large" v-model="poetry_dynasty_value" :options="poetry_dynasty_options" @change="handleChange"
+            <el-cascader size="large" v-model="poetry_dynasty_value" :options="poetry_dynasty_options"
                          placeholder="诗词和朝代" clearable/>
           </el-col>
 
@@ -304,14 +304,6 @@ export default {
     const pageSize = ref(12);
 
 
-
-    const handleChange = () => {
-      if (poetry_dynasty_value.value) {
-        console.log(poetry_dynasty_value.value[0])
-        console.log(poetry_dynasty_value.value[1])
-      }
-    }
-
     // @size-change页码展示数量点击事件
     const handleSizeChange = (val: number) => {
       // 更新每页展示数据size
@@ -333,7 +325,7 @@ export default {
           showClose: true,
           message: '请选择诗词和朝代',
           type: 'error',
-          duration: 5000,
+          duration: 3000,
         })
         return false
       }
@@ -384,16 +376,24 @@ export default {
 
 
       let ret = await Get(query_url, kwargs, false)
+          .then((resp) => {
+            let result = resp.data.results
+            if (result.length === 0) {
+              ElMessage({
+                message:'喏哦~ 没有符合条件的诗词喔~ 换个条件戏一下的喔',
+                duration: 3000
+              })
+            } else {
+              poetryList.value = result
+              next_url = resp.data.next
+              if (result.length < default_limit) have_more.value = false
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          })
 
-      if (ret.data.results.length === 0) {
-        ElMessage({
-          message:'喏哦~ 没有符合条件的诗词喔~ 换个条件戏一下的喔',
-          duration: 5000
-        })
-      }
-      poetryList.value = ret.data.results
-      next_url = ret.data.next
-      if (ret.data.results.length < default_limit) have_more.value = false
+
     }
 
     const have_more = ref(true)
@@ -407,7 +407,7 @@ export default {
           showClose: true,
           message: '已经没有数据咯~',
           type: 'warning',
-          duration: 5000,
+          duration: 3000,
         })
         return false
       }
@@ -426,7 +426,7 @@ export default {
           showClose: true,
           message: '刷新出错！',
           type: 'error',
-          duration: 5000,
+          duration: 3000,
         })
       })
     }
@@ -452,10 +452,8 @@ export default {
       pageSize,
 
 
-
       handleSizeChange,
       handleCurrentChange,
-      handleChange,
       poetry_search,
 
       have_more,

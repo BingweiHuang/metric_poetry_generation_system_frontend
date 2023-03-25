@@ -342,7 +342,7 @@ export default {
         label: '不限古近',
       },
     ])
-    const metric_value = ref(-1)
+    const metric_value = ref(1)
 
     const yan_options = ref([
       {
@@ -422,7 +422,7 @@ export default {
           showClose: true,
           message: '请输入人数[5,20]',
           type: 'error',
-          duration: 5000,
+          duration: 3000,
         })
         return false
       }
@@ -440,14 +440,11 @@ export default {
         'three_hundred': three_hundred,
       }
 
-      await Get('analyze/author_output/', kwargs, false)
-      .then((resp) => {
-        res_list = resp.data.res_list
-      })
-      .catch((error) => {
-        console.log(error);
-      })
 
+      let ret = await Post('analyze/author_output/', kwargs, true)
+      if (ret.status == 401) return false
+
+      res_list = ret.data.res_list
 
       let x_list = []
       let y1_list = []
@@ -784,7 +781,7 @@ export default {
         the_series = []
         the_series.push(copy1);
       }
-
+      echarts.dispose(bar_echart.value)
       const my_echart = echarts.init(bar_echart.value, 'white', {renderer: 'canvas'})
       my_echart.clear()
 
@@ -888,7 +885,7 @@ export default {
           showClose: true,
           message: '请输入韵脚数[5，15]',
           type: 'error',
-          duration: 5000,
+          duration: 3000,
         })
         return false
       }
@@ -899,36 +896,35 @@ export default {
           showClose: true,
           message: '非汉字部分不识别哦~',
           type: 'warning',
-          duration: 5000,
+          duration: 3000,
         })
       }
 
       let res_list = []
 
-      await Get('analyze/poetry_statistics/', {
+      let ret = await Post('analyze/poetry_statistics/', {
         'rhyme_num': num,
         'dynasty': dynasty2_value.value,
         'author': author,
-      }, false)
-          .then((resp) => {
-            res_list = resp.data.res_list
-          })
-          .catch((error) => {
-            console.log(error);
-          })
+      }, true)
+
+      if (ret.status == 401) return false
+      res_list = ret.data.res_list
 
       if (res_list[0][0]['value'] === 0 && res_list[0][1]['value'] === 0) {
         ElMessage({
           showClose: true,
           message:'喏哦~ 诗人不存在的喔~ 换个人戏一下的喔',
-          duration: 5000
+          duration: 3000
         })
         return false
       }
       let search = (author === '' ? dynasty2_value.value : author)
+      echarts.dispose(pie_echart.value)
       const my_echart = echarts.init(pie_echart.value, 'white', {renderer: 'canvas'})
       // const my_echart = pie_echart.value
 
+      echarts.dispose(pie2_echart.value)
       const my_echart2 = echarts.init(pie2_echart.value, 'white', {renderer: 'canvas'})
       // const my_echart2 = pie2_echart.value
 
@@ -1220,7 +1216,7 @@ export default {
           showClose: true,
           message: '请输入至少一个词。只识别汉字部分~',
           type: 'error',
-          duration: 5000,
+          duration: 3000,
         })
         return false
       } else if (the_word_list.length > 10) {
@@ -1228,7 +1224,7 @@ export default {
           showClose: true,
           message: '不得超过十个词~',
           type: 'error',
-          duration: 5000,
+          duration: 3000,
         })
         return false
       }
@@ -1239,32 +1235,31 @@ export default {
           showClose: true,
           message: '非汉字部分不识别哦~',
           type: 'warning',
-          duration: 5000,
+          duration: 3000,
         })
       }
 
       let res_list = []
 
-      await Get('analyze/word_list/', {
+      let ret = await Post('analyze/word_list/', {
         'word_list': the_word_list.join(' '),
         'dynasty': trans[dynasty3_value.value]['dynasty'],
         'shici': trans[dynasty3_value.value]['shici'],
         'author': author,
-      }, false)
-          .then((resp) => {
-            res_list = resp.data.word_list
-          })
-          .catch((error) => {
-            console.log(error);
-          })
+      }, true)
+
+      if (ret.status == 401) return false
+      res_list = ret.data.word_list
 
       let search = ''
       if (dynasty3_value.value == 0) search = '毛泽东诗词';
       else if (dynasty3_value.value == 6) search = '所有诗词';
       else search = dynasty3_options.value[dynasty3_value.value]['label'] + author;
 
-      const my_echart = echarts.init(pie3_echart.value, 'white', {renderer: 'canvas'})
 
+      echarts.dispose(pie3_echart.value)
+      const my_echart = echarts.init(pie3_echart.value, 'white', {renderer: 'canvas'})
+      // my_echart.clear()
       my_echart.setOption({
         title: {
           text: search + '用词分析',
@@ -1419,15 +1414,12 @@ export default {
 
 
 
-      await Get('analyze/word_frequency/', kwargs, false)
-          .then((resp) => {
-            console.log('resp.data.word_list:', word_list)
-            word_list = resp.data.word_list
-          })
-          .catch((error) => {
-            console.log(error);
-          })
+      let ret = await Post('analyze/word_frequency/', kwargs, true)
 
+      if (ret.status == 401) return false
+      word_list = ret.data.word_list
+
+      echarts.dispose(wc_echart.value)
       const my_echart = echarts.init(wc_echart.value, 'white', {renderer: 'canvas'})
 
       my_echart.setOption({
@@ -1577,24 +1569,18 @@ export default {
           showClose: true,
           message: '非汉字部分不识别哦~',
           type: 'warning',
-          duration: 5000,
+          duration: 3000,
         })
       }
 
-      console.log(author)
-
-      await Get('analyze/rhythmic_statistics/', {
+      let ret = await Post('analyze/rhythmic_statistics/', {
         'num': rhythmic_num_value.value,
         'dynasty': dynasty5_value.value,
         'author': author,
-      }, false)
-      .then((resp) => {
-        word_list = resp.data.word_list
-        console.log('resp.data.word_list:', word_list)
-      })
-      .catch((error) => {
-        console.log(error);
-      })
+      }, true)
+
+      if (ret.status == 401) return false
+      word_list = ret.data.word_list
 
       if (word_list.length === 0) {
         ElMessage({
@@ -1605,6 +1591,7 @@ export default {
         return false
       }
 
+      echarts.dispose(wc2_echart.value)
       const my_echart = echarts.init(wc2_echart.value, 'white', {renderer: 'canvas'})
 
       my_echart.setOption({
@@ -1686,7 +1673,7 @@ export default {
           showClose: true,
           message: '请输入人数[5,20]',
           type: 'error',
-          duration: 5000,
+          duration: 3000,
         })
         return false
       }
@@ -2112,7 +2099,7 @@ export default {
           showClose: true,
           message: '请输入韵脚数[5，15]',
           type: 'error',
-          duration: 5000,
+          duration: 3000,
         })
         return false
       }
@@ -2123,7 +2110,7 @@ export default {
           showClose: true,
           message: '非汉字部分不识别哦~',
           type: 'warning',
-          duration: 5000,
+          duration: 3000,
         })
       }
 
@@ -2301,7 +2288,7 @@ export default {
           showClose: true,
           message: '请输入至少一个词。只识别汉字部分~',
           type: 'error',
-          duration: 5000,
+          duration: 3000,
         })
         return false
       } else if (the_word_list.length > 10) {
@@ -2309,7 +2296,7 @@ export default {
           showClose: true,
           message: '不得超过十个词~',
           type: 'error',
-          duration: 5000,
+          duration: 3000,
         })
         return false
       }
@@ -2320,7 +2307,7 @@ export default {
           showClose: true,
           message: '非汉字部分不识别哦~',
           type: 'warning',
-          duration: 5000,
+          duration: 3000,
         })
       }
 
@@ -2407,11 +2394,9 @@ export default {
       else if (phrase_value.value === 1) kwargs['word_len'] = 2
 
 
-      // await Get('analyze/word_frequency/', kwargs, false)
       await Get('analyze/word_frequency/', kwargs, false)
       .then((resp) => {
         word_list = resp.data.word_list
-        console.log('resp.data.word_list:', word_list)
       })
       .catch((error) => {
         console.log(error);
@@ -2499,7 +2484,7 @@ export default {
           showClose: true,
           message: '非汉字部分不识别哦~',
           type: 'warning',
-          duration: 5000,
+          duration: 3000,
         })
       }
 
@@ -2511,7 +2496,6 @@ export default {
 
       .then((resp) => {
         word_list = resp.data.word_list
-        console.log('resp.data.word_list:', word_list)
       })
       .catch((error) => {
         console.log(error);
