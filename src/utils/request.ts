@@ -15,9 +15,10 @@ const refreshToken = () => {
 const instance = axios.create({
     baseURL: 'http://127.0.0.1:8000',
     // baseURL: 'http://1.12.62.89:8080',
-    timeout: 15 * 1000,
+    timeout: 40 * 1000,
     headers: {
-        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        // 'Access-Control-Max-Age': '86400',
     }
 })
 
@@ -28,14 +29,14 @@ instance.interceptors.request.use(
 
         // 创建loading实例
 
-        if (instance.defaults.headers.Loading) {
+        if (instance.defaults.headers.Loading > 0) {
             const idx = instance.defaults.headers.Loading
             LoadingInstance._count++;
             if(LoadingInstance._count === 1) {
                 LoadingInstance._target = ElLoading.service({text: indx2text[Number(idx)]});
             }
         }
-        config.headers["Content-Type"] = 'application/x-www-form-urlencoded;charset=UTF-8';
+        config.headers["Content-Type"] = 'application/x-www-form-urlencoded';
         // 携带token验证
         if (!config.headers.Authorization && store.getters.get_access !== '') {
             config.headers.Authorization = "Bearer " + store.getters.get_access;
@@ -51,7 +52,7 @@ instance.interceptors.request.use(
 let isRefreshing = false // 标记是否正在刷新 token
 let requests = [] // 存储待重发请求的数组
 instance.interceptors.response.use(response => {
-    instance.defaults.headers.Loading && closeLoading() // 关闭loading
+    (instance.defaults.headers.Loading > 0) && closeLoading() // 关闭loading
     if (response.data.result && response.data.result !== '') {
         ElMessage({
             showClose: true,
@@ -214,8 +215,9 @@ export const Get = (url, params = {}, isNeedToken = false, Loading = 0) => {
         params,
     })
 }
-export const Post = (url, params = {}, isNeedToken = false) => {
+export const Post = (url, params = {}, isNeedToken = false, Loading = 0) => {
     setHeaderToken(isNeedToken)
+    instance.defaults.headers.Loading = Loading
     return instance({
         method: 'post',
         url,
@@ -223,8 +225,9 @@ export const Post = (url, params = {}, isNeedToken = false) => {
     })
 }
 
-export const Put = (url, params = {}, isNeedToken = false) => {
+export const Put = (url, params = {}, isNeedToken = false, Loading = 0) => {
     setHeaderToken(isNeedToken)
+    instance.defaults.headers.Loading = Loading
     return instance({
         method: 'put',
         url,

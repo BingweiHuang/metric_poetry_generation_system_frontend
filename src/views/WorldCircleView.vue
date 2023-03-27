@@ -23,10 +23,10 @@
               <!-- 头像、昵称和时间 -->
               <el-row justify="start" align="middle">
                 <!-- 头像 -->
-                <el-avatar :size="50" :src="post.author.avatar_url" style="margin-right: 10px"/>
+                <el-avatar :size="50" :src="post.author.avatar_url" style="margin-right: 10px; cursor: pointer" @click="open_profile(post.author.id)"/>
                 <!-- 昵称 和 时间-->
                 <div>
-                  <div style="margin-bottom: 6px">{{post.author.nickname}}</div>
+                  <div style="margin-bottom: 6px;"><span style="cursor: pointer" @click="open_profile(post.author.id)">{{post.author.nickname}}</span></div>
                   <!--                <div>{{post.dateTime.year}}-{{post.dateTime.month}}-{{post.dateTime.day}}</div>-->
                   <div>{{post.create_date}}</div>
                 </div>
@@ -84,11 +84,11 @@
                           <!-- 主体 -->
                           <el-row justify="start" align="top">
                             <!-- 头像 -->
-                            <el-avatar :size="21" :src="comment.author.avatar_url" style="margin-right: 5px"/>
+                            <el-avatar :size="21" :src="comment.author.avatar_url" style="margin-right: 5px; cursor: pointer" @click="open_profile(post.author.id)"/>
                             <!-- 昵称 内容 时间-->
                             <div>
                               <!-- 昵称 -->
-                              <div style="">{{comment.author.nickname}}</div>
+                              <div><span style="cursor: pointer" @click="open_profile(post.author.id)">{{comment.author.nickname}}</span></div>
                               <!-- 评论内容 -->
                               <div style="margin: 5px 0">
                                 {{comment.content}}
@@ -149,6 +149,7 @@ import {
 import store from "@/store";
 import {ElMessage} from "element-plus";
 import {parse} from "@typescript-eslint/parser";
+import {useRouter} from "vue-router";
 
 export default {
   name: "WorldCircleView",
@@ -342,6 +343,11 @@ export default {
       })
     }
 
+    const router = useRouter();
+    const open_profile = (id) => {
+      router.push('/Profile/'  + id)
+    }
+
     return {
       post_input,
       comment_input,
@@ -359,6 +365,7 @@ export default {
       delete_comment,
       add_post,
       delete_post,
+      open_profile,
 
       Promotion,
     }

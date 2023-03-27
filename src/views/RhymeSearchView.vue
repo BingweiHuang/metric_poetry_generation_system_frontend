@@ -350,9 +350,6 @@ export default {
 
         // store.dispatch 是异步
         await store.dispatch("updateAllRhyme", {
-          args: { // 参数
-
-          },
           success() {
             // xinyun2word.value = store.state.rhyme.xinyun2word;
             xinyun2word.value = store.getters.get_xinyun;

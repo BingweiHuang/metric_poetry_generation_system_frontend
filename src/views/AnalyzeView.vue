@@ -83,7 +83,7 @@
 
         <!-- 2.朝代、诗人 诗作用韵和种类 饼图分析 -->
         <!-- 检索条件 -->
-        <el-row justify="center" align="middle" :gutter="0" style="margin-bottom: 10px">
+        <el-row justify="center" align="middle" :gutter="0" >
 
           <el-col :xl="7" :lg="7" :md="7" :sm="7" :xs="7">
             <el-select size="large" v-model="dynasty2_value" @change="dynasty2_change">
@@ -123,7 +123,7 @@
 
         <!-- 3.朝代、作者 诗词用词 饼图分析 -->
         <!-- 检索条件1 -->
-        <el-row justify="center" align="middle" :gutter="0" style="margin-bottom: 10px">
+        <el-row justify="center" align="middle" :gutter="0" >
 
           <el-col :xl="10" :lg="10" :md="10" :sm="10" :xs="10">
             <el-select size="large" v-model="dynasty3_value" @change="dynasty3_change">
@@ -156,7 +156,7 @@
 
         </el-row>
         <!-- 检索条件2 -->
-        <el-row justify="center" align="middle" :gutter="0" style="margin-bottom: 10px">
+        <el-row justify="center" align="middle" :gutter="0" >
 
           <el-col :xl="23" :lg="23" :md="23" :sm="23" :xs="23">
             <el-input size="large" v-model="word_list_str" placeholder="词组(1~10个,空格隔开)" clearable>
@@ -169,7 +169,7 @@
 
         <!-- 4.朝代、作者 用词 词云分析 -->
         <!-- 检索条件1 -->
-        <el-row justify="center" align="middle" :gutter="0" style="margin-bottom: 10px">
+        <el-row justify="center" align="middle" :gutter="0" >
 
           <el-col :xl="8" :lg="8" :md="8" :sm="8" :xs="8">
             <el-select size="large" v-model="dynasty4_value">
@@ -217,7 +217,7 @@
 
         <!-- 5.词牌名 词云分析 -->
         <!-- 检索条件1 -->
-        <el-row justify="center" align="middle" :gutter="0" style="margin-bottom: 10px">
+        <el-row justify="center" align="middle" :gutter="0" >
 
           <el-col :xl="8" :lg="8" :md="8" :sm="8" :xs="8">
             <el-select size="large" v-model="dynasty5_value" @change="dynasty5_change">
@@ -2642,5 +2642,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+.el-row {
+  margin-bottom: 10px;
+}
 </style>

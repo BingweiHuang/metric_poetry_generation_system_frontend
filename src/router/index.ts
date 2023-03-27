@@ -12,6 +12,9 @@ import HomeView from '@/views/HomeView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
 import WorldCircleView from '@/views/WorldCircleView.vue'
+import AboutView from '@/views/AboutView.vue'
+import store from "@/store";
+import {ElMessage} from "element-plus";
 
 // 路由懒加载 需要时才导入组件
 
@@ -53,11 +56,6 @@ const routes: Array<RouteRecordRaw> = [
     component: AnalyzeView,
 
   },
-  /*{
-    path: '/Figure/FigureDetail/:fig_id',
-    name: 'FigureDetailView',
-    component: FigureDetailView
-  },*/
   {
     path: '/',
     name: 'HomeView',
@@ -77,23 +75,24 @@ const routes: Array<RouteRecordRaw> = [
     name: 'WorldCircleView',
     // component: () => import('@/views/HomeView.vue'), // 懒加载
     component: WorldCircleView,
-
-  },
-
-  {
-    path: '/Test',
-    name: 'TestView',
-    component: TestView,
-
-
     // 每路守卫
     beforeEnter: (to, from, next) => {
-      console.log(to);
-      console.log(from);
-      next(); // 是否放行
+      if (store.getters.get_is_login) next(); // 登陆状态才放行
+      else {
+        ElMessage({
+          showClose: true,
+          message: '请您先登录！',
+          type: 'error',
+          duration: 3000,
+        })
+      }
     }
   },
-
+  {
+    path: '/About',
+    name: 'AboutView',
+    component: AboutView
+  },
   {
     path: '/:path(.*)',
     name: 'NotFoundView',

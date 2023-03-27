@@ -535,6 +535,7 @@ export default {
             store.dispatch('logout')
             router.push('/')
             clear_form()
+            form_state.value = '登录'
             dialogFormVisible.value = true
 
           })
@@ -629,7 +630,7 @@ export default {
 
 
 .my-dialog .el-dialog {
-  width: 380px !important;
+  width: 360px !important;
 }
 
 .my-button {

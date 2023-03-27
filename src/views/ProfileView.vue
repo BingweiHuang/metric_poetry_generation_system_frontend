@@ -18,7 +18,13 @@
 
           <!-- 其他资料 -->
           <el-col :span="16">
-            <div> <span>关注：{{the_account.follow_count}}</span> &nbsp; <span>粉丝：{{the_account.fan_count}}</span></div>
+            <div style="display: flex; align-items: center; ">
+              关注：<el-link style="font-size: 16px">{{the_account.follow_count}}</el-link>
+              &nbsp;&nbsp; 粉丝：<el-link style="font-size: 16px">{{the_account.fan_count}}</el-link>
+              &nbsp;&nbsp; <el-button type="success" plain circle :icon="Plus" size="small" v-if="follow_id === 0 && (the_account.id !== $store.getters.get_account.id)"  @click="add_follow"/>
+              <el-button type="success" circle :icon="Check" size="small" @click="delete_follow(follow_id, 0, false)"
+                         v-if="follow_id"/>
+            </div>
             <div>邮箱：{{the_account.email}}</div>
             <div>账号：{{the_account.username}}</div>
             <div>个人简介：{{ the_account.introduction }}</div>
@@ -30,7 +36,7 @@
       <!-- 标签页切换 -->
       <el-card>
         <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
-          <el-tab-pane label="我的作品" name="我的作品">
+          <el-tab-pane label="作品" name="作品">
             <el-button type="primary" style="margin-bottom: 10px">
               添加
             </el-button>
@@ -57,8 +63,8 @@
             </el-space>
           </el-tab-pane>
           <el-tab-pane label="诗作收藏" name="诗作收藏">Config</el-tab-pane>
-          <el-tab-pane label="词作收藏" name="词作收藏">Role</el-tab-pane>
-          <el-tab-pane label="编辑个人资料" name="编辑个人资料">
+          <el-tab-pane label="词作收藏" name="词作收藏">词作收藏</el-tab-pane>
+          <el-tab-pane label="编辑个人资料" name="编辑个人资料" v-if="the_account.id === $store.getters.get_account.id">
 
             <el-form :model="form2" :rules="rules2" ref="dom2" label-width="80px">
 
@@ -95,7 +101,7 @@
                 <el-input v-model="form2.nickname" show-word-limit maxlength="10" />
               </el-form-item>
               <el-form-item label="账号" prop="username">
-                <el-input v-model="form2.username" show-word-limit maxlength="20" />
+                <el-input v-model="form2.username" show-word-limit maxlength="12" />
               </el-form-item>
 
               <el-form-item label="公开作品">
@@ -110,12 +116,13 @@
               </el-form-item>
               <el-form-item>
                 <el-button type="primary" @click="update_profile">确认修改</el-button>
-                <el-button>Cancel</el-button>
+                <el-button @click="huan_yuan">还原</el-button>
               </el-form-item>
             </el-form>
 
           </el-tab-pane>
-          <el-tab-pane label="修改密码" name="修改密码">
+          <el-tab-pane label="修改密码" name="修改密码" v-if="the_account.id === $store.getters.get_account.id">
+
 
             <el-form :model="form" :rules="rules" ref="dom" label-width="80px">
 
@@ -142,6 +149,61 @@
             </el-form>
 
           </el-tab-pane>
+          <el-tab-pane label="关注" name="关注" v-if="the_account.id === $store.getters.get_account.id">
+
+
+            <!-- 关注列表 -->
+            <ul v-infinite-scroll="load" infinite-scroll-distance="1" infinite-scroll-immediate="false" class="infinite-list" style="overflow: auto; max-height: 520px;">
+              <template v-if="follow_list.length > 0">
+                <li v-for="(item, index) in follow_list" :key="index" class="infinite-list-item">
+                  <!-- 头像、昵称和取消关注 -->
+                  <div style="display: flex; align-items: center; justify-content: space-between; width: 100%">
+                    <div style="display: flex; align-items: center">
+                      <!-- 头像 -->
+                      <el-avatar :size="50" :src="item.follow.avatar_url" style="margin-right: 10px; cursor: pointer" @click="open_profile(item.follow.id)"/>
+                      <!-- 昵称-->
+                      <div>
+                        <span style="cursor: pointer; font-size: 18px" @click="open_profile(item.follow.id)">{{item.follow.nickname}}</span>
+                      </div>
+                    </div>
+                    <el-button @click="delete_follow(item.id, index, true)">取消关注</el-button>
+
+                  </div>
+                </li>
+
+              </template>
+              <li v-else style="text-align: center; color: #6b778c; margin-top: 10px">还没有关注~</li>
+
+            </ul>
+
+          </el-tab-pane>
+          <el-tab-pane label="粉丝" name="粉丝" v-if="the_account.id === $store.getters.get_account.id">
+
+
+            <!-- 粉丝列表 -->
+            <ul v-infinite-scroll="load2" infinite-scroll-distance="1" infinite-scroll-immediate="false" class="infinite-list" style="overflow: auto; max-height: 520px;">
+              <template v-if="fan_list.length > 0">
+                <li v-for="(item, index) in fan_list" :key="index" class="infinite-list-item">
+                  <!-- 头像、昵称 -->
+                  <div style="display: flex; align-items: center; justify-content: space-between; width: 100%">
+                    <div style="display: flex; align-items: center">
+                      <!-- 头像 -->
+                      <el-avatar :size="50" :src="item.fan.avatar_url" style="margin-right: 10px; cursor: pointer" @click="open_profile(item.fan.id)"/>
+                      <!-- 昵称-->
+                      <div>
+                        <span style="cursor: pointer; font-size: 18px" @click="open_profile(item.fan.id)">{{item.fan.nickname}}</span>
+                      </div>
+                    </div>
+
+                  </div>
+                </li>
+
+              </template>
+              <li v-else style="text-align: center; color: #6b778c; margin-top: 10px">还没有关注~</li>
+
+            </ul>
+
+          </el-tab-pane>
         </el-tabs>
       </el-card>
 
@@ -159,21 +221,51 @@ import type { TabsPaneContext } from 'element-plus'
 import {ElMessage, genFileId} from 'element-plus'
 import type { UploadInstance, UploadProps, UploadRawFile, UploadUserFile } from 'element-plus'
 import {useIntervalFn} from "@vueuse/core";
-import {Get, Post, Put} from "@/utils/request";
+import {Delete, Get, Post, Put} from "@/utils/request";
 import * as echarts from "echarts";
 import {useRoute, useRouter} from "vue-router";
 import store from "@/store";
 
-
+import {
+  Plus,
+  Check,
+} from '@element-plus/icons-vue'
 export default {
   name: "ProfileView",
   components: {},
   setup() {
 
-    const activeName = ref('我的作品')
+    const activeName = ref('作品')
+
+    const follow_list = ref([])
+    const get_follow_list = async () => {
+      await Get('account/follows/', {fan: the_account.id}, true)
+          .then((resp) => {
+            follow_list.value = resp.data.results
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+    }
+
+    const fan_list = ref([])
+    const get_fan_list = async () => {
+      await Get('account/follows/', {follow: the_account.id}, true)
+          .then((resp) => {
+            fan_list.value = resp.data.results
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+    }
 
     const handleClick = (tab: TabsPaneContext, event: Event) => {
-      // console.log(tab, event)
+      if (tab.props.name === '关注') {
+        get_follow_list()
+      } else if (tab.props.name === '粉丝') {
+        get_fan_list()
+      }
+
     }
 
     const upload = ref<UploadInstance>()
@@ -185,6 +277,7 @@ export default {
     const route = useRoute();
 
     const the_account = reactive({
+      id: 0,
       avatar_url: '',
       nickname: '',
       follow_count: 0,
@@ -195,7 +288,7 @@ export default {
       display_works: true,
       display_collections: true,
     });
-    const is_followed = ref(true);
+    const follow_id = ref(0);
 
 
 
@@ -228,12 +321,10 @@ export default {
       await Get('account/get_qiniu_token/', {}, true)
       .then((resp) => {
         upload_data.value.token = resp.data.qn_token
-        console.log('upload_data.value.token:', upload_data.value.token)
       })
       .catch((error) => {
         console.log(error);
       })
-      console.log('upload_data.value.token:', upload_data.value.token)
     }
 
 
@@ -258,7 +349,6 @@ export default {
               duration: 3000,
             })
             the_account.avatar_url = resp.data.avatar_url
-            console.log("resp.data.avatar_url:", resp.data.avatar_url)
             fileList.value = [
               {
                 name: 'avatar.jpg',
@@ -279,9 +369,6 @@ export default {
         duration: 3000,
       })
     }
-
-
-
 
 
     const form = reactive({
@@ -341,7 +428,7 @@ export default {
         { required: true, message: "请输入昵称", trigger: "blur" },
         {
           validator: function(rule, value, callback) {
-            if (value.length === 0 || value.length > 10) {
+            if (value.length < 1 || value.length > 10) {
               callback(new Error("昵称长度必须为[1,10]"));
             } else {
               //校验通过
@@ -356,8 +443,8 @@ export default {
         { required: true, message: "请输入账号", trigger: "blur" },
         {
           validator: function(rule, value, callback) {
-            if (value.length < 6 || value.length > 20) {
-              callback(new Error("账号长度必须为[6,20]"));
+            if (value.length < 4 || value.length > 12) {
+              callback(new Error("账号长度必须为[4,12]"));
             } else {
               //校验通过
               callback();
@@ -417,9 +504,9 @@ export default {
 
     onMounted(() => {
       let sendEndTime = localStorage.getItem('clockStartTime');
-      if (sendEndTime) countDown(email_clock_seconds)
-      const the_account_id = (route.params.account_id);
-      Get('account/accounts/' + the_account_id, {}, false)
+      if (sendEndTime) countDown(email_clock_seconds);
+      the_account.id = Number(route.params.account_id);
+      Get('account/accounts/' + the_account.id, {}, false)
       .then((resp) => {
         fileList.value = [
           {
@@ -445,7 +532,7 @@ export default {
         the_account.display_collections = resp.data.display_collections
         form2.display_collections = resp.data.display_collections
 
-        is_followed.value = resp.data.is_followed
+        follow_id.value = resp.data.follow_id
       })
       .catch((error) => {
         console.log(error);
@@ -473,7 +560,6 @@ export default {
           })
 
         } else {
-          console.log('邮箱格式不对');
           return false;
         }
       })
@@ -484,16 +570,13 @@ export default {
       Object.keys(form).map(key => {
         form[key] = ''
       })
-      // console.log('清空情况:', form)
     }
 
     const router = useRouter();
     const update_password = () => {
 
       dom.value.validate((valid) => {
-        console.log('校验结果', valid)
         if (valid) {
-          console.log('form:', form)
           Post('account/update_password/', form, false)
           .then((resp) => {
             store.dispatch('logout')
@@ -505,15 +588,23 @@ export default {
           })
 
         } else {
-          console.log('校验不通过')
+          return false
         }
       })
     }
+
+    const huan_yuan = () => {
+      form2.avatar_url = the_account.avatar_url
+      form2.nickname = the_account.nickname
+      form2.username = the_account.username
+      form2.introduction = the_account.introduction
+      form2.display_works = the_account.display_works
+      form2.display_collections = the_account.display_collections
+    }
+
     const update_profile = () => {
-      // console.log('提交数据', form)
 
       dom2.value.validate((valid) => {
-        console.log('校验结果', valid)
         if (valid) {
 
           Put('account/accounts/' + store.getters.get_account.id, form2, true)
@@ -533,14 +624,14 @@ export default {
                 the_account.introduction = resp.data.introduction
                 the_account.display_works = resp.data.display_works
                 the_account.display_collections = resp.data.display_collections
-                is_followed.value = resp.data.is_followed
+                follow_id.value = resp.data.follow_id
               })
               .catch((error) => {
                 console.log(error);
               })
 
         } else {
-          console.log('校验不通过')
+          return false
         }
       })
     }
@@ -549,15 +640,68 @@ export default {
 
       upload.value!.submit()
     }
+
+    const open_profile = (id) => {
+      router.push('/Profile/'  + id)
+    }
+    const load = () => {
+      // count.value += 2
+      console.log('load')
+    }
+
+    const load2 = () => {
+      // count.value += 2
+      console.log('load2')
+    }
+
+    const delete_follow = (id, pos, flag) => {
+      Delete('account/follows/' + id, {}, true)
+          .then((resp) => {
+            if (flag) follow_list.value.splice(pos, 1);
+            else follow_id.value = 0;
+            ElMessage({
+              showClose: true,
+              message: '取消关注成功！',
+              type: 'success',
+              duration: 3000,
+            })
+          })
+    }
+
+    const add_follow = () => {
+      Post('account/follows/', {follow_id:the_account.id}, true)
+          .then((resp) => {
+            follow_id.value = resp.data.id;
+            ElMessage({
+              showClose: true,
+              message: '关注成功！',
+              type: 'success',
+              duration: 3000,
+            })
+          })
+    }
+
     
 
     return {
       update_password,
       update_profile,
+      huan_yuan,
       update_avatar,
+      open_profile,
+      delete_follow,
+      add_follow,
+
+      load,
+      load2,
+      follow_list,
+      get_follow_list,
+
+      fan_list,
+      get_fan_list,
 
       the_account,
-      is_followed,
+      follow_id,
 
       form,
       form2,
@@ -577,6 +721,10 @@ export default {
       handleAvatarSuccess,
       uploadError,
       beforeAvatarUpload,
+
+
+      Plus,
+      Check,
     }
   }
 }
@@ -610,6 +758,36 @@ export default {
   color: #6b778c;
   font-size: 32px;
   font-weight: 600;
+}
+
+.infinite-list {
+  height: 800px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.infinite-list .infinite-list-item {
+  //width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  min-height: 50px;
+  //background: var(--el-color-primary-light-9);
+  margin: 10px;
+  //color: var(--el-color-primary);
+}
+.infinite-list .infinite-list-item:hover {
+  //width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  min-height: 50px;
+  //background: var(--el-color-primary-light-9);
+  margin: 10px;
+  color: var(--el-color-primary);
+}
+.infinite-list .infinite-list-item + .list-item {
+  margin-top: 10px;
 }
 
 </style>
