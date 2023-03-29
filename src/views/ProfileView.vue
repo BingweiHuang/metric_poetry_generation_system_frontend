@@ -62,8 +62,103 @@
               </template>
             </el-space>
           </el-tab-pane>
-          <el-tab-pane label="诗作收藏" name="诗作收藏">Config</el-tab-pane>
-          <el-tab-pane label="词作收藏" name="词作收藏">词作收藏</el-tab-pane>
+          <el-tab-pane label="诗作收藏" name="诗作收藏">
+            <!-- 诗作收藏列表 -->
+            <el-space size="" wrap style="width: 100%; justify-content: center;">
+              <template v-for="item in shi_collection_list.slice((shi_currentPage - 1) * shi_pageSize, shi_currentPage * shi_pageSize)" :key="item.shi.id">
+                <ShiCard :poetry="item.shi"/>
+              </template>
+              <template v-if="shi_collection_list.length === 0">
+                <el-empty description="没有收藏任何诗作~"/>
+              </template>
+              <template v-else>
+                <el-button type="primary" text size="large"
+                           v-if="(shi_currentPage >= (shi_collection_list.length / shi_pageSize)) && shi_have_more"
+                           @click="shi_load" style="font-size: 20px; font-weight: bold">
+                  加载更多...
+                </el-button>
+              </template>
+            </el-space>
+
+            <!-- web端分页码 -->
+            <el-pagination
+                class="my-el-pagination hidden-xs-only"
+                background
+                :small="false"
+                :hide-on-single-page="true"
+                @size-change="shi_handleSizeChange"
+                @current-change="shi_handleCurrentChange"
+                :current-page="shi_currentPage"
+                :page-size="shi_pageSize"
+                :pager-count="6"
+                layout=" prev, pager, next"
+                :total="shi_collection_list.length">
+            </el-pagination>
+
+            <!-- 移动端分页码 -->
+            <el-pagination
+                class="my-el-pagination hidden-sm-and-up"
+                background
+                :small="true"
+                :hide-on-single-page="true"
+                @size-change="shi_handleSizeChange"
+                @current-change="shi_handleCurrentChange"
+                :current-page="shi_currentPage"
+                :page-size="shi_pageSize"
+                :pager-count="6"
+                layout=" prev, pager, next"
+                :total="shi_collection_list.length">
+            </el-pagination>
+
+          </el-tab-pane>
+          <el-tab-pane label="词作收藏" name="词作收藏">
+            <!-- 词作收藏列表 -->
+            <el-space size="" wrap style="width: 100%; justify-content: center;">
+              <template v-for="item in ci_collection_list.slice((ci_currentPage - 1) * ci_pageSize, ci_currentPage * ci_pageSize)" :key="item.ci.id">
+                <CiCard :poetry="item.ci"/>
+              </template>
+              <template v-if="ci_collection_list.length === 0">
+                <el-empty description="没有收藏任何词作~"/>
+              </template>
+              <template v-else>
+                <el-button type="primary" text size="large"
+                           v-if="(ci_currentPage >= (ci_collection_list.length / ci_pageSize)) && ci_have_more"
+                           @click="ci_load" style="font-size: 20px; font-weight: bold">
+                  加载更多...
+                </el-button>
+              </template>
+            </el-space>
+
+            <!-- web端分页码 -->
+            <el-pagination
+                class="my-el-pagination hidden-xs-only"
+                background
+                :small="false"
+                :hide-on-single-page="true"
+                @size-change="ci_handleSizeChange"
+                @current-change="ci_handleCurrentChange"
+                :current-page="ci_currentPage"
+                :page-size="ci_pageSize"
+                :pager-count="6"
+                layout=" prev, pager, next"
+                :total="ci_collection_list.length">
+            </el-pagination>
+
+            <!-- 移动端分页码 -->
+            <el-pagination
+                class="my-el-pagination hidden-sm-and-up"
+                background
+                :small="true"
+                :hide-on-single-page="true"
+                @size-change="ci_handleSizeChange"
+                @current-change="ci_handleCurrentChange"
+                :current-page="ci_currentPage"
+                :page-size="ci_pageSize"
+                :pager-count="6"
+                layout=" prev, pager, next"
+                :total="ci_collection_list.length">
+            </el-pagination>
+          </el-tab-pane>
           <el-tab-pane label="编辑个人资料" name="编辑个人资料" v-if="the_account.id === $store.getters.get_account.id">
 
             <el-form :model="form2" :rules="rules2" ref="dom2" label-width="80px">
@@ -91,7 +186,7 @@
                 </el-upload>
 
                 <el-button class="ml-3" type="success" @click="update_avatar">
-                  修改
+                  修改头像
                 </el-button>
 
 
@@ -115,7 +210,7 @@
                 </el-input>
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" @click="update_profile">确认修改</el-button>
+                <el-button type="primary" @click="update_profile">修改信息</el-button>
                 <el-button @click="huan_yuan">还原</el-button>
               </el-form-item>
             </el-form>
@@ -153,7 +248,7 @@
 
 
             <!-- 关注列表 -->
-            <ul v-infinite-scroll="load" infinite-scroll-distance="1" infinite-scroll-immediate="false" class="infinite-list" style="overflow: auto; max-height: 520px;">
+            <ul v-infinite-scroll="load2" infinite-scroll-distance="1" infinite-scroll-immediate="false" class="infinite-list" style="overflow: auto; max-height: 520px;">
               <template v-if="follow_list.length > 0">
                 <li v-for="(item, index) in follow_list" :key="index" class="infinite-list-item">
                   <!-- 头像、昵称和取消关注 -->
@@ -220,11 +315,11 @@ import {ref, reactive, onMounted, toRaw} from 'vue'
 import type { TabsPaneContext } from 'element-plus'
 import {ElMessage, genFileId} from 'element-plus'
 import type { UploadInstance, UploadProps, UploadRawFile, UploadUserFile } from 'element-plus'
-import {useIntervalFn} from "@vueuse/core";
-import {Delete, Get, Post, Put} from "@/utils/request";
-import * as echarts from "echarts";
+import {Delete, Get, Post, Put, system_base_url} from "@/utils/request";
 import {useRoute, useRouter} from "vue-router";
 import store from "@/store";
+import ShiCard from "@/components/ShiCard.vue";
+import CiCard from "@/components/CiCard.vue";
 
 import {
   Plus,
@@ -232,14 +327,17 @@ import {
 } from '@element-plus/icons-vue'
 export default {
   name: "ProfileView",
-  components: {},
+  components: {
+    ShiCard,
+    CiCard,
+  },
   setup() {
 
     const activeName = ref('作品')
 
     const follow_list = ref([])
     const get_follow_list = async () => {
-      await Get('account/follows/', {fan: the_account.id}, true)
+      await Get(system_base_url + 'account/follows/', {fan: the_account.id}, true)
           .then((resp) => {
             follow_list.value = resp.data.results
           })
@@ -250,7 +348,7 @@ export default {
 
     const fan_list = ref([])
     const get_fan_list = async () => {
-      await Get('account/follows/', {follow: the_account.id}, true)
+      await Get(system_base_url + 'account/follows/', {follow: the_account.id}, true)
           .then((resp) => {
             fan_list.value = resp.data.results
           })
@@ -258,12 +356,144 @@ export default {
             console.log(err)
           })
     }
+    
+    const default_limit = 9;
+    
+    let shi_next_url = '';
+    const shi_collection_list = ref([])
+    const get_shi_collection_list = async () => {
+      await Get(system_base_url + 'account/shi_collections/', 
+          {author: the_account.id, limit: default_limit}, true)
+          .then((resp) => {
+            const result = resp.data.results
+            shi_collection_list.value = result;
+            shi_next_url = resp.data.next
+            if (result.length < default_limit) shi_have_more.value = false;
+            else shi_have_more.value = true;
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+    }
+
+    const shi_currentPage = ref(1);
+    const shi_pageSize = ref(9);
+    const shi_have_more = ref(true);
+    const shi_handleSizeChange = (val: number) => {
+      // 更新每页展示数据size
+      shi_pageSize.value = val
+    };
+    const shi_handleCurrentChange = (val: number) => {
+      // 更新当前页数是第几页
+      shi_currentPage.value = val
+    };
+    const shi_load = () => {
+      if (shi_next_url === null || shi_next_url === '') {
+        shi_have_more.value = false
+        ElMessage({
+          showClose: true,
+          message: '已经没有数据咯~',
+          type: 'warning',
+          duration: 3000,
+        })
+        return false
+      }
+
+      Get(shi_next_url, {author: the_account.id, limit: default_limit}, true)
+          .then((resp) => {
+            let result = resp.data.results
+            shi_next_url = resp.data.next
+            if (result.length < default_limit) shi_have_more.value = false;
+            else shi_have_more.value = true;
+            shi_collection_list.value = shi_collection_list.value.concat(result)
+
+          })
+          .catch((error) => {
+            console.log(error);
+            ElMessage({
+              showClose: true,
+              message: '刷新出错！',
+              type: 'error',
+              duration: 3000,
+            })
+          })
+
+    }
+
+
+
+    let ci_next_url = '';
+    const ci_collection_list = ref([])
+    const get_ci_collection_list = async () => {
+      await Get(system_base_url + 'account/ci_collections/',
+          {author: the_account.id, limit: default_limit}, true)
+          .then((resp) => {
+            const result = resp.data.results
+            ci_collection_list.value = result;
+            ci_next_url = resp.data.next
+            if (result.length < default_limit) ci_have_more.value = false;
+            else ci_have_more.value = true;
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+    }
+
+    const ci_currentPage = ref(1);
+    const ci_pageSize = ref(9);
+    const ci_have_more = ref(true);
+    const ci_handleSizeChange = (val: number) => {
+      // 更新每页展示数据size
+      ci_pageSize.value = val
+    };
+    const ci_handleCurrentChange = (val: number) => {
+      // 更新当前页数是第几页
+      ci_currentPage.value = val
+    };
+    const ci_load = () => {
+      if (ci_next_url === null || ci_next_url === '') {
+        ci_have_more.value = false
+        ElMessage({
+          showClose: true,
+          message: '已经没有数据咯~',
+          type: 'warning',
+          duration: 3000,
+        })
+        return false
+      }
+
+      Get(ci_next_url, {author: the_account.id, limit: default_limit}, true)
+          .then((resp) => {
+            let result = resp.data.results
+            ci_next_url = resp.data.next
+            if (result.length < default_limit) ci_have_more.value = false;
+            else ci_have_more.value = true;
+            ci_collection_list.value = ci_collection_list.value.concat(result)
+
+          })
+          .catch((error) => {
+            console.log(error);
+            ElMessage({
+              showClose: true,
+              message: '刷新出错！',
+              type: 'error',
+              duration: 3000,
+            })
+          })
+
+    }
+    
+    
 
     const handleClick = (tab: TabsPaneContext, event: Event) => {
       if (tab.props.name === '关注') {
         get_follow_list()
       } else if (tab.props.name === '粉丝') {
         get_fan_list()
+      } else if (tab.props.name === '诗作收藏') {
+        get_shi_collection_list()
+      } else if (tab.props.name === '词作收藏') {
+        get_ci_collection_list()
       }
 
     }
@@ -318,7 +548,7 @@ export default {
         return false;
       }
 
-      await Get('account/get_qiniu_token/', {}, true)
+      await Get(system_base_url + 'account/get_qiniu_token/', {}, true)
       .then((resp) => {
         upload_data.value.token = resp.data.qn_token
       })
@@ -340,7 +570,7 @@ export default {
 
       form2.avatar_url = baseUrl + response.key;
 
-      Put('account/accounts/' + store.getters.get_account.id, form2, true)
+      Put(system_base_url + 'account/accounts/' + store.getters.get_account.id, form2, true)
           .then((resp) => {
             ElMessage({
               showClose: true,
@@ -506,7 +736,7 @@ export default {
       let sendEndTime = localStorage.getItem('clockStartTime');
       if (sendEndTime) countDown(email_clock_seconds);
       the_account.id = Number(route.params.account_id);
-      Get('account/accounts/' + the_account.id, {}, false)
+      Get(system_base_url + 'account/accounts/' + the_account.id, {}, false)
       .then((resp) => {
         fileList.value = [
           {
@@ -544,12 +774,11 @@ export default {
     const send_email = () => {
       dom.value.validateField('email', async (valid) => {
         if (valid) {
-          // console.log('邮箱验证通过')
 
           // 如果大于0  直接return
           if (clock.countDownTime > 0) return false
           // 发送axios
-          await Get('account/update_password/', {
+          await Get(system_base_url + 'account/update_password/', {
             'email' : form.email,
           }, false, 2)
           .then((resp) => {
@@ -577,7 +806,7 @@ export default {
 
       dom.value.validate((valid) => {
         if (valid) {
-          Post('account/update_password/', form, false)
+          Post(system_base_url + 'account/update_password/', form, false)
           .then((resp) => {
             store.dispatch('logout')
             router.push('/')
@@ -607,7 +836,7 @@ export default {
       dom2.value.validate((valid) => {
         if (valid) {
 
-          Put('account/accounts/' + store.getters.get_account.id, form2, true)
+          Put(system_base_url + 'account/accounts/' + store.getters.get_account.id, form2, true)
               .then((resp) => {
                 ElMessage({
                   showClose: true,
@@ -637,16 +866,28 @@ export default {
     }
 
     const update_avatar = () => {
-
+      if (fileList.value.length === 0) {
+        ElMessage({
+          showClose: true,
+          message: '请选择照片！',
+          type: 'error',
+          duration: 3000,
+        })
+        return false
+      } else if (fileList.value[0].url === the_account.avatar_url) {
+        ElMessage({
+          showClose: true,
+          message: '请选择新照片！',
+          type: 'error',
+          duration: 3000,
+        })
+        return false
+      }
       upload.value!.submit()
     }
 
     const open_profile = (id) => {
       router.push('/Profile/'  + id)
-    }
-    const load = () => {
-      // count.value += 2
-      console.log('load')
     }
 
     const load2 = () => {
@@ -655,7 +896,7 @@ export default {
     }
 
     const delete_follow = (id, pos, flag) => {
-      Delete('account/follows/' + id, {}, true)
+      Delete(system_base_url + 'account/follows/' + id, {}, true)
           .then((resp) => {
             if (flag) follow_list.value.splice(pos, 1);
             else follow_id.value = 0;
@@ -669,7 +910,7 @@ export default {
     }
 
     const add_follow = () => {
-      Post('account/follows/', {follow_id:the_account.id}, true)
+      Post(system_base_url + 'account/follows/', {follow_id:the_account.id}, true)
           .then((resp) => {
             follow_id.value = resp.data.id;
             ElMessage({
@@ -692,13 +933,30 @@ export default {
       delete_follow,
       add_follow,
 
-      load,
+
       load2,
       follow_list,
       get_follow_list,
-
       fan_list,
       get_fan_list,
+
+      shi_load,
+      shi_collection_list,
+      get_shi_collection_list,
+      shi_currentPage,
+      shi_pageSize,
+      shi_have_more,
+      shi_handleSizeChange,
+      shi_handleCurrentChange,
+
+      ci_load,
+      ci_collection_list,
+      get_ci_collection_list,
+      ci_currentPage,
+      ci_pageSize,
+      ci_have_more,
+      ci_handleSizeChange,
+      ci_handleCurrentChange,
 
       the_account,
       follow_id,
@@ -788,6 +1046,13 @@ export default {
 }
 .infinite-list .infinite-list-item + .list-item {
   margin-top: 10px;
+}
+
+.my-el-pagination {
+  align-items: center; /*竖直居中*/
+  justify-content: center; /*水平居中*/
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 </style>

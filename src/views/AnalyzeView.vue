@@ -279,7 +279,7 @@ import {
   Document,
 } from '@element-plus/icons-vue'
 import {useStore} from "vuex";
-import {Get, Post} from "@/utils/request";
+import {Get, Post, system_base_url} from "@/utils/request";
 
 export default {
   name: "AnalyzeView",
@@ -441,7 +441,7 @@ export default {
       }
 
 
-      let ret = await Post('analyze/author_output/', kwargs, true)
+      let ret = await Post(system_base_url +  'analyze/author_output/', kwargs, true)
       if (ret.status == 401) return false
 
       res_list = ret.data.res_list
@@ -902,7 +902,7 @@ export default {
 
       let res_list = []
 
-      let ret = await Post('analyze/poetry_statistics/', {
+      let ret = await Post(system_base_url + 'analyze/poetry_statistics/', {
         'rhyme_num': num,
         'dynasty': dynasty2_value.value,
         'author': author,
@@ -1149,6 +1149,10 @@ export default {
       },
       {
         value: 6,
+        label: '诗经',
+      },
+      {
+        value: 7,
         label: '不限(很耗时)',
       },
     ])
@@ -1176,6 +1180,10 @@ export default {
       {
         'dynasty': '唐代',
         'shici': 'shi',
+      },
+      {
+        'dynasty': '',
+        'shici': 'shijing',
       },
       {
         'dynasty': '不限',
@@ -1241,7 +1249,7 @@ export default {
 
       let res_list = []
 
-      let ret = await Post('analyze/word_list/', {
+      let ret = await Post(system_base_url + 'analyze/word_list/', {
         'word_list': the_word_list.join(' '),
         'dynasty': trans[dynasty3_value.value]['dynasty'],
         'shici': trans[dynasty3_value.value]['shici'],
@@ -1338,6 +1346,10 @@ export default {
         label: '王国维词',
       },
       {
+        value: 7,
+        label: '诗经',
+      },
+      {
         value: -1,
         label: '不限',
       },
@@ -1345,23 +1357,27 @@ export default {
     const dynasty4_value = ref(0)
     const phrase_options = ref([
       {
-        value: 0,
+        value: -2,
         label: '单字',
       },
       {
-        value: 1,
+        value: -3,
         label: '多字',
       },
       {
-        value: 2,
+        value: 0,
+        label: '名词',
+      },
+      {
+        value: 1,
         label: '动词',
       },
       {
-        value: 3,
+        value: 2,
         label: '形容词',
       },
       {
-        value: 4,
+        value: 3,
         label: '地名',
       },
       {
@@ -1369,7 +1385,7 @@ export default {
         label: '不限',
       },
     ])
-    const phrase_value = ref(1)
+    const phrase_value = ref(-3)
     const word_num_options = ref([
       {
         value: 50,
@@ -1392,8 +1408,7 @@ export default {
     const wc_echart = ref()
 
     let avi_l = [
-      ['n', 's', 'nr', 'ns', 'nt', 'nl', 'ng', 'nz', 'm'], // 单字 多字
-      ['n', 's', 'nr', 'ns', 'nt', 'nl', 'ng', 'nz', 'm'], // 单字 多字
+      ['n', 's', 'nr', 'ns', 'nt', 'nl', 'ng', 'nz', 'm'], // 名词
       ['v', 'vg', 'vd', 'vn', 'vf', 'vx', 'vi'], // 动词
       ['a', 'ag', 'ad', 'al', 'an'], // 形容词
       ['ns', 'nsf'], // 地名
@@ -1402,19 +1417,19 @@ export default {
     const word_frequency_search = async() => {
       let word_list = []
       let kwargs: any = {};
-      if (phrase_value.value !== -1) {
+      if (phrase_value.value >= 0) {
         kwargs['phrase'] = avi_l[phrase_value.value].join(' ')
       }
       kwargs['num'] = word_num_value.value
       if (dynasty4_value.value !== -1) {
         kwargs['dynasty'] = dynasty4_value.value
       }
-      if (phrase_value.value === 0) kwargs['word_len'] = 1
-      else if (phrase_value.value === 1) kwargs['word_len'] = 2
+      if (phrase_value.value === -2) kwargs['word_len'] = 1 // 单字
+      else if (phrase_value.value === -3) kwargs['word_len'] = 2 // 多字
 
 
 
-      let ret = await Post('analyze/word_frequency/', kwargs, true)
+      let ret = await Post(system_base_url + 'analyze/word_frequency/', kwargs, true)
 
       if (ret.status == 401) return false
       word_list = ret.data.word_list
@@ -1573,7 +1588,7 @@ export default {
         })
       }
 
-      let ret = await Post('analyze/rhythmic_statistics/', {
+      let ret = await Post(system_base_url + 'analyze/rhythmic_statistics/', {
         'num': rhythmic_num_value.value,
         'dynasty': dynasty5_value.value,
         'author': author,
@@ -1690,7 +1705,7 @@ export default {
         'jue': jue_value.value,
         'three_hundred': three_hundred,
       }
-      await Get('analyze/author_output/', kwargs, false)
+      await Get(system_base_url + 'analyze/author_output/', kwargs, false)
       .then((resp) => {
         res_list = resp.data.res_list
       })
@@ -2116,7 +2131,7 @@ export default {
 
       let res_list = []
 
-      await Get('analyze/poetry_statistics/', {
+      await Get(system_base_url + 'analyze/poetry_statistics/', {
         'rhyme_num': num,
         'dynasty': dynasty2_value.value,
         'author': author,
@@ -2313,7 +2328,7 @@ export default {
 
       let res_list = []
 
-      await Get('analyze/word_list/', {
+      await Get(system_base_url + 'analyze/word_list/', {
         'word_list': the_word_list.join(' '),
         'dynasty': trans[dynasty3_value.value]['dynasty'],
         'shici': trans[dynasty3_value.value]['shici'],
@@ -2383,18 +2398,18 @@ export default {
     onMounted(async() => {
       let word_list = []
       let kwargs: any = {};
-      if (phrase_value.value !== -1) {
+      if (phrase_value.value >= 0) {
         kwargs['phrase'] = avi_l[phrase_value.value].join(' ')
       }
       kwargs['num'] = word_num_value.value
       if (dynasty4_value.value !== -1) {
         kwargs['dynasty'] = dynasty4_value.value
       }
-      if (phrase_value.value === 0) kwargs['word_len'] = 1
-      else if (phrase_value.value === 1) kwargs['word_len'] = 2
+      if (phrase_value.value === -2) kwargs['word_len'] = 1
+      else if (phrase_value.value === -3) kwargs['word_len'] = 2
 
 
-      await Get('analyze/word_frequency/', kwargs, false)
+      await Get(system_base_url + 'analyze/word_frequency/', kwargs, false)
       .then((resp) => {
         word_list = resp.data.word_list
       })
@@ -2488,7 +2503,7 @@ export default {
         })
       }
 
-      await Get('analyze/rhythmic_statistics/', {
+      await Get(system_base_url + 'analyze/rhythmic_statistics/', {
         'num': rhythmic_num_value.value,
         'dynasty': dynasty5_value.value,
         'author': author,

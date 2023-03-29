@@ -8,7 +8,7 @@
       《{{poetry.title}}》
     </div>
     <div class="poetry-author">
-      <div>{{poetry.section}}-{{poetry.chapter}}</div>
+      <div>{{poetry.chapter}}-{{poetry.section}}</div>
     </div>
 
     <div class="poetry-detail">

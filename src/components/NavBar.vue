@@ -187,7 +187,7 @@ import {onMounted, reactive, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useStore} from "vuex";
 import {ElMessage} from "element-plus";
-import {Get, Post} from "@/utils/request";
+import {Get, Post, system_base_url} from "@/utils/request";
 import { useIntervalFn } from '@vueuse/core'
 import store from "@/store";
 
@@ -251,7 +251,7 @@ export default {
 
           if (form_state.value === '注册') {
             // 发送axios
-            await Get('account/sign_in/', {
+            await Get(system_base_url + 'account/sign_in/', {
               'email' : form.email
             }, false, 2)
                 .then((resp) => {
@@ -262,7 +262,7 @@ export default {
                 })
           } else if (form_state.value === '找回密码') {
             // 发送axios
-            await Get('account/update_password/', {
+            await Get(system_base_url + 'account/update_password/', {
               'email' : form.email
             }, false, 2)
                 .then((resp) => {
@@ -505,7 +505,7 @@ export default {
         console.log('校验结果', valid)
         if (valid) {
 
-          Post('account/sign_in/', form, false)
+          Post(system_base_url + 'account/sign_in/', form, false)
           .then((resp) => {
             router.push('/')
             clear_form()
@@ -529,7 +529,7 @@ export default {
         console.log('校验结果', valid)
         if (valid) {
 
-          Post('account/update_password/', form, false)
+          Post(system_base_url + 'account/update_password/', form, false)
           .then((resp) => {
 
             store.dispatch('logout')

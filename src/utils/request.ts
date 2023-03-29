@@ -9,16 +9,22 @@ const LoadingInstance = {
 
 // 刷新 access_token 的接口
 const refreshToken = () => {
-    return instance.post('api/token/refresh/', { refresh: store.getters.get_refresh })
+    return instance.post(system_base_url + 'api/token/refresh/', { refresh: store.getters.get_refresh })
 }
+
+export const system_base_url = 'http://127.0.0.1:8000/';
+// export const system_base_url = '/sys/';
+export const AI_base_url = 'http://127.0.0.1:8088/';
+// export const AI_base_url = '/ai/';
+
+export const trans_next_url = 'http://bwhlifetimelove.top/';
+
 // 创建 axios 实例
 const instance = axios.create({
-    baseURL: 'http://127.0.0.1:8000',
     // baseURL: 'http://1.12.62.89:8080',
-    timeout: 40 * 1000,
+    timeout: 20 * 1000,
     headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        // 'Access-Control-Max-Age': '86400',
     }
 })
 
@@ -40,6 +46,10 @@ instance.interceptors.request.use(
         // 携带token验证
         if (!config.headers.Authorization && store.getters.get_access !== '') {
             config.headers.Authorization = "Bearer " + store.getters.get_access;
+        }
+
+        if (config.url.includes(trans_next_url)) {
+            config.url = config.url.replace(trans_next_url, system_base_url)
         }
 
         return config;
@@ -102,7 +112,6 @@ instance.interceptors.response.use(response => {
                     isRefreshing = true
                     return refreshToken().then(res=> { // 用refresh刷新 token
                         const access_token = res.data.access
-                        // console.log("刷新token成功,res.data.access:", access_token)
                         store.commit("set_access", access_token)
                         config.headers.Authorization = `Bearer ${access_token}`
                         // token 刷新后将数组的方法重新执行
@@ -110,13 +119,15 @@ instance.interceptors.response.use(response => {
                         requests = [] // 重新请求完清空
                         return instance(config)
                     }).catch(err => {
-                        store.commit('clear_account')
-                        ElMessage({
-                            showClose: true,
-                            type: 'error',
-                            message: '登录已超时，请重新登录！',
-                            duration: 3000,
-                        })
+                        if (err.response.status === 401) {
+                            store.commit('clear_account')
+                            ElMessage({
+                                showClose: true,
+                                type: 'error',
+                                message: '登录已超时，请重新登录！',
+                                duration: 3000,
+                            })
+                        }
                         return Promise.reject(err)
                     }).finally(() => {
                         isRefreshing = false
@@ -145,20 +156,10 @@ instance.interceptors.response.use(response => {
 const setHeaderToken = (isNeedToken) => {
     if (isNeedToken) {
         const accessToken = store.getters.get_access;
-        /*if (!accessToken) {
-            store.commit('clear_account')
-            ElMessage({
-                showClose: true,
-                type: 'error',
-                message: '您未登录，请先登录！',
-                duration: 3000,
-            })
-        }*/
         instance.defaults.headers.Authorization = `Bearer ${accessToken}`
     } else {
         instance.defaults.headers.Authorization = ''
     }
-    // console.log('instance.defaults.headers.Authorization:', instance.defaults.headers.Authorization)
 }
 
 function closeLoading() {
@@ -185,7 +186,7 @@ const httpErrorStatusHandle = (error) => {
         case 404: message = `请求地址出错: ${error.response.config.url}`; break; // 在正确域名下
         case 408: message = '请求超时！'; break;
         case 409: message = '系统已存在相同数据！'; break;
-        case 429: message = '系统限流'; break;
+        case 429: message = '系统限流！'; break;
         case 500: message = error.response.data.result ? error.response.data.result : '服务器内部错误！'; break;
         case 501: message = '服务未实现！'; break;
         case 502: message = '网关错误！'; break;

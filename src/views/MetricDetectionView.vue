@@ -481,7 +481,7 @@ import {
   Search,
 } from '@element-plus/icons-vue'
 import {useStore} from "vuex";
-import {Get} from "@/utils/request";
+import {Get, system_base_url} from "@/utils/request";
 import store from "@/store";
 export default {
   name: "MetricDetectionView",
@@ -544,7 +544,7 @@ export default {
       }
 
 
-      const ret = await Get('rhyme/metric_poetry/', {
+      const ret = await Get(system_base_url + 'rhyme/metric_poetry/', {
         text: text_filter,
         yan: yan.value ? 7 : 5,
         jue: jue.value ? 0 : 1,
@@ -552,13 +552,6 @@ export default {
         ru: ru.value ? 0 : 1,
         use_rhyme: use_rhyme.value,
       }, false)
-
-
-      // console.log("text", ret.data.text)
-      // console.log("yun_pos_dict", ret.data.yun_pos_dict)
-      // console.log("pz_err_dict", ret.data.pz_err_dict)
-      // console.log("duo_yin_pos", ret.data.duo_yin_pos)
-      // console.log("rhyme_foot", ret.data.rhyme_foot)
 
       detect_text.value = ret.data.text;
       yun_pos_dict.value = ret.data.yun_pos_dict;
@@ -575,10 +568,8 @@ export default {
       detect_use_rhyme.value = use_rhyme.value;
 
       arr_idx.value = random(0,arr.value.length - 1)
-      // console.log(arr_idx.value)
 
       if (Object.keys(pz_err_dict.value).length > 5) { //平仄错了多于5个
-        // console.log('平仄错了多于5个')
         ElMessageBox.alert('平仄错误太多，请确认<strong>格律诗种类</strong>和<strong>韵表</strong>是否选对。', '提示', {
           // if you want to disable its autofocus
           // autofocus: false,
@@ -847,7 +838,7 @@ export default {
       } else {
         searched_word.value = word
 
-        Get('rhyme/search_rhyme/', {
+        Get(system_base_url + 'rhyme/search_rhyme/', {
           'word': word,
         }, false)
         .then((resp) => {

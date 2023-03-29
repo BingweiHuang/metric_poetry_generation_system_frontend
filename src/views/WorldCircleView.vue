@@ -142,7 +142,7 @@
 <script lang="ts">
 
 import {onMounted, ref} from 'vue'
-import {Delete, Get, Post} from "@/utils/request";
+import {Delete, Get, Post, system_base_url} from "@/utils/request";
 import {
   Promotion,
 } from '@element-plus/icons-vue'
@@ -211,7 +211,7 @@ export default {
 
     onMounted(() => {
       last_len = 0
-      Get('account/posts/', {limit: limit}, true)
+      Get(system_base_url + 'account/posts/', {limit: limit}, true)
       .then((resp) => {
         post_list.value = resp.data.results
         next_url = resp.data.next
@@ -225,7 +225,7 @@ export default {
 
     const like = (post_id, pos) => {
 
-      Post('account/likes/', {
+      Post(system_base_url + 'account/likes/', {
         // account_id: store.getters.get_account.id,
         post_id: post_id
       }, true)
@@ -237,7 +237,7 @@ export default {
     }
 
     const cancle_like = (like_id, idx) => {
-      Delete('account/likes/' + like_id, {}, true)
+      Delete(system_base_url + 'account/likes/' + like_id, {}, true)
           .then((resp) => {
             post_list.value[idx].like_id = 0;
             post_list.value[idx].like_count -= 1;
@@ -251,7 +251,7 @@ export default {
     }
 
     const get_comment = async (post_id, pos) => {
-      await Get('account/comments/', {
+      await Get(system_base_url + 'account/comments/', {
         post: post_id,
       }, true)
           .then((resp) => {
@@ -283,7 +283,7 @@ export default {
         return false
       }
 
-      Post('account/comments/', {
+      Post(system_base_url + 'account/comments/', {
         // account_id: store.getters.get_account.id,
         post_id: post_id,
         content: comment_input.value,
@@ -298,7 +298,7 @@ export default {
     }
     const delete_comment = (comment_id, post_id, pos) => {
 
-      Delete('account/comments/' + comment_id, {}, true)
+      Delete(system_base_url + 'account/comments/' + comment_id, {}, true)
       .then((resp) => {
         get_comment(post_id, pos)
       })
@@ -315,14 +315,14 @@ export default {
         return false
       }
 
-      Post('account/posts/', {
+      Post(system_base_url + 'account/posts/', {
         content: post_input.value,
         // id: store.getters.get_account.id,
       }, true)
       .then((resp) => {
         post_input.value = ''
         last_len = 0
-        Get('account/posts/', {limit: limit}, true)
+        Get(system_base_url + 'account/posts/', {limit: limit}, true)
             .then((resp) => {
               post_list.value = resp.data.results
               next_url = resp.data.next
@@ -337,7 +337,7 @@ export default {
     }
 
     const delete_post = (post_id, pos) => {
-      Delete('account/posts/' + post_id, {}, true)
+      Delete(system_base_url + 'account/posts/' + post_id, {}, true)
       .then((resp) => {
         post_list.value.splice(pos, 1)
       })

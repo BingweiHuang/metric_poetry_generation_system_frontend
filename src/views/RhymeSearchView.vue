@@ -207,7 +207,7 @@ import {
   Search,
 } from '@element-plus/icons-vue'
 import {ElMessage} from "element-plus";
-import {Get} from "@/utils/request";
+import {Get, system_base_url} from "@/utils/request";
 import store from "@/store";
 
 export default {
@@ -329,7 +329,7 @@ export default {
       } else {
         searched_word.value = word
 
-        Get('rhyme/search_rhyme/', {
+        Get(system_base_url + 'rhyme/search_rhyme/', {
           'word': word,
         }, false)
         .then((resp) => {

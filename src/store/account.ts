@@ -1,5 +1,5 @@
 // import $ from 'jquery';
-import {Get, Post} from "@/utils/request";
+import {Get, Post, system_base_url} from "@/utils/request";
 import jwt_decode from 'jwt-decode';
 import {ElMessage} from "element-plus";
 
@@ -55,7 +55,7 @@ const ModuleAccount = {
     actions: {
         login(context, data) {
 
-            Post('account/login/', {
+            Post(system_base_url + 'account/login/', {
                 username: data.username,
                 password: data.password,
             }, false)
@@ -74,7 +74,7 @@ const ModuleAccount = {
                 // console.log('access的存储情况:', context.getters('get_access'))
                 context.commit('set_refresh', refresh)
 
-                Get('account/accounts/' + access_obj.user_id, {}, true)
+                Get(system_base_url + 'account/accounts/' + access_obj.user_id, {}, true)
                 .then((resp) => {
                     context.commit("set_account", resp.data);
                     data.success();

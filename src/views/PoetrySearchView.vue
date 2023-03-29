@@ -221,7 +221,7 @@ import CiCard from "@/components/CiCard.vue";
 import ShijingCard from "@/components/ShijingCard.vue";
 import {instance} from "@/utils/utils";
 import {ElMessage} from "element-plus";
-import {Get} from "@/utils/request";
+import {Get, system_base_url} from "@/utils/request";
 export default {
   name: "PoetrySearchView",
   components: {
@@ -851,6 +851,8 @@ export default {
       }
     }
 
+    const have_more = ref(true)
+
     const poetry_search = async () => {
       if (!poetry_dynasty_value.value) {
         ElMessage({
@@ -870,6 +872,10 @@ export default {
         limit: default_limit,
       };
 
+      if (content_input.value != '') { // 输入框的内容多关键词
+        kwargs['content'] = content_input.value;
+      }
+
       if (shici.value !== 'shijings') { // 选的词或者诗
         if (dynasty === '三百首') {
           kwargs['three_hundred'] = 1
@@ -882,9 +888,6 @@ export default {
         if (title_input.value != '') {
           kwargs['title'] = title_input.value;
           kwargs['rhythmic'] = title_input.value;
-        }
-        if (content_input.value != '') {
-          kwargs['content'] = content_input.value;
         }
 
         if (shici.value === 'shis') { // 如果选的是诗
@@ -919,7 +922,7 @@ export default {
 
       poetryList.value = [];
 
-      let ret = await Get(query_url, kwargs, false)
+      await Get(system_base_url + query_url, kwargs, false)
           .then((resp) => {
             let result = resp.data.results
             if (result.length === 0) {
@@ -930,7 +933,8 @@ export default {
             } else {
               poetryList.value = result
               next_url = resp.data.next
-              if (result.length < default_limit) have_more.value = false
+              if (result.length < default_limit) have_more.value = false;
+              else have_more.value = true;
             }
           })
           .catch((error) => {
@@ -940,11 +944,9 @@ export default {
 
     }
 
-    const have_more = ref(true)
+
 
     const load = () => {
-      console.log('触发load')
-
       if (next_url === null || next_url === '') {
         have_more.value = false
         ElMessage({
@@ -960,7 +962,8 @@ export default {
       .then((resp) => {
         let result = resp.data.results
         next_url = resp.data.next
-        if (result.length < default_limit) have_more.value = false
+        if (result.length < default_limit) have_more.value = false;
+        else have_more.value = true;
         poetryList.value = poetryList.value.concat(result)
 
       })

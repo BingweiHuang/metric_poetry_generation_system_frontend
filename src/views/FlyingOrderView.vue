@@ -28,10 +28,10 @@
 
       </el-row>
 
-
+      <!-- 检索条件2 -->
       <el-row justify="center" align="middle" style="margin-bottom: 10px">
         <el-col :xl="8" :lg="8" :md="8" :sm="8" :xs="8">
-          <el-select size="large" v-model="belong_value" @change="handleChange">
+          <el-select size="large" v-model="belong_value">
             <template #prefix>
               含有:
             </template>
@@ -45,7 +45,7 @@
         </el-col>
 
         <el-col :xl="8" :lg="8" :md="8" :sm="8" :xs="8">
-          <el-select size="large" v-model="not_belong_value" @change="handleChange">
+          <el-select size="large" v-model="not_belong_value">
             <template #prefix>
               不含:
             </template>
@@ -58,7 +58,7 @@
           </el-select>
         </el-col>
         <el-col :xl="8" :lg="8" :md="8" :sm="8" :xs="8">
-          <el-select size="large" v-model="poetry_value" @change="handleChange">
+          <el-select size="large" v-model="poetry_value">
             <template #prefix>
               诗词:
             </template>
@@ -73,60 +73,6 @@
 
 
       </el-row>
-
-<!--      &lt;!&ndash; 检索条件2 &ndash;&gt;
-      <el-row justify="center" align="middle">
-        <el-col :xl="10" :lg="10" :md="10" :sm="11" :xs="12">
-          <el-select size="large" v-model="belong_value" @change="handleChange">
-            <template #prefix>
-              含有:
-            </template>
-            <el-option
-                v-for="item in belong_options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-            />
-          </el-select>
-        </el-col>
-
-        <el-col :xl="10" :lg="10" :md="10" :sm="11" :xs="12">
-          <el-select size="large" v-model="not_belong_value" @change="handleChange">
-            <template #prefix>
-              不含:
-            </template>
-            <el-option
-                v-for="item in not_belong_options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-            />
-          </el-select>
-        </el-col>
-
-      </el-row>
-
-      &lt;!&ndash; 检索条件3 &ndash;&gt;
-      <el-row justify="center" align="middle" style="margin-bottom: 10px">
-
-        <el-col :xl="10" :lg="10" :md="10" :sm="11" :xs="12">
-          <el-select size="large" v-model="poetry_value" @change="handleChange">
-            <template #prefix>
-              诗词:
-            </template>
-            <el-option
-                v-for="item in poetry_options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-            />
-          </el-select>
-        </el-col>
-        <el-col :xl="10" :lg="10" :md="10" :sm="11" :xs="12">
-          <el-button size="large" :icon="Search" @click="poetry_search" />
-        </el-col>
-
-      </el-row>-->
 
       <!-- 展示栏（如果没有搜索结果） -->
       <div v-if="flyList.length === 0" style="width: 100%;">
@@ -173,7 +119,7 @@ import ShiCard from "@/components/ShiCard.vue";
 import CiCard from "@/components/CiCard.vue";
 import {instance} from "@/utils/utils";
 import {ElMessage} from "element-plus";
-import {Get} from "@/utils/request";
+import {Get, system_base_url} from "@/utils/request";
 
 export default {
   name: "FlyingOrderView",
@@ -291,9 +237,6 @@ export default {
     const currentPage = ref(1);
     const pageSize = ref(12);
 
-    const handleChange = () => {
-      console.log(poetry_value.value)
-    }
 
     // @size-change页码展示数量点击事件
     const handleSizeChange = (val: number) => {
@@ -375,8 +318,6 @@ export default {
           }
         }
       }
-      // console.log(have_str, search_have_list)
-      // console.log(no_have_str, search_no_have_list)
       if (have_str !== '' && search_have_list.length === 0 ||
           no_have_str !== '' && search_no_have_list.length === 0) {
         ElMessage({
@@ -400,10 +341,8 @@ export default {
       kwargs = {
         limit: default_limit,
       };
-      // console.log('诗词:', search_poetry_value)
       if (search_poetry_value !== -1) {
         kwargs['kind'] = search_poetry_value
-        console.log('诗词:', search_poetry_value)
       }
 
       if (search_have_list.length !== 0) { // 含
@@ -421,7 +360,7 @@ export default {
       }
 
 
-      let ret = await Get('search/flys/', kwargs, true)
+      let ret = await Get(system_base_url + 'search/flys/', kwargs, true)
           .then((resp) => {
             let result = resp.data.results
             next_url = resp.data.next
@@ -496,7 +435,6 @@ export default {
 
       handleSizeChange,
       handleCurrentChange,
-      handleChange,
       poetry_search,
       load,
 
