@@ -154,9 +154,11 @@
     <!-- 检索结果展示栏 -->
     <div style="min-height: 600px">
       <el-space size="" wrap style="width: 100%; justify-content: center;">
-        <template v-for="poetry in poetryList.slice((currentPage - 1) * pageSize, currentPage * pageSize)" :key="poetry.id">
-          <ShiCard :poetry="poetry" v-if="shici === 'shis'" />
-          <CiCard :poetry="poetry" v-else-if="shici === 'cis'"/>
+        <template v-for="(poetry, idx) in poetryList.slice((currentPage - 1) * pageSize, currentPage * pageSize)" :key="idx">
+          <ShiCard v-if="shici === 'shis'" :poetry="poetry" :pos="(currentPage - 1) * pageSize + idx"
+                   @cancle_collection="cancle_collection" @collection="collection"/>
+          <CiCard v-else-if="shici === 'cis'" :poetry="poetry" :pos="(currentPage - 1) * pageSize + idx"
+                  @cancle_collection="cancle_collection" @collection="collection"/>
           <ShijingCard :poetry="poetry" v-else-if="shici === 'shijings'"/>
         </template>
         <template v-if="poetryList.length === 0">
@@ -221,7 +223,7 @@ import CiCard from "@/components/CiCard.vue";
 import ShijingCard from "@/components/ShijingCard.vue";
 import {instance} from "@/utils/utils";
 import {ElMessage} from "element-plus";
-import {Get, system_base_url} from "@/utils/request";
+import {Delete, Get, Post, system_base_url} from "@/utils/request";
 export default {
   name: "PoetrySearchView",
   components: {
@@ -230,6 +232,45 @@ export default {
     ShijingCard,
   },
   setup() {
+    const cancle_collection = (obj, callBack) => {
+      let kind = shici.value.substring(0, shici.value.length - 1)
+      Delete(system_base_url + 'account/'+ kind + '_collections/' + obj.collection_id, {}, true)
+          .then((resp) => {
+            if (resp.status === 204) { // 删除成功返回204
+              poetryList.value[obj.pos].collection_id = 0;
+            }
+            callBack(resp.status)
+          })
+          .catch((error) => {
+            console.log(error)
+          })
+    }
+
+    const collection = (obj, callBack) => {
+      let kind = shici.value.substring(0, shici.value.length - 1)
+      let params = {}
+      if (kind === 'shi') {
+        params = {
+          shi_id: obj.shi_id,
+        }
+      } else if (kind === 'ci') {
+        params = {
+          ci_id: obj.ci_id,
+        }
+      }
+      Post(system_base_url + 'account/'+ kind + '_collections/', params, true)
+          .then((resp) => {
+            if (resp.status === 201) { // 成功收藏 创建成功返回201
+              poetryList.value[obj.pos].collection_id = resp.data.id;
+            }
+            callBack(resp.status)
+          })
+          .catch((error) => {
+            console.log(error)
+          })
+    }
+
+
     const poetry_dynasty_options = ref([
       {
         value: 'shis',
@@ -979,6 +1020,10 @@ export default {
     }
 
     return {
+
+      cancle_collection,
+      collection,
+
       poetry_dynasty_options,
       poetry_dynasty_value,
 

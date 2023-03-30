@@ -1,5 +1,6 @@
 <template>
 
+  <!-- 主体页面 -->
   <el-row>
     <el-col :xl="0" :lg="0" :md="0" :sm="0" :xs="0"></el-col>
 
@@ -19,9 +20,9 @@
           <!-- 其他资料 -->
           <el-col :span="16">
             <div style="display: flex; align-items: center; ">
-              关注：<el-link style="font-size: 16px">{{the_account.follow_count}}</el-link>
-              &nbsp;&nbsp; 粉丝：<el-link style="font-size: 16px">{{the_account.fan_count}}</el-link>
-              &nbsp;&nbsp; <el-button type="success" plain circle :icon="Plus" size="small" v-if="follow_id === 0 && (the_account.id !== $store.getters.get_account.id)"  @click="add_follow"/>
+              关注：<el-link style="font-size: 16px" @click="open_follow_tab">{{the_account.follow_count}}</el-link>
+              &nbsp;&nbsp; 粉丝：<el-link style="font-size: 16px" @click="open_fan_tab">{{the_account.fan_count}}</el-link>
+              &nbsp;&nbsp; <el-button type="success" plain circle :icon="Plus" size="small" v-if="follow_id === 0 && (!is_me)"  @click="add_follow"/>
               <el-button type="success" circle :icon="Check" size="small" @click="delete_follow(follow_id, 0, false)"
                          v-if="follow_id"/>
             </div>
@@ -37,131 +38,28 @@
       <el-card>
         <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
           <el-tab-pane label="作品" name="作品">
-            <el-button type="primary" style="margin-bottom: 10px">
-              添加
-            </el-button>
-            <el-space wrap size="" style="display: flex; align-items: start; justify-content: center">
-              <template v-for="idx in 10" :key="idx">
-                <el-card style="text-align: center">
-                  <div style="display: flex; justify-content: space-between">
-                    <el-button type="success" text style="margin-bottom: 10px" size="small">
-                      编辑
-                    </el-button>
-                    <el-button type="danger" text style="margin-bottom: 10px" size="small">
-                      删除
-                    </el-button>
-                  </div>
-                  <div>《经邹鲁祭孔子而叹之》</div>
-                  <div>嗟君此别意何如，驻马衔杯问谪居。</div>
-                  <div>巫峡啼猿数行泪，衡阳归雁几封书。</div>
-                  <div>青枫江上秋天远，白帝城边古木疏。</div>
-                  <div>圣代即今多雨露，暂时分手莫踌躇。</div>
-                  <div>创建时间：</div>
-                  <div>上次修改：</div>
-                </el-card>
-              </template>
-            </el-space>
+
+            <WorkTab :the_account="the_account" :work_list="work_list" :is_me="is_me" :work_have_more="work_have_more"
+                     @add_work="add_work" @put_work="put_work" @delete_work="delete_work" @work_load="work_load"/>
+            
           </el-tab-pane>
           <el-tab-pane label="诗作收藏" name="诗作收藏">
-            <!-- 诗作收藏列表 -->
-            <el-space size="" wrap style="width: 100%; justify-content: center;">
-              <template v-for="item in shi_collection_list.slice((shi_currentPage - 1) * shi_pageSize, shi_currentPage * shi_pageSize)" :key="item.shi.id">
-                <ShiCard :poetry="item.shi"/>
-              </template>
-              <template v-if="shi_collection_list.length === 0">
-                <el-empty description="没有收藏任何诗作~"/>
-              </template>
-              <template v-else>
-                <el-button type="primary" text size="large"
-                           v-if="(shi_currentPage >= (shi_collection_list.length / shi_pageSize)) && shi_have_more"
-                           @click="shi_load" style="font-size: 20px; font-weight: bold">
-                  加载更多...
-                </el-button>
-              </template>
-            </el-space>
 
-            <!-- web端分页码 -->
-            <el-pagination
-                class="my-el-pagination hidden-xs-only"
-                background
-                :small="false"
-                :hide-on-single-page="true"
-                @size-change="shi_handleSizeChange"
-                @current-change="shi_handleCurrentChange"
-                :current-page="shi_currentPage"
-                :page-size="shi_pageSize"
-                :pager-count="6"
-                layout=" prev, pager, next"
-                :total="shi_collection_list.length">
-            </el-pagination>
-
-            <!-- 移动端分页码 -->
-            <el-pagination
-                class="my-el-pagination hidden-sm-and-up"
-                background
-                :small="true"
-                :hide-on-single-page="true"
-                @size-change="shi_handleSizeChange"
-                @current-change="shi_handleCurrentChange"
-                :current-page="shi_currentPage"
-                :page-size="shi_pageSize"
-                :pager-count="6"
-                layout=" prev, pager, next"
-                :total="shi_collection_list.length">
-            </el-pagination>
+            <ShiCollectionTab :the_account="the_account" :shi_collection_list="shi_collection_list" :is_me="is_me"
+                              :shi_have_more="shi_have_more" @shi_load="shi_load"
+                              @cancle_shi_collection="cancle_shi_collection" @shi_collection="shi_collection"/>
 
           </el-tab-pane>
           <el-tab-pane label="词作收藏" name="词作收藏">
-            <!-- 词作收藏列表 -->
-            <el-space size="" wrap style="width: 100%; justify-content: center;">
-              <template v-for="item in ci_collection_list.slice((ci_currentPage - 1) * ci_pageSize, ci_currentPage * ci_pageSize)" :key="item.ci.id">
-                <CiCard :poetry="item.ci"/>
-              </template>
-              <template v-if="ci_collection_list.length === 0">
-                <el-empty description="没有收藏任何词作~"/>
-              </template>
-              <template v-else>
-                <el-button type="primary" text size="large"
-                           v-if="(ci_currentPage >= (ci_collection_list.length / ci_pageSize)) && ci_have_more"
-                           @click="ci_load" style="font-size: 20px; font-weight: bold">
-                  加载更多...
-                </el-button>
-              </template>
-            </el-space>
 
-            <!-- web端分页码 -->
-            <el-pagination
-                class="my-el-pagination hidden-xs-only"
-                background
-                :small="false"
-                :hide-on-single-page="true"
-                @size-change="ci_handleSizeChange"
-                @current-change="ci_handleCurrentChange"
-                :current-page="ci_currentPage"
-                :page-size="ci_pageSize"
-                :pager-count="6"
-                layout=" prev, pager, next"
-                :total="ci_collection_list.length">
-            </el-pagination>
+            <CiCollectionTab :the_account="the_account" :ci_collection_list="ci_collection_list" :is_me="is_me"
+                              :ci_have_more="ci_have_more" @ci_load="ci_load"
+                              @cancle_ci_collection="cancle_ci_collection" @ci_collection="ci_collection"/>
 
-            <!-- 移动端分页码 -->
-            <el-pagination
-                class="my-el-pagination hidden-sm-and-up"
-                background
-                :small="true"
-                :hide-on-single-page="true"
-                @size-change="ci_handleSizeChange"
-                @current-change="ci_handleCurrentChange"
-                :current-page="ci_currentPage"
-                :page-size="ci_pageSize"
-                :pager-count="6"
-                layout=" prev, pager, next"
-                :total="ci_collection_list.length">
-            </el-pagination>
           </el-tab-pane>
-          <el-tab-pane label="编辑个人资料" name="编辑个人资料" v-if="the_account.id === $store.getters.get_account.id">
+          <el-tab-pane label="编辑个人资料" name="编辑个人资料" v-if="is_me">
 
-            <el-form :model="form2" :rules="rules2" ref="dom2" label-width="80px">
+            <el-form :model="update_profile_form" :rules="update_profile_rules" ref="update_profile_dom" label-width="80px">
 
               <el-form-item label="头像" style="display: flex; align-items: center; justify-content: start">
 
@@ -193,20 +91,20 @@
               </el-form-item>
 
               <el-form-item label="昵称" prop="nickname">
-                <el-input v-model="form2.nickname" show-word-limit maxlength="10" />
+                <el-input v-model="update_profile_form.nickname" show-word-limit maxlength="10" />
               </el-form-item>
               <el-form-item label="账号" prop="username">
-                <el-input v-model="form2.username" show-word-limit maxlength="12" />
+                <el-input v-model="update_profile_form.username" show-word-limit maxlength="12" />
               </el-form-item>
 
               <el-form-item label="公开作品">
-                <el-switch v-model="form2.display_works" />
+                <el-switch v-model="update_profile_form.display_works" inline-prompt active-text="是" inactive-text="否"/>
               </el-form-item>
               <el-form-item label="公开收藏">
-                <el-switch v-model="form2.display_collections" />
+                <el-switch v-model="update_profile_form.display_collections" inline-prompt active-text="是" inactive-text="否"/>
               </el-form-item>
               <el-form-item label="个人简介" prop="introduction">
-                <el-input v-model="form2.introduction" type="textarea" :autosize="{ minRows: 3, maxRows: 3 }" show-word-limit maxlength="30">
+                <el-input v-model="update_profile_form.introduction" type="textarea" :autosize="{ minRows: 3, maxRows: 3 }" show-word-limit maxlength="30">
                 </el-input>
               </el-form-item>
               <el-form-item>
@@ -216,13 +114,13 @@
             </el-form>
 
           </el-tab-pane>
-          <el-tab-pane label="修改密码" name="修改密码" v-if="the_account.id === $store.getters.get_account.id">
+          <el-tab-pane label="修改密码" name="修改密码" v-if="is_me">
 
 
-            <el-form :model="form" :rules="rules" ref="dom" label-width="80px">
+            <el-form :model="update_password_form" :rules="update_password_rules" ref="update_password_dom" label-width="80px">
 
               <el-form-item label="验证码">
-                <el-input v-model="form.code" placeholder="请输入验证码">
+                <el-input v-model="update_password_form.code" placeholder="请输入验证码">
                   <template #append>
                     <el-button @click="send_email">
                       {{clock.countDownTime <= 0 ? "发送验证码" : clock.countDownTime+'秒后获取'}}
@@ -231,11 +129,11 @@
                 </el-input>
               </el-form-item>
               <el-form-item label="密码" prop="password">
-                <el-input v-model="form.password" type="password" show-password placeholder="请输入密码" />
+                <el-input v-model="update_password_form.password" type="password" show-password placeholder="请输入密码" />
               </el-form-item>
 
               <el-form-item label="确认密码" prop="password2">
-                <el-input v-model="form.password2" type="password" show-password placeholder="请再次输入密码" />
+                <el-input v-model="update_password_form.password2" type="password" show-password placeholder="请再次输入密码" />
               </el-form-item>
 
               <div style="display: flex; justify-content: space-around; align-items: center;">
@@ -244,8 +142,7 @@
             </el-form>
 
           </el-tab-pane>
-          <el-tab-pane label="关注" name="关注" v-if="the_account.id === $store.getters.get_account.id">
-
+          <el-tab-pane label="关注" name="关注" >
 
             <!-- 关注列表 -->
             <ul v-infinite-scroll="load2" infinite-scroll-distance="1" infinite-scroll-immediate="false" class="infinite-list" style="overflow: auto; max-height: 520px;">
@@ -272,7 +169,7 @@
             </ul>
 
           </el-tab-pane>
-          <el-tab-pane label="粉丝" name="粉丝" v-if="the_account.id === $store.getters.get_account.id">
+          <el-tab-pane label="粉丝" name="粉丝" >
 
 
             <!-- 粉丝列表 -->
@@ -306,20 +203,21 @@
 
     <el-col :xl="0" :lg="0" :md="0" :sm="0" :xs="0"></el-col>
   </el-row>
-
+  
 </template>
 
 <script lang="ts">
 
 import {ref, reactive, onMounted, toRaw} from 'vue'
 import type { TabsPaneContext } from 'element-plus'
-import {ElMessage, genFileId} from 'element-plus'
+import {ElMessage} from 'element-plus'
 import type { UploadInstance, UploadProps, UploadRawFile, UploadUserFile } from 'element-plus'
 import {Delete, Get, Post, Put, system_base_url} from "@/utils/request";
 import {useRoute, useRouter} from "vue-router";
 import store from "@/store";
-import ShiCard from "@/components/ShiCard.vue";
-import CiCard from "@/components/CiCard.vue";
+import WorkTab from "@/components/profile/WorkTab.vue";
+import ShiCollectionTab from "@/components/profile/ShiCollectionTab.vue";
+import CiCollectionTab from "@/components/profile/CiCollectionTab.vue";
 
 import {
   Plus,
@@ -328,13 +226,17 @@ import {
 export default {
   name: "ProfileView",
   components: {
-    ShiCard,
-    CiCard,
+
+
+    WorkTab,
+    ShiCollectionTab,
+    CiCollectionTab,
   },
   setup() {
 
     const activeName = ref('作品')
 
+    const is_me = ref(false)
     const follow_list = ref([])
     const get_follow_list = async () => {
       await Get(system_base_url + 'account/follows/', {fan: the_account.id}, true)
@@ -358,10 +260,95 @@ export default {
     }
     
     const default_limit = 9;
+
+    let work_next_url = '';
+    const work_list = ref([])
+    const work_have_more = ref(true);
+    const get_work_list = async () => {
+      await Get(system_base_url + 'account/works/',
+          {author: the_account.id, limit: default_limit}, true)
+          .then((resp) => {
+            const result = resp.data.results
+            work_list.value = result;
+            work_next_url = resp.data.next
+            if (result.length < default_limit) work_have_more.value = false;
+            else work_have_more.value = true;
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+    }
+    const work_load = () => {
+      if (work_next_url === null || work_next_url === '') {
+        work_have_more.value = false
+        ElMessage({
+          showClose: true,
+          message: '已经没有数据咯~',
+          type: 'warning',
+          duration: 3000,
+        })
+        return false
+      }
+
+      Get(work_next_url, {author: the_account.id, limit: default_limit}, true)
+          .then((resp) => {
+            let result = resp.data.results
+            work_next_url = resp.data.next
+            if (result.length < default_limit) work_have_more.value = false;
+            else work_have_more.value = true;
+            work_list.value = work_list.value.concat(result)
+
+          })
+          .catch((error) => {
+            console.log(error);
+            ElMessage({
+              showClose: true,
+              message: '刷新出错！',
+              type: 'error',
+              duration: 3000,
+            })
+          })
+
+    }
+    const delete_work = (obj, callBack) => {
+      Delete(system_base_url + 'account/works/' + obj.work_id, {}, true)
+          .then((resp) => {
+            if (resp.status === 204) { // 删除成功返回204
+              work_list.value.splice(obj.pos, 1);
+            }
+            callBack(resp.status)
+          })
+          .catch((error) => {
+            console.log(error)
+          })
+    }
+    const add_work = (work_form, callBack) => {
+      Post(system_base_url + 'account/works/', work_form, true)
+          .then((resp) => {
+            if (resp.status === 201) {
+              get_work_list()
+            }
+            callBack(resp.status);
+          })
+    }
+    const put_work = (obj, callBack) => {
+      Put(system_base_url + 'account/works/' + obj.work_id, obj.work_form, true)
+          .then((resp) => {
+            if (resp.status === 200) {
+              get_work_list()
+            }
+            callBack(resp.status);
+          })
+    }
+
+
     
     let shi_next_url = '';
     const shi_collection_list = ref([])
     const get_shi_collection_list = async () => {
+      if (!is_me.value && !the_account.display_collections) {
+        return false;
+      }
       await Get(system_base_url + 'account/shi_collections/', 
           {author: the_account.id, limit: default_limit}, true)
           .then((resp) => {
@@ -376,17 +363,6 @@ export default {
           })
     }
 
-    const shi_currentPage = ref(1);
-    const shi_pageSize = ref(9);
-    const shi_have_more = ref(true);
-    const shi_handleSizeChange = (val: number) => {
-      // 更新每页展示数据size
-      shi_pageSize.value = val
-    };
-    const shi_handleCurrentChange = (val: number) => {
-      // 更新当前页数是第几页
-      shi_currentPage.value = val
-    };
     const shi_load = () => {
       if (shi_next_url === null || shi_next_url === '') {
         shi_have_more.value = false
@@ -419,12 +395,42 @@ export default {
           })
 
     }
+    const shi_have_more = ref(true);
+
+    const cancle_shi_collection = (obj, callBack) => {
+      Delete(system_base_url + 'account/shi_collections/' + obj.collection_id, {}, true)
+          .then((resp) => {
+            if (resp.status === 204) { // 删除成功返回204
+              console.log('obj.pos:', obj.pos)
+              shi_collection_list.value[obj.pos].shi.collection_id = 0;
+            }
+            callBack(resp.status)
+          })
+          .catch((error) => {
+            console.log(error)
+          })
+    }
+    const shi_collection = (obj, callBack) => {
+      Post(system_base_url + 'account/shi_collections/', {shi_id:obj.shi_id}, true)
+          .then((resp) => {
+            if (resp.status === 201) { // 成功收藏 创建成功返回201
+              shi_collection_list.value[obj.pos].shi.collection_id = resp.data.id;
+            }
+            callBack(resp.status)
+          })
+          .catch((error) => {
+            console.log(error)
+          })
+    }
 
 
 
     let ci_next_url = '';
     const ci_collection_list = ref([])
     const get_ci_collection_list = async () => {
+      if (!is_me.value && !the_account.display_collections) {
+        return false;
+      }
       await Get(system_base_url + 'account/ci_collections/',
           {author: the_account.id, limit: default_limit}, true)
           .then((resp) => {
@@ -438,18 +444,6 @@ export default {
             console.log(err)
           })
     }
-
-    const ci_currentPage = ref(1);
-    const ci_pageSize = ref(9);
-    const ci_have_more = ref(true);
-    const ci_handleSizeChange = (val: number) => {
-      // 更新每页展示数据size
-      ci_pageSize.value = val
-    };
-    const ci_handleCurrentChange = (val: number) => {
-      // 更新当前页数是第几页
-      ci_currentPage.value = val
-    };
     const ci_load = () => {
       if (ci_next_url === null || ci_next_url === '') {
         ci_have_more.value = false
@@ -482,6 +476,33 @@ export default {
           })
 
     }
+    const ci_have_more = ref(true);
+
+    const cancle_ci_collection = (obj, callBack) => {
+      Delete(system_base_url + 'account/ci_collections/' + obj.collection_id, {}, true)
+          .then((resp) => {
+            if (resp.status === 204) { // 删除成功返回204
+              console.log('obj.pos:', obj.pos)
+              ci_collection_list.value[obj.pos].ci.collection_id = 0;
+            }
+            callBack(resp.status)
+          })
+          .catch((error) => {
+            console.log(error)
+          })
+    }
+    const ci_collection = (obj, callBack) => {
+      Post(system_base_url + 'account/ci_collections/', {ci_id:obj.ci_id}, true)
+          .then((resp) => {
+            if (resp.status === 201) { // 成功收藏 创建成功返回201
+              ci_collection_list.value[obj.pos].ci.collection_id = resp.data.id;
+            }
+            callBack(resp.status)
+          })
+          .catch((error) => {
+            console.log(error)
+          })
+    }
     
     
 
@@ -491,9 +512,23 @@ export default {
       } else if (tab.props.name === '粉丝') {
         get_fan_list()
       } else if (tab.props.name === '诗作收藏') {
+        // 没开放权限 或者 已经搜过第一次了
+        if (!is_me.value && !the_account.display_collections || shi_collection_list.value.length) {
+          return false;
+        }
         get_shi_collection_list()
       } else if (tab.props.name === '词作收藏') {
+        // 没开放权限 或者 已经搜过第一次了
+        if (!is_me.value && !the_account.display_collections || ci_collection_list.value.length) {
+          return false;
+        }
         get_ci_collection_list()
+      } else if (tab.props.name === '作品') {
+        // 没开放权限 或者 已经搜过第一次了
+        if (!is_me.value && !the_account.display_works || work_list.value.length) {
+          return false;
+        }
+        get_work_list()
       }
 
     }
@@ -568,9 +603,9 @@ export default {
       // const new_avatar = URL.createObjectURL(uploadFile.raw!)
       // console.log("new_avatar:", new_avatar)
 
-      form2.avatar_url = baseUrl + response.key;
+      update_profile_form.avatar_url = baseUrl + response.key;
 
-      Put(system_base_url + 'account/accounts/' + store.getters.get_account.id, form2, true)
+      Put(system_base_url + 'account/accounts/' + store.getters.get_account.id, update_profile_form, true)
           .then((resp) => {
             ElMessage({
               showClose: true,
@@ -601,14 +636,14 @@ export default {
     }
 
 
-    const form = reactive({
+    const update_password_form = reactive({
       email: '',
       code: '',
       password: '',
       password2: '',
     })
 
-    const form2 = reactive({
+    const update_profile_form = reactive({
       nickname: '',
       username: '',
       display_works: false,
@@ -617,8 +652,8 @@ export default {
       avatar_url: ''
     })
 
-    const dom = ref(null)
-    const rules = ref({
+    const update_password_dom = ref(null)
+    const update_password_rules = ref({
 
       password: [ // 密码限制
         { required: true, message: "请输入密码", trigger: "blur" },
@@ -639,7 +674,7 @@ export default {
         { required: true, message: "请再次输入密码", trigger: "blur" },
         {
           validator: function(rule, value, callback) {
-            if (form.password !== form.password2) {
+            if (update_password_form.password !== update_password_form.password2) {
               callback(new Error("两次输入密码不同"));
             } else {
               //校验通过
@@ -651,8 +686,8 @@ export default {
       ],
     })
 
-    const dom2 = ref(null)
-    const rules2 = ref({
+    const update_profile_dom = ref(null)
+    const update_profile_rules = ref({
 
       nickname: [ // 昵称限制
         { required: true, message: "请输入昵称", trigger: "blur" },
@@ -744,25 +779,29 @@ export default {
             url: resp.data.avatar_url,
           },
         ]
-
+        is_me.value = (the_account.id === store.getters.get_account.id)
         the_account.avatar_url = resp.data.avatar_url
-        form2.avatar_url = resp.data.avatar_url
+        update_profile_form.avatar_url = resp.data.avatar_url
         the_account.nickname = resp.data.nickname
-        form2.nickname = resp.data.nickname
+        update_profile_form.nickname = resp.data.nickname
         the_account.follow_count = resp.data.follow_count
         the_account.fan_count = resp.data.fan_count
         the_account.email = resp.data.email
-        form.email = resp.data.email
+        update_password_form.email = resp.data.email
         the_account.username = resp.data.username
-        form2.username = resp.data.username
+        update_profile_form.username = resp.data.username
         the_account.introduction = resp.data.introduction
-        form2.introduction = resp.data.introduction
+        update_profile_form.introduction = resp.data.introduction
         the_account.display_works = resp.data.display_works
-        form2.display_works = resp.data.display_works
+        update_profile_form.display_works = resp.data.display_works
         the_account.display_collections = resp.data.display_collections
-        form2.display_collections = resp.data.display_collections
+        update_profile_form.display_collections = resp.data.display_collections
 
         follow_id.value = resp.data.follow_id
+
+        if (is_me.value || the_account.display_works) {
+          get_work_list()
+        }
       })
       .catch((error) => {
         console.log(error);
@@ -772,14 +811,14 @@ export default {
 
 
     const send_email = () => {
-      dom.value.validateField('email', async (valid) => {
+      update_password_dom.value.validateField('email', async (valid) => {
         if (valid) {
 
           // 如果大于0  直接return
           if (clock.countDownTime > 0) return false
           // 发送axios
           await Get(system_base_url + 'account/update_password/', {
-            'email' : form.email,
+            'email' : update_password_form.email,
           }, false, 2)
           .then((resp) => {
             countDown(email_clock_seconds)
@@ -795,22 +834,22 @@ export default {
 
     }
 
-    const clear_form = () => {
-      Object.keys(form).map(key => {
-        form[key] = ''
+    const clear_update_password_form = () => {
+      Object.keys(update_password_form).map(key => {
+        update_password_form[key] = ''
       })
     }
 
     const router = useRouter();
     const update_password = () => {
 
-      dom.value.validate((valid) => {
+      update_password_dom.value.validate((valid) => {
         if (valid) {
-          Post(system_base_url + 'account/update_password/', form, false)
+          Post(system_base_url + 'account/update_password/', update_password_form, false)
           .then((resp) => {
             store.dispatch('logout')
             router.push('/')
-            clear_form()
+            clear_update_password_form()
           })
           .catch((error) => {
             console.log('error.response.data.result:', error.response.data.result);
@@ -823,20 +862,20 @@ export default {
     }
 
     const huan_yuan = () => {
-      form2.avatar_url = the_account.avatar_url
-      form2.nickname = the_account.nickname
-      form2.username = the_account.username
-      form2.introduction = the_account.introduction
-      form2.display_works = the_account.display_works
-      form2.display_collections = the_account.display_collections
+      update_profile_form.avatar_url = the_account.avatar_url
+      update_profile_form.nickname = the_account.nickname
+      update_profile_form.username = the_account.username
+      update_profile_form.introduction = the_account.introduction
+      update_profile_form.display_works = the_account.display_works
+      update_profile_form.display_collections = the_account.display_collections
     }
 
     const update_profile = () => {
 
-      dom2.value.validate((valid) => {
+      update_profile_dom.value.validate((valid) => {
         if (valid) {
 
-          Put(system_base_url + 'account/accounts/' + store.getters.get_account.id, form2, true)
+          Put(system_base_url + 'account/accounts/' + store.getters.get_account.id, update_profile_form, true)
               .then((resp) => {
                 ElMessage({
                   showClose: true,
@@ -848,7 +887,7 @@ export default {
                 the_account.follow_count = resp.data.follow_count
                 the_account.fan_count = resp.data.fan_count
                 the_account.email = resp.data.email
-                form.email = resp.data.email
+                update_password_form.email = resp.data.email
                 the_account.username = resp.data.username
                 the_account.introduction = resp.data.introduction
                 the_account.display_works = resp.data.display_works
@@ -922,6 +961,16 @@ export default {
           })
     }
 
+    const open_follow_tab = () => {
+      get_follow_list()
+      activeName.value = '关注'
+    }
+
+    const open_fan_tab = () => {
+      get_fan_list()
+      activeName.value = '粉丝'
+    }
+
     
 
     return {
@@ -932,6 +981,8 @@ export default {
       open_profile,
       delete_follow,
       add_follow,
+      open_follow_tab,
+      open_fan_tab,
 
 
       load2,
@@ -940,37 +991,44 @@ export default {
       fan_list,
       get_fan_list,
 
+      add_work,
+      put_work,
+      delete_work,
+      work_load,
+      work_list,
+      get_work_list,
+      work_have_more,
+
       shi_load,
       shi_collection_list,
       get_shi_collection_list,
-      shi_currentPage,
-      shi_pageSize,
       shi_have_more,
-      shi_handleSizeChange,
-      shi_handleCurrentChange,
+      cancle_shi_collection,
+      shi_collection,
+
 
       ci_load,
       ci_collection_list,
       get_ci_collection_list,
-      ci_currentPage,
-      ci_pageSize,
       ci_have_more,
-      ci_handleSizeChange,
-      ci_handleCurrentChange,
+      cancle_ci_collection,
+      ci_collection,
 
       the_account,
       follow_id,
 
-      form,
-      form2,
-      dom,
-      rules,
-      dom2,
-      rules2,
+      update_password_form,
+      update_profile_form,
+      update_password_dom,
+      update_password_rules,
+      
+      update_profile_dom,
+      update_profile_rules,
       clock,
       send_email,
 
       activeName,
+      is_me,
       handleClick,
       fileList,
 
@@ -1054,5 +1112,9 @@ export default {
   margin-top: 20px;
   margin-bottom: 20px;
 }
+
+
+
+
 
 </style>
