@@ -6,7 +6,7 @@
 
   <!-- 作品展示 -->
   <el-space wrap size="" style="display: flex; align-items: start; justify-content: center">
-    <template v-for="(work, idx) in work_list.slice((work_currentPage - 1) * work_pageSize, work_currentPage * work_pageSize)" :key="idx">
+    <template v-for="(work, idx) in work_list.slice((work_currentPage - 1) * work_pageSize, work_currentPage * work_pageSize)" :key="'work_' + work.id">
       <el-card :body-style="{ padding: '10px' }" shadow="hover" style="width: 340px; text-align: center;">
         <div style="display: flex; justify-content: space-between; margin-bottom: 5px">
           <el-button type="success" text size="small" @click="open_work_form('编辑作品', work.id, idx)" v-if="is_me">
@@ -14,9 +14,9 @@
           </el-button>
           <div>
             <el-tag type="" class="mx-1" effect="plain" v-if="work.topping">
-              已置顶
+              置顶
             </el-tag>
-            <el-tag type="info" class="mx-1" effect="plain" v-if="is_me && !work.display">
+            <el-tag type="info" class="mx-1" effect="plain" v-if="((is_me || $store.getters.get_account.is_superuser) && !work.display)">
               私密
             </el-tag>
           </div>
@@ -118,31 +118,93 @@
 </template>
 
 <script lang="ts">
-import {reactive, ref} from "vue";
+import {reactive, ref, watch} from "vue";
 import {ElMessage} from "element-plus";
+import {Delete, Get, Post, Put, system_base_url} from "@/utils/request";
 
 export default {
   name: "WorkTab",
   components: {},
   props: {
-    the_account: {
-      type: Object,
+    activeName: {
+      type: String,
       required: true,
     },
-    work_list: {
-      type: Array,
+    the_account: {
+      type: Object,
       required: true,
     },
     is_me: {
       type: Boolean,
       required: true,
     },
-    work_have_more: {
-      type: Boolean,
-      required: true,
-    },
   },
   setup(props, context) {
+
+    const default_limit = 9;
+    let work_next_url = '';
+    const work_list = ref([])
+    const work_have_more = ref(true);
+    const get_work_list = async () => {
+      await Get(system_base_url + 'account/works/',
+          {author: props.the_account.id, limit: default_limit}, true)
+          .then((resp) => {
+            const result = resp.data.results
+            work_list.value = result;
+            work_next_url = resp.data.next
+            if (result.length < default_limit) work_have_more.value = false;
+            else work_have_more.value = true;
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+    }
+    const work_load = () => {
+      if (work_next_url === null || work_next_url === '') {
+        work_have_more.value = false
+        ElMessage({
+          showClose: true,
+          message: '已经没有数据咯~',
+          type: 'warning',
+          duration: 3000,
+        })
+        return false
+      }
+
+      Get(work_next_url, {author: props.the_account.id, limit: default_limit}, true)
+          .then((resp) => {
+            let result = resp.data.results
+            work_next_url = resp.data.next
+            if (result.length < default_limit) work_have_more.value = false;
+            else work_have_more.value = true;
+            work_list.value = work_list.value.concat(result)
+
+          })
+          .catch((error) => {
+            console.log(error);
+            ElMessage({
+              showClose: true,
+              message: '刷新出错！',
+              type: 'error',
+              duration: 3000,
+            })
+          })
+    }
+
+    watch(
+        ()=>(props.activeName),
+        (val,preVal)=>{
+          if (val === '作品') {
+            if ((props.is_me || props.the_account.display_works) && work_list.value.length === 0) {
+              get_work_list()
+            }
+          }
+        },
+        {
+          immediate:true,
+          deep:false,
+        }
+    )
 
     const work_form_state = ref('添加作品')
     const dialogFormVisible = ref(false)
@@ -193,10 +255,10 @@ export default {
       work_form_state.value = state;
       if (state === '编辑作品') {
         update_work_id = id;
-        work_form.title = props.work_list[pos].title;
-        work_form.content = props.work_list[pos].content;
-        work_form.display = props.work_list[pos].display;
-        work_form.topping = props.work_list[pos].topping;
+        work_form.title = work_list.value[pos].title;
+        work_form.content = work_list.value[pos].content;
+        work_form.display = work_list.value[pos].display;
+        work_form.topping = work_list.value[pos].topping;
       }
       dialogFormVisible.value = true;
     }
@@ -208,72 +270,73 @@ export default {
       work_form.topping = false;
     }
 
-    const add_work = () => {
-      context.emit('add_work', work_form, status => {
-        if (status === 201) {
-          ElMessage({
-            showClose: true,
-            type: 'success',
-            message: '添加作品成功！',
-            duration: 3000,
-          })
-        } else {
-          ElMessage({
-            showClose: true,
-            type: 'error',
-            message: '添加作品失败！',
-            duration: 3000,
-          })
-        }
-        close_work_form()
-      })
-    }
-
-    const put_work = () => {
-      context.emit('put_work', {work_id:update_work_id, work_form:work_form}, status => {
-        if (status === 200) {
-          ElMessage({
-            showClose: true,
-            type: 'success',
-            message: '修改作品成功！',
-            duration: 3000,
-          })
-        } else {
-          ElMessage({
-            showClose: true,
-            type: 'error',
-            message: '修改作品失败！',
-            duration: 3000,
-          })
-        }
-        close_work_form()
-      });
-
-
-    }
-
     const delete_work = (work_id, pos) => {
-      context.emit('delete_work', {work_id:work_id, pos:pos}, status => {
-        if (status === 204) {
-          ElMessage({
-            showClose: true,
-            type: 'success',
-            message: '删除作品成功！',
-            duration: 3000,
+      Delete(system_base_url + 'account/works/' + work_id, {}, true)
+          .then((resp) => {
+            if (resp.status === 204) {
+              work_list.value.splice(pos, 1);
+              ElMessage({
+                showClose: true,
+                type: 'success',
+                message: '删除作品成功！',
+                duration: 3000,
+              })
+            } else {
+              ElMessage({
+                showClose: true,
+                type: 'error',
+                message: '删除作品失败！',
+                duration: 3000,
+              })
+            }
           })
-        } else {
-          ElMessage({
-            showClose: true,
-            type: 'error',
-            message: '删除作品失败！',
-            duration: 3000,
+          .catch((error) => {
+            console.log(error)
           })
-        }
-      });
     }
-
-    const work_load = () => {
-      context.emit('work_load');
+    const add_work = () => {
+      Post(system_base_url + 'account/works/', work_form, true)
+          .then((resp) => {
+            if (resp.status === 201) {
+              ElMessage({
+                showClose: true,
+                type: 'success',
+                message: '添加作品成功！',
+                duration: 3000,
+              })
+              get_work_list()
+              close_work_form()
+            } else {
+              ElMessage({
+                showClose: true,
+                type: 'error',
+                message: '添加作品失败！',
+                duration: 3000,
+              })
+            }
+          })
+    }
+    const put_work = () => {
+      Put(system_base_url + 'account/works/' + update_work_id, work_form, true)
+          .then((resp) => {
+            if (resp.status === 200) {
+              ElMessage({
+                showClose: true,
+                type: 'success',
+                message: '修改作品成功！',
+                duration: 3000,
+              })
+              get_work_list()
+              close_work_form()
+            } else {
+              ElMessage({
+                showClose: true,
+                type: 'error',
+                message: '修改作品失败！',
+                duration: 3000,
+              })
+            }
+          })
     }
 
 
@@ -291,6 +354,11 @@ export default {
 
 
     return {
+      work_list,
+      work_have_more,
+      get_work_list,
+      work_load,
+
       work_form_state,
       dialogFormVisible,
       formLabelWidth,
@@ -303,9 +371,6 @@ export default {
       add_work,
       put_work,
       delete_work,
-
-      work_load,
-
 
 
       work_currentPage,

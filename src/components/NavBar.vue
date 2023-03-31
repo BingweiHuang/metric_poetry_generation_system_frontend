@@ -120,11 +120,11 @@
   <div class="my-dialog">
     <el-dialog v-model="dialogFormVisible" :title="form_state">
       <el-form :model="form" :rules="rules" ref="dom" :label-width="formLabelWidth">
-        <el-form-item label="邮箱"  prop="email" v-if="login_style">
+        <el-form-item label="邮箱" prop="email" v-if="login_style">
           <!--        <el-input v-model="form.email" placeholder="请输入邮箱" oninput ="value=value.replace(/[^\d]/g,'')" />-->
           <el-input v-model="form.email" placeholder="请输入邮箱" />
         </el-form-item>
-        <el-form-item label="账号"  v-if="!login_style">
+        <el-form-item label="账号" prop="username" v-if="!login_style">
           <el-input v-model="form.username" placeholder="请输入账号" />
         </el-form-item>
         <el-form-item label="验证码"  v-if="['注册','找回密码'].includes(form_state)" prop="code">
@@ -368,12 +368,12 @@ export default {
     const login_style = ref(true) // 登录方式
     const dom = ref(null)
     const rules = ref({
-      chinese: [ // 只能输入中文
-        { required: true, message: "请输入中文名", trigger: "blur" },
+      username: [ // 账号限制
+        { required: true, message: "请输入账号", trigger: "blur" },
         {
           validator: function(rule, value, callback) {
-            if (/^[\u4e00-\u9fa5]+$/.test(value) == false) {
-              callback(new Error("请输入中文"));
+            if (value.length < 4 || value.length > 12) {
+              callback(new Error("账号长度必须为[4,12]"));
             } else {
               //校验通过
               callback();
@@ -475,34 +475,43 @@ export default {
     }
 
     const log_in = () => {
-      // 邮箱或者用户名登录
-      const the_username = (login_style.value) ? form.email : form.username;
-      store.dispatch("login", {
-        username: the_username,
-        password: form.password,
-        success() {
-          dialogFormVisible.value = false
-          clear_form()
-        },
-        error() {
-          clear_form()
-          ElMessage({
-            showClose: true,
-            message: '用户名或密码错误~',
-            type: 'error',
-            duration: 5000,
-          })
+
+      dom.value.validate((valid) => {
+        if (valid) {
+
+          // 邮箱或者用户名登录
+          const the_username = (login_style.value) ? form.email : form.username;
+          store.dispatch("login", {
+            username: the_username,
+            password: form.password,
+            success() {
+              dialogFormVisible.value = false
+              clear_form()
+            },
+            error() {
+              clear_form()
+              ElMessage({
+                showClose: true,
+                message: '用户名或密码错误~',
+                type: 'error',
+                duration: 5000,
+              })
+            }
+          });
+
+        } else {
+          console.log('校验不通过')
         }
-      });
+      })
+
+
     }
 
 
     const sign_in = () => {
 
-      console.log('提交数据', form)
 
       dom.value.validate((valid) => {
-        console.log('校验结果', valid)
         if (valid) {
 
           Post(system_base_url + 'account/sign_in/', form, false)
@@ -523,10 +532,8 @@ export default {
     }
 
     const update_password = () => {
-      console.log('提交数据', form)
 
       dom.value.validate((valid) => {
-        console.log('校验结果', valid)
         if (valid) {
 
           Post(system_base_url + 'account/update_password/', form, false)

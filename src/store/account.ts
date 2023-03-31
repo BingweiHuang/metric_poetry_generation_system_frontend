@@ -36,6 +36,7 @@ const ModuleAccount = {
         },
 
         set_account(state, account) {
+            console.log('account:', account)
             localStorage.setItem('account', JSON.stringify(account)); // 将用户信息存入
             state.account = account;
             state.is_login = true;

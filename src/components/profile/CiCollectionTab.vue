@@ -1,7 +1,7 @@
 <template>
   <!-- 词作收藏列表 -->
   <el-space size="" wrap style="width: 100%; justify-content: center;">
-    <template v-for="(item, idx) in ci_collection_list.slice((ci_currentPage - 1) * ci_pageSize, ci_currentPage * ci_pageSize)" :key="idx">
+    <template v-for="(item, idx) in ci_collection_list.slice((ci_currentPage - 1) * ci_pageSize, ci_currentPage * ci_pageSize)" :key="'ci_' + item.ci.id + idx">
       <CiCard :poetry="item.ci" :pos="(ci_currentPage - 1) * ci_pageSize + idx"
               @cancle_collection="cancle_collection" @collection="collection"/>
     </template>
@@ -53,7 +53,10 @@
 
 <script lang="ts">
 import CiCard from "@/components/CiCard.vue";
-import {ref} from "vue";
+import {ref, watch} from "vue";
+import {Delete, Get, Post, system_base_url} from "@/utils/request";
+import {ElMessage} from "element-plus";
+import store from "@/store";
 
 export default {
   name: "CiCollectionTab",
@@ -61,24 +64,115 @@ export default {
     CiCard,
   },
   props: {
-    the_account: {
-      type: Object,
+    activeName: {
+      type: String,
       required: true,
     },
-    ci_collection_list: {
-      type: Array,
+    the_account: {
+      type: Object,
       required: true,
     },
     is_me: {
       type: Boolean,
       required: true,
     },
-    ci_have_more: {
-      type: Boolean,
-      required: true,
-    },
   },
   setup(props, context) {
+
+    watch(
+        ()=>(props.activeName),
+        (val,preVal)=>{
+          if (val === '词作收藏') {
+            if ((props.the_account.display_collections || props.is_me || store.getters.get_account.is_superuser)
+                && ci_collection_list.value.length === 0) {
+              console.log('get_ci_collection_list')
+              get_ci_collection_list()
+            }
+          }
+        },
+        {
+          immediate:true,
+          deep:false,
+        }
+    )
+
+    const default_limit = 9;
+
+    let ci_next_url = '';
+    const ci_collection_list = ref([])
+    const get_ci_collection_list = async () => {
+      await Get(system_base_url + 'account/ci_collections/',
+          {author: props.the_account.id, limit: default_limit}, true)
+          .then((resp) => {
+            const result = resp.data.results
+            ci_collection_list.value = result;
+            ci_next_url = resp.data.next
+            if (result.length < default_limit) ci_have_more.value = false;
+            else ci_have_more.value = true;
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+    }
+    const ci_load = () => {
+      if (ci_next_url === null || ci_next_url === '') {
+        ci_have_more.value = false
+        ElMessage({
+          showClose: true,
+          message: '已经没有数据咯~',
+          type: 'warning',
+          duration: 3000,
+        })
+        return false
+      }
+
+      Get(ci_next_url, {author: props.the_account.id, limit: default_limit}, true)
+          .then((resp) => {
+            let result = resp.data.results
+            ci_next_url = resp.data.next
+            if (result.length < default_limit) ci_have_more.value = false;
+            else ci_have_more.value = true;
+            ci_collection_list.value = ci_collection_list.value.concat(result)
+
+          })
+          .catch((error) => {
+            console.log(error);
+            ElMessage({
+              showClose: true,
+              message: '刷新出错！',
+              type: 'error',
+              duration: 3000,
+            })
+          })
+
+    }
+    const ci_have_more = ref(true);
+
+    const cancle_collection = (obj, callBack) => {
+      Delete(system_base_url + 'account/ci_collections/' + obj.collection_id, {}, true)
+          .then((resp) => {
+            if (resp.status === 204) { // 删除成功返回204
+              console.log('obj.pos:', obj.pos)
+              ci_collection_list.value[obj.pos].ci.collection_id = 0;
+            }
+            callBack(resp.status)
+          })
+          .catch((error) => {
+            console.log(error)
+          })
+    }
+    const collection = (obj, callBack) => {
+      Post(system_base_url + 'account/ci_collections/', {ci_id:obj.ci_id}, true)
+          .then((resp) => {
+            if (resp.status === 201) { // 成功收藏 创建成功返回201
+              ci_collection_list.value[obj.pos].ci.collection_id = resp.data.id;
+            }
+            callBack(resp.status)
+          })
+          .catch((error) => {
+            console.log(error)
+          })
+    }
 
     const ci_currentPage = ref(1);
     const ci_pageSize = ref(9);
@@ -92,28 +186,18 @@ export default {
       ci_currentPage.value = val
     };
 
-    const cancle_collection = (obj, callBack) => {
-      context.emit('cancle_ci_collection', obj, status => {
-        callBack(status)
-      })
-    }
-
-    const collection = (obj, callBack) => {
-      context.emit('ci_collection', obj, status => {
-        callBack(status)
-      })
-    }
-
-    const ci_load = () => {
-      context.emit('ci_load');
-    }
-
     return {
+
+      ci_load,
+      ci_collection_list,
+      get_ci_collection_list,
+      ci_have_more,
+
+
       ci_currentPage,
       ci_pageSize,
       ci_handleSizeChange,
       ci_handleCurrentChange,
-      ci_load,
       cancle_collection,
       collection,
     }
