@@ -1,8 +1,8 @@
 <template>
   <!-- 粉丝列表 -->
   <ul v-infinite-scroll="fan_load" infinite-scroll-distance="1" infinite-scroll-immediate="false" class="infinite-list" style="overflow: auto; max-height: 520px;">
-    <template v-if="fan_list.length > 0">
-      <li v-for="(item, index) in fan_list" :key="'fan_' + item.id + index" class="infinite-list-item">
+    <template v-if="fans.list && fans.list.length > 0">
+      <li v-for="(item, index) in fans.list" :key="'fan_' + item.id + index" class="infinite-list-item">
         <!-- 头像、昵称 -->
         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%">
           <div style="display: flex; align-items: center">
@@ -25,9 +25,10 @@
 </template>
 
 <script lang="ts">
-import {onMounted, ref} from "vue";
+import {onMounted, reactive, ref, watch} from "vue";
 import {Get, system_base_url} from "@/utils/request";
 import {ElMessage} from "element-plus";
+import store from "@/store";
 
 export default {
   name: "FanListTab",
@@ -37,27 +38,51 @@ export default {
       type: Number,
       required: true,
     },
+    activeName: {
+      type: String,
+      required: true,
+    },
   },
   setup(props, context) {
+    const fans = reactive({
+      list: null,
+      len: 0,
+      next_url: '',
+      limit: 8,
+    })
 
-    const default_limit = 10;
-
-    let fan_next_url = '';
-    const fan_list = ref([])
-    const get_fan_list = async () => {
-      await Get(system_base_url + 'account/follows/', {follow: props.account_id, limit: default_limit}, true)
+    const get_fan_list = () => {
+      fans.len = 0;
+      Get(system_base_url + 'account/follows/', {follow: props.account_id, limit: fans.limit}, true)
           .then((resp) => {
-            const result = resp.data.results
-            fan_list.value = result;
-            fan_next_url = resp.data.next;
+            if (resp.status === 200) {
+              fans.list = resp.data.results;
+              fans.next_url = resp.data.next;
+              fans.len = resp.data.count;
+            }
           })
           .catch((err) => {
             console.log(err)
           })
     }
 
+    watch(
+        ()=>(props.activeName),
+        (val,preVal)=>{
+          if (val === '粉丝') {
+            if (fans.list === null) {
+              get_fan_list()
+            }
+          }
+        },
+        {
+          immediate:true,
+          deep:false,
+        }
+    )
+
     const fan_load = () => {
-      if (fan_next_url === null || fan_next_url === '') {
+      if (fans.next_url === null || fans.next_url === '') {
         ElMessage({
           showClose: true,
           message: '已经没有数据咯~',
@@ -67,11 +92,12 @@ export default {
         return false
       }
 
-      Get(fan_next_url, {fan: props.account_id, limit: default_limit}, true)
+      Get(fans.next_url, {follow: props.account_id, limit: fans.limit}, true)
           .then((resp) => {
-            let result = resp.data.results
-            fan_next_url = resp.data.next
-            fan_list.value = fan_list.value.concat(result)
+            fans.next_url = resp.data.next
+            const ofs = resp.data.count - fans.len; // 浏览过程中保护缓存，防止新关注
+            fans.len = resp.data.count;
+            fans.list.push(...(resp.data.results.splice(ofs > 0 ? ofs : 0))) // 保护缓存，防止取消关注
 
           })
           .catch((error) => {
@@ -89,12 +115,8 @@ export default {
       context.emit('open_profile', id);
     }
 
-    onMounted(async () => {
-      await get_fan_list()
-    })
-
     return {
-      fan_list,
+      fans,
       get_fan_list,
       fan_load,
       open_profile,
@@ -117,17 +139,11 @@ export default {
   justify-content: start;
   min-height: 50px;
   //background: var(--el-color-primary-light-9);
-  margin: 10px;
+  margin: 15px;
   //color: var(--el-color-primary);
 }
 .infinite-list .infinite-list-item:hover {
-  //width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: start;
-  min-height: 50px;
   //background: var(--el-color-primary-light-9);
-  margin: 10px;
   color: var(--el-color-primary);
 }
 .infinite-list .infinite-list-item + .list-item {

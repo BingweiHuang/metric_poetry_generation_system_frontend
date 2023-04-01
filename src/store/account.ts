@@ -78,6 +78,7 @@ const ModuleAccount = {
                 Get(system_base_url + 'account/accounts/' + access_obj.user_id, {}, true)
                 .then((resp) => {
                     context.commit("set_account", resp.data);
+                    console.log('context.getters.get_account.id:', context.getters.get_account.id)
                     data.success();
                 });
             }).catch((error) => {

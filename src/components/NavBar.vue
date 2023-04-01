@@ -72,7 +72,7 @@
       <el-col :xl="16" :lg="16" :md="18" :sm="20" :xs="24">
         <el-menu router
                  menu-trigger="click"
-                 default-active=""
+                 :default-active="activeIndex2"
                  class="el-menu-demo"
                  mode="horizontal"
                  background-color="#2775B6"
@@ -80,6 +80,7 @@
                  active-text-color="#ffd04b"
                  style="padding: 0; font-weight: bold"
                  :ellipsis="false"
+
         >
 
           <router-link to="/">
@@ -183,7 +184,7 @@
 <script lang="ts">
 
 import 'element-plus/theme-chalk/display.css'
-import {onMounted, reactive, ref, watch} from "vue";
+import {computed, onMounted, reactive, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useStore} from "vuex";
 import {ElMessage} from "element-plus";
@@ -237,7 +238,6 @@ export default {
     onMounted(() => {
       let sendEndTime = localStorage.getItem('clockStartTime');
       if (sendEndTime) countDown(email_clock_seconds)
-      console.log('store.getters.get_is_login:', store.getters.get_is_login)
     })
 
 
@@ -266,7 +266,6 @@ export default {
               'email' : form.email
             }, false, 2)
                 .then((resp) => {
-                  console.log(resp.data.result)
                   countDown(email_clock_seconds)
                 })
                 .catch((error) => {
@@ -286,13 +285,13 @@ export default {
     const store = useStore();
 
 
-    console.log(store.getters.get_account)
+    /*console.log(store.getters.get_account)
     console.log(store.getters.get_access)
     console.log(store.getters.get_refresh)
-    console.log(store.getters.get_is_login)
+    console.log(store.getters.get_is_login)*/
 
     const activeIndex = ref('/')
-    const activeIndex2 = ref('1')
+    const activeIndex2 = ref('/')
     const MenuList = [
       {
         index: '/',
@@ -340,9 +339,11 @@ export default {
         ()=>(route.path),
         (val,preVal)=>{
           //val为修改后的值,preVal为修改前的值
-          // console.log(val, preVal)
           if (activeIndex.value !== val) {
             activeIndex.value = val;
+          }
+          if (activeIndex2.value !== val) {
+            activeIndex2.value = val;
           }
         },
         {

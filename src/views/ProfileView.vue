@@ -20,8 +20,8 @@
           <!-- 其他资料 -->
           <el-col :span="16">
             <div style="display: flex; align-items: center; ">
-              关注：<el-link style="font-size: 16px" @click="open_follow_tab">{{the_account.follow_count}}</el-link>
-              &nbsp;&nbsp; 粉丝：<el-link style="font-size: 16px" @click="open_fan_tab">{{the_account.fan_count}}</el-link>
+              关注：<el-link style="font-size: 16px" @click="activeName = '关注'">{{the_account.follow_count}}</el-link>
+              &nbsp;&nbsp; 粉丝：<el-link style="font-size: 16px" @click="activeName = '粉丝'">{{the_account.fan_count}}</el-link>
               &nbsp;&nbsp; <el-button type="success" plain circle :icon="Plus" size="small" v-if="follow_id === 0 && (!is_me)"  @click="add_follow"/>
               <el-button type="success" circle :icon="Check" size="small" @click="delete_follow(follow_id)"
                          v-if="follow_id"/>
@@ -36,6 +36,23 @@
       <!-- 标签页切换 -->
       <el-card>
         <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
+
+
+          <el-tab-pane label="帖子" name="帖子">
+            <!-- 帖子展示无限滑动栏 -->
+            <el-empty v-if="posts.post_list && posts.post_list.length === 0" description="没有满足条件的帖子哦~"/>
+            <div v-else style="overflow-y:hidden">
+              <ul v-infinite-scroll="post_load" infinite-scroll-distance="1" class="infinite-list" style="overflow: auto" infinite-scroll-immediate="false">
+                <template v-if="posts.post_list">
+                  <li v-for="(post, idx1) in posts.post_list" :key="post.id" style="margin: 10px">
+                    <PostComponent :post="post" :idx1="idx1" @open_profile="open_profile" @delete_post="delete_post"
+                                   @like="like" @cancle_like="cancle_like"/>
+                  </li>
+                </template>
+              </ul>
+            </div>
+
+          </el-tab-pane>
           <el-tab-pane label="作品" name="作品">
 
             <WorkTab :the_account="the_account" :is_me="is_me" :activeName="activeName"/>
@@ -69,7 +86,7 @@
           </el-tab-pane>
           <el-tab-pane label="粉丝" name="粉丝" >
 
-            <FanListTab :account_id="Number($route.params.account_id)" @open_profile="open_profile"/>
+            <FanListTab :account_id="Number($route.params.account_id)" :active-name="activeName" @open_profile="open_profile"/>
 
           </el-tab-pane>
         </el-tabs>
@@ -87,7 +104,6 @@
 import {ref, reactive, onMounted, toRaw, watch} from 'vue'
 import type { TabsPaneContext } from 'element-plus'
 import {ElMessage} from 'element-plus'
-import type { UploadInstance, UploadProps, UploadRawFile, UploadUserFile } from 'element-plus'
 import {Delete, Get, Post, Put, system_base_url} from "@/utils/request";
 import {useRoute, useRouter} from "vue-router";
 import store from "@/store";
@@ -98,11 +114,12 @@ import PersonalDataTab from "@/components/profile/PersonalDataTab.vue";
 import UpdatePasswordTab from "@/components/profile/UpdatePasswordTab.vue";
 import FollowListTab from "@/components/profile/FollowListTab.vue";
 import FanListTab from "@/components/profile/FanListTab.vue";
-
+import PostComponent from "@/components/world_circle/PostComponent.vue";
 import {
   Plus,
   Check,
 } from '@element-plus/icons-vue'
+
 export default {
   name: "ProfileView",
   components: {
@@ -113,10 +130,12 @@ export default {
     UpdatePasswordTab,
     FollowListTab,
     FanListTab,
+
+    PostComponent,
   },
   setup() {
 
-    const activeName = ref('作品')
+    const activeName = ref('帖子')
     const is_me = ref(false)
     const route = useRoute();
     const the_account = reactive({
@@ -152,7 +171,127 @@ export default {
       }
     }
 
+    const posts = reactive({
+      post_list: null,
+      len: 0,
+      next_url: '',
+      limit: 6,
+    });
 
+    const get_post_list = () => {
+
+      posts.len = 0;
+      let params = {
+        limit: posts.limit,
+        author: the_account.id,
+      }
+
+      Get(system_base_url + 'account/posts/', params, true)
+          .then((resp) => {
+            if (resp.status === 200) {
+              posts.post_list = resp.data.results
+              posts.next_url = resp.data.next
+              posts.len = resp.data.count
+            } else {
+              ElMessage({
+                showClose: true,
+                message: '帖子获取失败！',
+                type: 'error',
+                duration: 3000,
+              })
+            }
+
+          })
+          .catch((error) => {
+            console.log(error.response)
+          })
+    }
+    const post_load = async () => {
+
+      if (posts.next_url === null || posts.next_url === '') {
+        ElMessage({
+          showClose: true,
+          message: '已经没有数据咯~',
+          type: 'warning',
+          duration: 3000,
+        })
+        return false
+      }
+
+      await Get(posts.next_url, {}, true)
+          .then((resp) => {
+
+            posts.next_url = resp.data.next
+            const ofs = resp.data.count - posts.len; // 浏览过程中保护缓存，防止顶贴
+            posts.len = resp.data.count;
+            posts.post_list.push(...(resp.data.results.splice(ofs > 0 ? ofs : 0))) // 保护缓存，防止删帖
+          })
+          .catch((error) => {
+            ElMessage({
+              showClose: true,
+              message: '刷新出错！',
+              type: 'error',
+              duration: 3000,
+            })
+          })
+    }
+
+    const like = (obj) => {
+
+      Post(system_base_url + 'account/likes/', {
+        // account_id: store.getters.get_account.id,
+        post_id: obj.post_id
+      }, true)
+          .then((resp) => {
+            posts.post_list[obj.pos].like_id = resp.data.id;
+            posts.post_list[obj.pos].like_count += 1;
+          })
+
+    }
+
+    const cancle_like = (obj) => {
+      Delete(system_base_url + 'account/likes/' + obj.like_id, {}, true)
+          .then((resp) => {
+            posts.post_list[obj.pos].like_id = 0;
+            posts.post_list[obj.pos].like_count -= 1;
+          })
+    }
+
+    const delete_post = (post_id) => {
+      Delete(system_base_url + 'account/posts/' + post_id, {}, true)
+          .then((resp) => {
+            if (resp.status === 204) {
+              // posts.post_list.splice(obj.pos, 1)
+              posts.post_list = posts.post_list.filter(post => post.id !== post_id)
+              ElMessage({
+                showClose: true,
+                message: '删帖成功！',
+                type: 'success',
+                duration: 3000,
+              })
+            } else {
+              ElMessage({
+                showClose: true,
+                message: '删帖失败！',
+                type: 'error',
+                duration: 3000,
+              })
+            }
+          })
+    }
+
+    watch(
+        ()=>(activeName.value),
+        (val,preVal)=>{
+          if (val === '帖子' && posts.post_list === null) {
+            get_post_list()
+          }
+        },
+        {
+          immediate:true,
+          deep:false,
+        }
+    )
 
     onMounted(() => {
       Get(system_base_url + 'account/accounts/' + the_account.id, {}, false)
@@ -207,7 +346,7 @@ export default {
 
     const router = useRouter();
     const open_profile = (id) => {
-      router.push('/Profile/'  + id)
+      router.push('/Profile/' + id)
     }
 
     const delete_follow = (id) => {
@@ -230,7 +369,6 @@ export default {
                 duration: 3000,
               })
             }
-
           })
     }
 
@@ -257,34 +395,28 @@ export default {
           })
     }
 
-    const open_follow_tab = () => {
-      activeName.value = '关注'
-    }
-
-    const open_fan_tab = () => {
-      activeName.value = '粉丝'
-    }
-
     
 
     return {
       update_account_avatar_url,
       update_account,
-
       open_profile,
       delete_follow,
       add_follow,
-      open_follow_tab,
-      open_fan_tab,
 
       the_account,
       follow_id,
 
+      posts,
+      get_post_list,
+      post_load,
+      like,
+      cancle_like,
+      delete_post,
+
       activeName,
       is_me,
       handleClick,
-
-
       Plus,
       Check,
     }

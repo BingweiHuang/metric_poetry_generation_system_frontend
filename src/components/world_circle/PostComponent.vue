@@ -25,7 +25,7 @@
                      title="确定要删除该帖吗？"
                      confirm-button-text="确定"
                      cancel-button-text="取消"
-                     @confirm="delete_post(idx1)">
+                     @confirm="delete_post">
         <template #reference>
           <el-link style="font-size: 10px; margin-right: 10px">删除帖子</el-link>
         </template>
@@ -41,7 +41,7 @@
       <!-- 评论图标 -->
       <div style="display: flex; align-items: center" @click="open_plq(idx1)">
         <el-icon size="20" style="cursor: pointer"><ChatDotRound /></el-icon>
-        &nbsp;{{comment_count}}
+        &nbsp;{{comments.len}}
       </div>
     </div>
 
@@ -53,14 +53,15 @@
         <!-- 输入框 -->
         <div style="display: flex; justify-content: start">
           <el-input size="" v-model="comment_input" placeholder="善语结善缘，恶语伤人心~"
-                    type="textarea" :autosize="{ minRows: 1, maxRows: 3 }" maxlength="255" show-word-limit/>
+                    type="textarea" :rows="row_num" maxlength="255" show-word-limit
+                    @focus="post_input_focus" @blur="close_input_focus"/>
           <el-button size="" :icon="Promotion" @click="add_comment(idx1)"  :disabled="comment_input === ''"/>
         </div>
 
         <!-- 评论展示 -->
         <ul v-infinite-scroll="comment_load" infinite-scroll-distance="1" infinite-scroll-immediate="false" class="infinite-list" style="overflow: auto; max-height: 320px;">
-          <template v-if="comment_list.length > 0">
-            <li v-for="(comment, idx2) in comment_list" :key="comment.id + idx2" class="infinite-list-item">
+          <template v-if="comments.comment_list.length > 0">
+            <li v-for="(comment, idx2) in comments.comment_list" :key="comment.id + idx2" class="infinite-list-item">
               <div>
                 <!-- 主体 -->
                 <div style="display: flex; justify-content: start; align-items: start;">
@@ -87,7 +88,7 @@
                                      title="确定要删除该评论吗？"
                                      confirm-button-text="确定"
                                      cancel-button-text="取消"
-                                     @confirm="delete_comment(comment.id, idx2)">
+                                     @confirm="delete_comment(comment.id)">
                         <template #reference>
                           <el-link style="font-size: 10px;">删除评论</el-link>
                         </template>
@@ -114,7 +115,7 @@
 </template>
 
 <script lang="ts">
-import {ref} from "vue";
+import {reactive, ref} from "vue";
 import {ElMessage} from "element-plus";
 import {Delete, Get, Post, system_base_url} from "@/utils/request";
 import {
@@ -137,16 +138,28 @@ export default {
   setup(props, context) {
 
     const comment_input = ref('')
+    const row_num = ref(1)
+    const post_input_focus = () => {
+      row_num.value = 3;
+    }
 
-    const comment_list = ref(props.post.post_comments)
-    const comment_count = ref(props.post.comment_count)
+    const close_input_focus = () => {
+      row_num.value = 1;
+    }
+
+    const comments = reactive({
+      comment_list: props.post.post_comments,
+      len: props.post.comment_count,
+      next_url: '',
+      limit: 6,
+    })
 
     const open_profile = (id) => {
       context.emit('open_profile', id);
     }
 
-    const delete_post = (pos) => {
-      context.emit('delete_post', {post_id:props.post.id, pos:pos});
+    const delete_post = () => {
+      context.emit('delete_post', props.post.id);
     }
 
     const like = (pos) => {
@@ -158,21 +171,16 @@ export default {
     }
 
 
-    const default_limit = 5;
-    let last_len = 0;
-
-    let comment_next_url = '';
     const get_comment_list = async () => {
       await Get(system_base_url + 'account/comments/', {
-        post: props.post.id, limit: default_limit,
+        post: props.post.id, limit: comments.limit,
       }, true)
           .then((resp) => {
             if (resp.status === 200) {
               const result = resp.data.results
-              last_len = resp.data.count;
-              comment_count.value = last_len; // 更新评论数量
-              comment_next_url = resp.data.next;
-              comment_list.value = result
+              comments.len = resp.data.count; // 更新评论数量
+              comments.next_url = resp.data.next;
+              comments.comment_list = result
             }
           })
           .catch((error) => {
@@ -213,7 +221,7 @@ export default {
           .then((resp) => {
             if (resp.status === 201) {
               comment_input.value = ''
-              comment_count.value += 1
+              comments.len += 1
               ElMessage({
                 showClose: true,
                 type: 'success',
@@ -235,13 +243,14 @@ export default {
           })
     }
 
-    const delete_comment = (comment_id, pos) => {
+    const delete_comment = (comment_id) => {
 
       Delete(system_base_url + 'account/comments/' + comment_id, {}, true)
           .then((resp) => {
             if (resp.status === 204) {
-              comment_list.value.splice(pos, 1)
-              comment_count.value -= 1
+              // comments.comment_list.splice(pos, 1)
+              comments.comment_list = comments.comment_list.filter(comment => comment.id !== comment_id)
+              comments.len -= 1
               ElMessage({
                 showClose: true,
                 message: '评论删除成功！',
@@ -261,7 +270,7 @@ export default {
     }
 
     const comment_load = () => {
-      if (comment_next_url === null || comment_next_url === '') {
+      if (comments.next_url === null || comments.next_url === '') {
         ElMessage({
           showClose: true,
           message: '已经没有数据咯~',
@@ -271,14 +280,14 @@ export default {
         return false
       }
 
-      Get(comment_next_url, {post: props.post.id, limit: default_limit,}, true)
+      Get(comments.next_url, {post: props.post.id, limit: comments.limit,}, true)
           .then((resp) => {
             if (resp.status === 200) {
               const result = resp.data.results
-              const ofs = resp.data.count - last_len; // 浏览过程中保护缓存，防止顶贴
-              last_len = resp.data.count
-              comment_next_url = resp.data.next
-              comment_list.value.push(...(result.splice(ofs > 0 ? ofs : 0))) // 保护缓存，防止删帖
+              const ofs = resp.data.count - comments.len; // 浏览过程中保护缓存，防止顶贴
+              comments.len = resp.data.count
+              comments.next_url = resp.data.next
+              comments.comment_list.push(...(result.splice(ofs > 0 ? ofs : 0))) // 保护缓存，防止删帖
             } else {
               ElMessage({
                 showClose: true,
@@ -297,8 +306,10 @@ export default {
 
     return {
       comment_input,
-      comment_list,
-      comment_count,
+      row_num,
+      post_input_focus,
+      close_input_focus,
+      comments,
       open_profile,
       delete_post,
       like,

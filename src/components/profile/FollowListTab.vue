@@ -1,8 +1,8 @@
 <template>
   <!-- 关注列表 -->
   <ul v-infinite-scroll="follow_load" infinite-scroll-distance="1" infinite-scroll-immediate="false" class="infinite-list" style="overflow: auto; max-height: 520px;">
-    <template v-if="follow_list.length > 0">
-      <li v-for="(item, index) in follow_list" :key="'follow_' + item.id + index" class="infinite-list-item">
+    <template v-if="follows.list && follows.list.length > 0">
+      <li v-for="(item, index) in follows.list" :key="'follow_' + item.id + index" class="infinite-list-item">
         <!-- 头像、昵称和取消关注 -->
         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%">
           <div style="display: flex; align-items: center">
@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import {onMounted, ref} from "vue";
+import {onMounted, reactive, ref, watch} from "vue";
 import {Delete, Get, Post, system_base_url} from "@/utils/request";
 import {ElMessage} from "element-plus";
 
@@ -42,31 +42,54 @@ export default {
       type: Number,
       required: true,
     },
+    activeName: {
+      type: String,
+      required: true,
+    },
     is_me: {
       type: Boolean,
       required: true,
     },
   },
   setup(props, context) {
+    const follows = reactive({
+      list: null,
+      len: 0,
+      next_url: '',
+      limit: 8,
+    })
 
-    const default_limit = 10;
-
-    let follow_next_url = '';
-    const follow_list = ref([])
     const get_follow_list = async () => {
-      await Get(system_base_url + 'account/follows/', {fan: props.account_id, limit: default_limit}, true)
+      await Get(system_base_url + 'account/follows/', {fan: props.account_id, limit: follows.limit}, true)
           .then((resp) => {
-            const result = resp.data.results
-            follow_list.value = result;
-            follow_next_url = resp.data.next;
+            if (resp.status === 200) {
+              follows.list = resp.data.results;
+              follows.next_url = resp.data.next;
+              follows.len = resp.data.count;
+            }
           })
           .catch((err) => {
             console.log(err)
           })
     }
 
+    watch(
+        ()=>(props.activeName),
+        (val,preVal)=>{
+          if (val === '关注') {
+            if (follows.list === null) {
+              get_follow_list()
+            }
+          }
+        },
+        {
+          immediate:true,
+          deep:false,
+        }
+    )
+
     const follow_load = () => {
-      if (follow_next_url === null || follow_next_url === '') {
+      if (follows.next_url === null || follows.next_url === '') {
         ElMessage({
           showClose: true,
           message: '已经没有数据咯~',
@@ -76,11 +99,13 @@ export default {
         return false
       }
 
-      Get(follow_next_url, {fan: props.account_id, limit: default_limit}, true)
+      Get(follows.next_url, {fan: props.account_id, limit: follows.limit}, true)
           .then((resp) => {
-            let result = resp.data.results
-            follow_next_url = resp.data.next
-            follow_list.value = follow_list.value.concat(result)
+            follows.next_url = resp.data.next
+            const ofs = resp.data.count - follows.len; // 浏览过程中保护缓存，防止新关注
+            follows.len = resp.data.count;
+            follows.list.push(...(resp.data.results.splice(ofs > 0 ? ofs : 0))) // 保护缓存，防止取消关注
+
 
           })
           .catch((error) => {
@@ -99,7 +124,7 @@ export default {
           .then((resp) => {
             if (resp.status === 204) {
               // follow_list.value.splice(pos, 1);
-              follow_list.value[pos].id = 0;
+              follows.list[pos].id = 0;
               ElMessage({
                 showClose: true,
                 message: '取消关注成功！',
@@ -124,7 +149,7 @@ export default {
       Post(system_base_url + 'account/follows/', {follow_id:account_id}, true)
           .then((resp) => {
             if (resp.status === 201) {
-              follow_list.value[pos].id = resp.data.id;
+              follows.list[pos].id = resp.data.id;
               ElMessage({
                 showClose: true,
                 message: '关注成功！',
@@ -154,9 +179,9 @@ export default {
     })
 
     return {
-      
+
+      follows,
       follow_load,
-      follow_list,
       get_follow_list,
       follow_list_delete,
       follow_list_add,
@@ -181,17 +206,11 @@ export default {
   justify-content: start;
   min-height: 50px;
   //background: var(--el-color-primary-light-9);
-  margin: 10px;
+  margin: 15px;
   //color: var(--el-color-primary);
 }
 .infinite-list .infinite-list-item:hover {
-  //width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: start;
-  min-height: 50px;
   //background: var(--el-color-primary-light-9);
-  margin: 10px;
   color: var(--el-color-primary);
 }
 .infinite-list .infinite-list-item + .list-item {

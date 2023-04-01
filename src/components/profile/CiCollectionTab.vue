@@ -85,7 +85,6 @@ export default {
           if (val === '词作收藏') {
             if ((props.the_account.display_collections || props.is_me || store.getters.get_account.is_superuser)
                 && ci_collection_list.value.length === 0) {
-              console.log('get_ci_collection_list')
               get_ci_collection_list()
             }
           }
@@ -152,7 +151,6 @@ export default {
       Delete(system_base_url + 'account/ci_collections/' + obj.collection_id, {}, true)
           .then((resp) => {
             if (resp.status === 204) { // 删除成功返回204
-              console.log('obj.pos:', obj.pos)
               ci_collection_list.value[obj.pos].ci.collection_id = 0;
             }
             callBack(resp.status)

@@ -152,7 +152,6 @@ export default {
       Delete(system_base_url + 'account/shi_collections/' + obj.collection_id, {}, true)
           .then((resp) => {
             if (resp.status === 204) { // 删除成功返回204
-              console.log('obj.pos:', obj.pos)
               shi_collection_list.value[obj.pos].shi.collection_id = 0;
             }
             callBack(resp.status)
