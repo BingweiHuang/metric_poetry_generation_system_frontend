@@ -1,25 +1,25 @@
 <template>
   <!-- 帖子 -->
-  <el-card style="width: 100%">
+  <el-card style="width: 100%" shadow="hover">
     <!-- 头像、昵称和时间 -->
     <el-row justify="start" align="middle">
       <!-- 头像 -->
       <el-avatar :size="50" :src="post.author.avatar_url" style="margin-right: 10px; cursor: pointer" @click="open_profile(post.author.id)"/>
       <!-- 昵称 和 时间-->
       <div>
-        <div style="margin-bottom: 6px;"><span style="cursor: pointer" @click="open_profile(post.author.id)">{{post.author.nickname}}</span></div>
+        <el-link :underline="false" style="margin-bottom: 6px; font-size: 18px" @click="open_profile(post.author.id)">{{post.author.nickname}}</el-link>
         <!--                <div>{{post.dateTime.year}}-{{post.dateTime.month}}-{{post.dateTime.day}}</div>-->
         <div>{{post.create_date}}</div>
       </div>
     </el-row>
 
     <!-- 帖子内容 -->
-    <div style="margin-top: 10px">
+    <div style="margin-top: 10px; font-size: 18px;">
       {{post.content}}
     </div>
 
     <!-- 删帖、点赞图标和评论图标 -->
-    <div style="margin: 5px 8px 5px 0; display: flex; align-items: center; justify-content: end">
+    <div style="margin: 5px 8px 5px 0; display: flex; align-items: center; justify-content: end; font-size: 16px;">
       <!-- 删帖 -->
       <el-popconfirm v-if="post.author.id === $store.getters.get_account.id || $store.getters.get_account.is_superuser"
                      title="确定要删除该帖吗？"
@@ -27,7 +27,7 @@
                      cancel-button-text="取消"
                      @confirm="delete_post">
         <template #reference>
-          <el-link style="font-size: 10px; margin-right: 10px">删除帖子</el-link>
+          <el-link style="margin-right: 10px; font-size: 16px;">删除帖子</el-link>
         </template>
       </el-popconfirm>
 
@@ -46,12 +46,13 @@
     </div>
 
     <!-- 评论区 -->
-    <div :id="idx1 + '_plq'" style="display: none">
+    <div :id="idx1 + '_plq'" style="display: none" class="plq">
       <!-- 评论区主体 -->
-      <div style="background-color: #F8F8F8; border-radius: 10px">
+      <!-- background-color: #F8F8F8; -->
+      <div style=" border-radius: 10px">
 
         <!-- 输入框 -->
-        <div style="display: flex; justify-content: start">
+        <div style="display: flex; justify-content: start;">
           <el-input size="" v-model="comment_input" placeholder="善语结善缘，恶语伤人心~"
                     type="textarea" :rows="row_num" maxlength="255" show-word-limit
                     @focus="post_input_focus" @blur="close_input_focus"/>
@@ -61,25 +62,25 @@
         <!-- 评论展示 -->
         <ul v-infinite-scroll="comment_load" infinite-scroll-distance="1" infinite-scroll-immediate="false" class="infinite-list" style="overflow: auto; max-height: 320px;">
           <template v-if="comments.comment_list.length > 0">
-            <li v-for="(comment, idx2) in comments.comment_list" :key="comment.id + idx2" class="infinite-list-item">
+            <li v-for="(comment) in comments.comment_list" :key="comment.id" class="infinite-list-item">
               <div>
                 <!-- 主体 -->
                 <div style="display: flex; justify-content: start; align-items: start;">
                   <!-- 头像 -->
                   <div>
-                    <el-avatar :size="21" :src="comment.author.avatar_url"
-                               style="margin-right: 5px; cursor: pointer" @click="open_profile(post.author.id)"/>
+                    <el-avatar :size="25" :src="comment.author.avatar_url"
+                               style="margin-right: 5px; cursor: pointer" @click="open_profile(comment.author.id)"/>
                   </div>
                   <!-- 昵称 内容 时间-->
                   <div>
                     <!-- 昵称 -->
-                    <div><span style="cursor: pointer" @click="open_profile(post.author.id)">{{comment.author.nickname}}</span></div>
+                    <div><el-link :underline="false" style="font-size: 16px" @click="open_profile(comment.author.id)">{{comment.author.nickname}}</el-link></div>
                     <!-- 评论内容 -->
-                    <div style="margin: 5px 0">
+                    <div style="margin: 5px 0; font-size: 16px;">
                       {{comment.content}}
                     </div>
                     <!-- 评论时间 和 删除评论按钮-->
-                    <div style="display: flex; align-items: center; font-size: 10px;">
+                    <div style="display: flex; align-items: center; font-size: 14px;">
                       <div>{{comment.create_date}}</div>
                       <div style="margin-right: 10px;"></div>
 
@@ -90,7 +91,7 @@
                                      cancel-button-text="取消"
                                      @confirm="delete_comment(comment.id)">
                         <template #reference>
-                          <el-link style="font-size: 10px;">删除评论</el-link>
+                          <el-link >删除评论</el-link>
                         </template>
                       </el-popconfirm>
 
@@ -345,5 +346,14 @@ export default {
 }
 .infinite-list .infinite-list-item + .list-item {
   margin-top: 10px;
+}
+
+.my .el-card {
+  border: none;
+  background: none;
+}
+
+.plq .el-textarea {
+  font-size: 16px;
 }
 </style>

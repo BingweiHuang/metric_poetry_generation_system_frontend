@@ -136,12 +136,14 @@ export default {
           })
           .catch((error) => {
             console.log(error);
-            ElMessage({
-              showClose: true,
-              message: '刷新出错！',
-              type: 'error',
-              duration: 3000,
-            })
+            if (error.response.status !== 429) {
+              ElMessage({
+                showClose: true,
+                message: '刷新出错！',
+                type: 'error',
+                duration: 5000,
+              })
+            }
           })
 
     }
@@ -209,5 +211,9 @@ export default {
   justify-content: center; /*水平居中*/
   margin-top: 20px;
   margin-bottom: 20px;
+}
+.my .el-card {
+  border: none;
+  background: none;
 }
 </style>

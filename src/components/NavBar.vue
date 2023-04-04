@@ -1,40 +1,22 @@
 <template>
-
-<!--
-  蓝色
-  background-color="#BACCD9" 云水
-  background-color="#8FB2C9" 晴山
-  background-color="#8ABCD1" 秋波
-  background-color="#10AEC2" 甸子
-  background-color="#158BB8" 鸢尾
-  background-color="#4E7CA1" 蝶翅
-  background-color="#2775B6" 景泰
-
-  绿色
-
-
-
--->
-
   <!-- 小窗隐藏 web端显示 -->
-  <div class="hidden-md-and-down">
-    <el-row style="height: 58px">
+  <div class="hidden-md-and-down" style="background-color:var(--main-bg-color)">
+    <el-row >
       <el-col :span="4"></el-col>
 
       <el-col :span="16">
         <el-menu router
                  :default-active="activeIndex"
-                 class="el-menu-demo"
                  mode="horizontal"
-                 background-color="#2775B6"
-                 text-color="#fff"
-                 active-text-color="#ffd04b"
-                 style="padding: 0; font-weight: bold"
+                 background-color="var(--main-bg-color)"
+                 text-color="var(--main-text-color)"
+                 active-text-color="var(--main-active-text-color)"
+                 style="padding: 0; font-weight: bold; border: none;"
                  :ellipsis="false"
         >
 
           <router-link to="/">
-            <img class="el-image-logo" src="/favicon.ico" fit="cover" style="margin-top: 10px"/>
+            <img class="el-image-logo" src="/logo.png" fit="cover" style="margin-top: 10px"/>
           </router-link>
 
           <el-menu-item v-for="(item, index) in MenuList" :key="index" :index="item.index">
@@ -50,9 +32,6 @@
           <el-button link type="info" v-else @click="open_login_table">
               登录
           </el-button>
-          <el-button link type="info" @click="log_out">
-            退出登录
-          </el-button>
 
         </el-menu>
       </el-col>
@@ -64,27 +43,26 @@
   </div>
 
   <!-- 大窗隐藏 移动端显示 -->
-  <div class="hidden-lg-and-up">
+  <div class="hidden-lg-and-up" style="background-color:var(--main-bg-color)">
 
-    <el-row style="height: 58px">
+    <el-row >
       <el-col :xl="4" :lg="4" :md="3" :sm="2" :xs="0"></el-col>
 
       <el-col :xl="16" :lg="16" :md="18" :sm="20" :xs="24">
         <el-menu router
                  menu-trigger="click"
                  :default-active="activeIndex2"
-                 class="el-menu-demo"
                  mode="horizontal"
-                 background-color="#2775B6"
-                 text-color="#fff"
-                 active-text-color="#ffd04b"
-                 style="padding: 0; font-weight: bold"
+                 background-color="var(--main-bg-color)"
+                 text-color="var(--main-text-color)"
+                 active-text-color="var(--main-active-text-color)"
+                 style="padding: 0; font-weight: bold; border: none;"
                  :ellipsis="false"
 
         >
 
           <router-link to="/">
-            <img class="el-image-logo" src="/favicon.ico" fit="cover"  style="margin-top: 10px"/>
+            <img class="el-image-logo" src="/logo.png" fit="cover" style="margin-top: 10px"/>
           </router-link>
 
           <div class="flex-grow" />
@@ -100,9 +78,6 @@
             </el-menu-item>
             <el-button link type="info" v-else @click="open_login_table">
               登录
-            </el-button>
-            <el-button link type="info" @click="log_out">
-              退出登录
             </el-button>
 
 
@@ -470,11 +445,6 @@ export default {
     })
 
 
-    const log_out = () => {
-      router.push('/')
-      store.dispatch('logout');
-    }
-
     const log_in = () => {
 
       dom.value.validate((valid) => {
@@ -599,7 +569,6 @@ export default {
       form_state,
       login_style,
 
-      log_out,
       log_in,
       sign_in,
       update_password,
@@ -644,5 +613,32 @@ export default {
 .my-button {
   width: 260px;
 }
+
+
+
+:root {
+  --main-bg-color: #134857;
+  --main-text-color: #f8f4ed;
+  --main-active-text-color: #fed71a;
+  --el-menu-hover-bg-color: #fed71a;
+}
+
+/*
+蓝色
+  background-color="#BACCD9" 云水
+  background-color="#8FB2C9" 晴山
+  background-color="#8ABCD1" 秋波
+  background-color="#10AEC2" 甸子
+  background-color="#158BB8" 鸢尾
+  background-color="#4E7CA1" 蝶翅
+  background-color="#2775B6" 景泰
+  background-color="#134857" 苍蓝
+
+黄色
+#fed71a 佛手黄
+
+
+  绿色
+*/
 
 </style>

@@ -1,11 +1,12 @@
 <template>
 
   <el-row>
-    <el-col :xl="5" :lg="4" :md="2" :sm="1" :xs="0"></el-col>
-    <el-col :xl="14" :lg="16" :md="20" :sm="22" :xs="24">
+<!--    :xl="5" :lg="4" :md="2" :sm="1" :xs="0"
+    :xl="14" :lg="16" :md="20" :sm="22" :xs="24"-->
+    <el-col :xl="2" :lg="2" :md="2" :sm="1" :xs="0"></el-col>
+    <el-col :xl="20" :lg="20" :md="20" :sm="22" :xs="24" class="my">
 
       <!-- 规则-作品栏 -->
-      <div class="my">
         <el-card >
 
           <!-- 头部 -->
@@ -156,7 +157,7 @@
                   </el-select>
                 </el-col>
                 <el-col :span="7">
-                  <el-button type="primary" id="lstm_create_button" @click="metric_detection">开始检测</el-button>
+                  <el-button size="" type="primary" id="lstm_create_button" @click="metric_detection" style="font-size: 20px">开始检测</el-button>
                 </el-col>
 
                 <el-col :span="4">
@@ -220,10 +221,9 @@
           </el-card>
 
         </el-card>
-      </div>
 
       <!-- 打开韵表 和 说明 -->
-      <el-card style="--el-card-padding: 20px; margin: 10px 0">
+      <el-card style="--el-card-padding: 20px; margin: 10px 0" >
         <div style="width: 100%; justify-content: center; display: flex; margin-bottom: 10px">
           <div style="font-size: 14px; color: #99a9bf">
             说明：本系统只提供标准句式的检测。特殊句式、拗救、可变通处请自行判断。
@@ -236,7 +236,7 @@
         </div>
       </el-card>
     </el-col>
-    <el-col :xl="5" :lg="4" :md="2" :sm="1" :xs="0"></el-col>
+    <el-col :xl="2" :lg="2" :md="2" :sm="1" :xs="0"></el-col>
   </el-row>
 
   <!-- 韵表 -->
@@ -253,6 +253,8 @@
 
 .my .el-card {
   --el-card-padding: 0px;
+  border: none;
+  background: none;
 }
 
 

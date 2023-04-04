@@ -110,12 +110,14 @@ export default {
           })
           .catch((error) => {
             console.log(error);
-            ElMessage({
-              showClose: true,
-              message: '刷新出错！',
-              type: 'error',
-              duration: 3000,
-            })
+            if (error.response.status !== 429) {
+              ElMessage({
+                showClose: true,
+                message: '刷新出错！',
+                type: 'error',
+                duration: 5000,
+              })
+            }
           })
     }
 

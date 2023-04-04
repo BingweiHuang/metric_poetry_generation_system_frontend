@@ -83,15 +83,13 @@
       <template v-else>
 
         <!-- 无限滑动 结果展示 -->
-        <ul v-infinite-scroll="load" infinite-scroll-distance="1" class="infinite-list" style="overflow: auto; height: 600px" always>
+        <ul v-infinite-scroll="load" infinite-scroll-distance="1" class="infinite-list" style="overflow: auto; height: 650px" always>
           <li v-for="(item, index) in flyList" :key="index">
-            <p  class="scrollbar-demo-item-shi" v-if="Object.keys(item).includes('title')">
+            <p  class="scrollbar-demo-item-shi">
               <!--            {{ item.content }} - {{item.author}} <span class="sheng_lue">《{{item.title}}》</span>-->
               {{index + 1}}.{{ item.content }}- {{item.author}} 《<template v-for="(word, index2) in item.title.slice(0,7)" :key="index + index2">{{word}}</template><template v-if="item.title.length > 7">...</template>》
             </p>
-            <p  class="scrollbar-demo-item-ci" v-else>
-              {{index + 1}}.{{ item.content }}- {{item.author}} 《{{item.rhythmic.split('·')[0]}}》
-            </p>
+
           </li>
         </ul>
 
@@ -399,12 +397,14 @@ export default {
       })
       .catch((error) => {
         console.log(error);
-        ElMessage({
-          showClose: true,
-          message: '刷新出错！',
-          type: 'error',
-          duration: 5000,
-        })
+        if (error.response.status !== 429) {
+          ElMessage({
+            showClose: true,
+            message: '刷新出错！',
+            type: 'error',
+            duration: 5000,
+          })
+        }
       })
     }
 
@@ -459,47 +459,24 @@ export default {
   margin: 0;
   list-style: none;
 }
-.infinite-list .infinite-list-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 50px;
-  background: var(--el-color-primary-light-9);
-  margin: 10px;
-  color: var(--el-color-primary);
-}
 .infinite-list .infinite-list-item + .list-item {
   margin-top: 10px;
 }
 
 .scrollbar-demo-item-shi {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 30px;
-  margin: 8px;
-  padding: 3px;
-  text-align: center;
-  border-radius: 4px;
-  background: var(--el-color-primary-light-9);
-  //background: var(--el-color-danger-light-9);
-  color: var(--el-color-primary);
-  //color: var(--el-color-danger);
-}
+  //display: flex;
+  //align-items: center;
+  //justify-content: center;
+  //min-height: 30px;
+  margin: 10px;
+  font-size: 20px;
+  font-family: '瘦金体简',NSimSun,SimSun;
+  //padding: 3px;
+  //text-align: center;
+  //border-radius: 4px;
 
-.scrollbar-demo-item-ci {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 30px;
-  margin: 8px;
-  padding: 3px;
-  text-align: center;
-  border-radius: 4px;
-  //background: var(--el-color-primary-light-9);
-  background: var(--el-color-danger-light-9);
   //color: var(--el-color-primary);
-  color: var(--el-color-danger);
+  //color: var(--el-color-danger);
 }
 
 .sheng_lue {

@@ -3,9 +3,9 @@
   <el-row>
     <el-col :xl="2" :lg="2" :md="2" :sm="1" :xs="0"></el-col>
 
-    <el-col :xl="20" :lg="20" :md="20" :sm="22" :xs="24">
+    <el-col :xl="20" :lg="20" :md="20" :sm="22" :xs="24" class="rhyme_tab">
       <!-- 标签页 -->
-      <el-tabs type="border-card" v-model="activeName">
+      <el-tabs type="border-card" v-model="activeName" style="background: none;">
         <!-- 平水韵 -->
         <el-tab-pane label="平水韵" name="平水韵">
 
@@ -61,6 +61,17 @@ export default {
 </script>
 
 <style lang="scss">
+
+.sheng .el-radio__input {
+  display: none !important;
+}
+.sheng .el-radio__label {
+  font-size: 18px !important;
+}
+.sheng .el-radio {
+  margin-right: 10px !important;
+}
+
 .yun .el-radio__input {
   display: none !important;
 }
@@ -70,14 +81,19 @@ export default {
 .yun .el-radio {
   margin-right: 10px !important;
 }
-.yun .el-space__item {
-  padding-bottom: 3px !important;
-  margin-right: 2px !important;
+.word .el-space__item {
+  padding-bottom: 4px !important;
+  margin-right: 3px !important;
 }
 
 .detail {
-  font-size: 10px !important;
+  font-size: 12px !important;
   color: #A4265F !important;
   margin-right: 2px;
+}
+
+.rhyme_tab .el-tabs__item {
+  font-size: 16px;
+  font-weight: bold;
 }
 </style>

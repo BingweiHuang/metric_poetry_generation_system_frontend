@@ -34,12 +34,12 @@ import {useRouter} from "vue-router";
 export default {
   name: "UpdatePasswordTab",
   components: {},
-  props: {
+  /*props: {
     email: {
       type: String,
       required: true,
     },
-  },
+  },*/
   setup(props) {
     onMounted(() => {
       let sendEndTime = localStorage.getItem('clockStartTime');
@@ -54,7 +54,7 @@ export default {
           if (clock.countDownTime > 0) return false
           // 发送axios
           await Get(system_base_url + 'account/update_password/', {
-            'email' : props.email,
+            'email' : store.getters.get_account.email,
           }, false, 2)
               .then((resp) => {
                 countDown(email_clock_seconds)
@@ -77,7 +77,7 @@ export default {
     }
 
     const update_password_form = reactive({
-      email: props.email,
+      email: store.getters.get_account.email,
       code: '',
       password: '',
       password2: '',

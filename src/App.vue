@@ -1,12 +1,14 @@
 <template>
 
-  <el-row style="margin-bottom: 0; background-color: #2775B6">
-    <el-col :span="24">
-      <NavBar/>
-    </el-col>
-  </el-row>
+  <el-affix :offset="0">
+    <el-row style="margin-bottom: 0; background-color: #2775B6" class="my-el-header">
+      <el-col :span="24">
+        <NavBar/>
+      </el-col>
+    </el-row>
+  </el-affix>
 
-  <el-row style="min-height: 800px">
+  <el-row style="min-height: 805px">
     <el-col :xl="4" :lg="4" :md="3" :sm="2" :xs="0">
     </el-col>
     <el-col :xl="16" :lg="16" :md="18" :sm="20" :xs="24">
@@ -72,9 +74,12 @@ export default({
 
   align-items: center;
 }
+
+
+
 .my-el-footer {
-  background-color: #2775B6;
-  color: #E8E8E8;
+  background-color: var(--main-bg-color);
+  color: var(--main-text-color);
   font-size: 14px;
   display: flex;
   align-items: center;
@@ -86,7 +91,7 @@ export default({
 }
 
 .beian:hover {
-  color: #A28A40;
+  color: var(--main-active-text-color);
 }
 
 .about {
@@ -95,6 +100,6 @@ export default({
 }
 
 .about:hover {
-  color: #A28A40;
+  color: var(--main-active-text-color);
 }
 </style>

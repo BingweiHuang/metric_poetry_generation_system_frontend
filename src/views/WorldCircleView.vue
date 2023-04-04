@@ -8,7 +8,7 @@
     <!-- 主体页面 -->
     <el-col :xl="20" :lg="20" :md="20" :sm="22" :xs="24">
       <!-- 发帖输入框 -->
-      <div style="display: flex; justify-content: start; margin: 10px">
+      <div style="display: flex; justify-content: start; margin: 10px" class="post">
         <el-input size="" v-model="post_input" placeholder="互联网并非逍遥法外之地，请注意言辞，一旦发言违规直接自动封号~"
                   type="textarea" :rows="row_num" maxlength="255" show-word-limit
                   @focus="row_num = 4" @blur="row_num = 2"/>
@@ -16,7 +16,7 @@
       </div>
 
       <!-- 帖子检索条件 -->
-      <el-space wrap size="" style="display: flex; margin: 0 10px">
+      <el-space wrap size="small" style="display: flex; margin: 0 10px">
         <el-date-picker
             v-model="start_time"
             type="datetime"
@@ -46,7 +46,7 @@
 
       <!-- 帖子展示无限滑动栏 -->
       <el-empty v-if="posts.list && posts.list.length === 0" description="没有满足条件的帖子哦~"/>
-      <div v-else style="overflow-y:hidden">
+      <div v-else style="overflow-y:hidden" class="my">
         <ul v-infinite-scroll="post_load" infinite-scroll-distance="1" class="infinite-list" style="overflow: auto" infinite-scroll-immediate="false">
           <template v-if="posts.list">
             <li v-for="(post, idx1) in posts.list" :key="post.id" style="margin: 10px">
@@ -231,12 +231,14 @@ export default {
             posts.list.push(...(resp.data.results.splice(ofs > 0 ? ofs : 0))) // 保护缓存，防止删帖
           })
           .catch((error) => {
-            ElMessage({
-              showClose: true,
-              message: '刷新出错！',
-              type: 'error',
-              duration: 3000,
-            })
+            if (error.response.status !== 429) {
+              ElMessage({
+                showClose: true,
+                message: '刷新出错！',
+                type: 'error',
+                duration: 5000,
+              })
+            }
           })
     }
 
@@ -370,7 +372,7 @@ export default {
 
 <style lang="scss">
 .infinite-list {
-  height: 800px;
+  height: 700px;
   padding: 0;
   margin: 0;
   list-style: none;
@@ -388,4 +390,9 @@ export default {
 .infinite-list .infinite-list-item + .list-item {
   margin-top: 10px;
 }
+
+.post .el-textarea {
+  font-size: 18px;
+}
+
 </style>

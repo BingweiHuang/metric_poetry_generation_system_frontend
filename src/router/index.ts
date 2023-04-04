@@ -69,6 +69,19 @@ const routes: Array<RouteRecordRaw> = [
     // component: () => import('@/views/HomeView.vue'), // 懒加载
     component: ProfileView,
 
+    // 每路守卫
+    beforeEnter: (to, from, next) => {
+      if (store.getters.get_is_login) next(); // 登陆状态才放行
+      else {
+        ElMessage({
+          showClose: true,
+          message: '请您先登录！',
+          type: 'error',
+          duration: 3000,
+        })
+      }
+    }
+
   },
   {
     path: '/WorldCircle',

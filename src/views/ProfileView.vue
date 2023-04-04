@@ -4,10 +4,26 @@
   <el-row>
     <el-col :xl="0" :lg="0" :md="0" :sm="0" :xs="0"></el-col>
 
-    <el-col :xl="24" :lg="24" :md="24" :sm="24" :xs="24">
+    <el-col :xl="24" :lg="24" :md="24" :sm="24" :xs="24" class="my">
 
       <!-- 个人资料展示页面 -->
       <el-card style="margin: 10px 0">
+
+        <!-- 退出登录 -->
+        <div style="display: flex; justify-content: right" v-if="$store.getters.get_is_login && is_me">
+          <!-- 退出登录按钮 -->
+          <el-popconfirm
+                         title="确定要退出登录吗？"
+                         confirm-button-text="确定"
+                         cancel-button-text="取消"
+                         @confirm="log_out">
+            <template #reference>
+              <el-button link type="danger">退出登录</el-button>
+            </template>
+          </el-popconfirm>
+        </div>
+
+        <!-- 个人资料 -->
         <el-row justify="start" align="middle">
           <!-- 头像 昵称 -->
           <el-col :span="8">
@@ -20,27 +36,29 @@
           <!-- 其他资料 -->
           <el-col :span="16">
             <div style="display: flex; align-items: center; ">
-              关注：<el-link style="font-size: 16px" @click="activeName = '关注'">{{the_account.follow_count}}</el-link>
-              &nbsp;&nbsp; 粉丝：<el-link style="font-size: 16px" @click="activeName = '粉丝'">{{the_account.fan_count}}</el-link>
-              &nbsp;&nbsp; <el-button type="success" plain circle :icon="Plus" size="small" v-if="follow_id === 0 && (!is_me)"  @click="add_follow"/>
+              <el-link :underline="false" style="font-size: 16px" @click="activeName = '关注'">关注：{{the_account.follow_count}}</el-link>
+              &nbsp;&nbsp; <el-link :underline="false" style="font-size: 16px" @click="activeName = '粉丝'">粉丝：{{the_account.fan_count}}</el-link>
+              &nbsp;&nbsp;&nbsp; <el-button type="success" plain circle :icon="Plus" size="small" v-if="follow_id === 0 && (!is_me)"  @click="add_follow"/>
               <el-button type="success" circle :icon="Check" size="small" @click="delete_follow(follow_id)"
                          v-if="follow_id"/>
             </div>
             <div>邮箱：{{the_account.email}}</div>
-            <div>账号：{{the_account.username}} <el-tag type="" size="small" class="mx-1" effect="plain" v-if="the_account.is_superuser">管理员</el-tag> </div>
+            <div>账号：{{the_account.username}}
+              <el-tag type="" size="small" class="mx-1" effect="plain" v-if="the_account.is_superuser">管理员</el-tag>
+            </div>
             <div>个人简介：{{ the_account.introduction }}</div>
           </el-col>
         </el-row>
+
       </el-card>
 
       <!-- 标签页切换 -->
       <el-card>
         <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
 
-
           <el-tab-pane label="帖子" name="帖子">
             <!-- 帖子展示无限滑动栏 -->
-            <el-empty v-if="posts.post_list && posts.post_list.length === 0" description="没有满足条件的帖子哦~"/>
+            <el-empty v-if="posts.post_list && posts.post_list.length === 0" description="没有发表帖子哦~"/>
             <div v-else style="overflow-y:hidden">
               <ul v-infinite-scroll="post_load" infinite-scroll-distance="1" class="infinite-list" style="overflow: auto" infinite-scroll-immediate="false">
                 <template v-if="posts.post_list">
@@ -76,7 +94,7 @@
           </el-tab-pane>
           <el-tab-pane label="修改密码" name="修改密码" v-if="is_me">
 
-            <UpdatePasswordTab :email="the_account.email"/>
+            <UpdatePasswordTab/>
 
           </el-tab-pane>
           <el-tab-pane label="关注" name="关注" >
@@ -227,12 +245,14 @@ export default {
             posts.post_list.push(...(resp.data.results.splice(ofs > 0 ? ofs : 0))) // 保护缓存，防止删帖
           })
           .catch((error) => {
-            ElMessage({
-              showClose: true,
-              message: '刷新出错！',
-              type: 'error',
-              duration: 3000,
-            })
+            if (error.response.status !== 429) {
+              ElMessage({
+                showClose: true,
+                message: '刷新出错！',
+                type: 'error',
+                duration: 5000,
+              })
+            }
           })
     }
 
@@ -395,6 +415,11 @@ export default {
           })
     }
 
+    const log_out = () => {
+      router.push('/')
+      store.dispatch('logout');
+    }
+
     
 
     return {
@@ -413,6 +438,7 @@ export default {
       like,
       cancle_like,
       delete_post,
+      log_out,
 
       activeName,
       is_me,
@@ -433,8 +459,6 @@ export default {
   font-weight: 600;
 }
 
-
-
 .my-el-pagination {
   align-items: center; /*竖直居中*/
   justify-content: center; /*水平居中*/
@@ -442,8 +466,28 @@ export default {
   margin-bottom: 20px;
 }
 
+.infinite-list {
+  height: 600px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.infinite-list .infinite-list-item {
+  //width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  min-height: 50px;
+  //background: var(--el-color-primary-light-9);
+  margin: 10px;
+  //color: var(--el-color-primary);
+}
+.infinite-list .infinite-list-item + .list-item {
+  margin-top: 10px;
+}
 
-
-
-
+.my .el-card {
+  border: none;
+  background: none;
+}
 </style>

@@ -8,7 +8,8 @@
       《{{poetry.title}}》
     </div>
     <div class="poetry-author">
-      <div>{{poetry.chapter}}-{{poetry.section}}</div>
+<!--      <div>{{poetry.chapter}}-{{poetry.section}}</div>-->
+      <div>先秦-佚名</div>
     </div>
 
     <div class="poetry-detail">
@@ -87,8 +88,7 @@ export default {
   text-align: center;
 }
 .poetry-detail-div {
-  //font-family: '华文楷体';
-  font-family:Georgia,"Nimbus Roman No9 L","Songti SC",STSong,"AR PL New Sung","AR PL SungtiL GB",NSimSun,SimSun,"TW\-Sung","WenQuanYi Bitmap Song","AR PL UMing CN","AR PL UMing HK","AR PL UMing TW","AR PL UMing TW MBE",sans-serif;
+  font-family: '瘦金体简','行楷',NSimSun,SimSun;
   font-size: 20px;
 }
 

@@ -13,9 +13,10 @@
 
   <!-- 搜索展示栏 -->
   <el-row>
-    <el-col>
+    <el-col class="my">
       <!-- 平水韵展示 -->
-      <el-card shadow="never" style="margin-top: 15px; background-color: #F3F3F3" v-if="ps_word2rhyme && ps_word2rhyme.length > 0">
+      <!-- background-color: #F3F3F3 -->
+      <el-card shadow="never" style="margin-top: 15px;"  v-if="ps_word2rhyme && ps_word2rhyme.length > 0">
         <template v-for="(rhyme, index) in ps_word2rhyme" :key="index">
 
           <PingshuiCard :rhyme="rhyme" :searched_word="searched_word" :activeName="activeName"/>
@@ -24,7 +25,7 @@
       </el-card>
 
       <!-- 中华新韵展示 -->
-      <el-card shadow="never" style="margin-top: 15px; background-color: #F3F3F3" v-if="xin_word2rhyme && xin_word2rhyme.length > 0">
+      <el-card shadow="never" style="margin-top: 15px;" v-if="xin_word2rhyme && xin_word2rhyme.length > 0">
         <template v-for="(rhyme, index) in xin_word2rhyme" :key="index">
 
           <XinyunCard :rhyme="rhyme" :searched_word="searched_word" :activeName="activeName"/>
@@ -122,5 +123,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+.my .el-card {
+  border: none;
+  background: none;
+}
 </style>

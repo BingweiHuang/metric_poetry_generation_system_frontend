@@ -1,6 +1,6 @@
 <template>
   <div style="font-size: 18px; font-weight: bold; text-align: center; margin-top: 10px">中华新韵&nbsp;{{rhyme[1]}}{{rhyme[0]}}</div>
-  <el-space wrap size="small" class="yun" style="display: flex; align-items: baseline; justify-content: start" v-if="rhyme[2] && rhyme[2].length > 0">
+  <el-space wrap size="small" class="word" style="display: flex; align-items: baseline; justify-content: start" v-if="rhyme[2] && rhyme[2].length > 0">
                     <span v-for="(value, index) in (rhyme[2][0])" :key="index" style="display: flex; align-items: baseline; justify-content: start">
 
                       <template v-if="searched_word === value[0]">

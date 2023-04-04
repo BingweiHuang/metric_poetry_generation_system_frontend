@@ -10,7 +10,7 @@
   </div>
 
   <!-- 字 -->
-  <el-space wrap size="small" class="yun" style="display: flex; align-items: baseline; justify-content: start" v-if="xin_display && xin_display.length > 0">
+  <el-space wrap size="small" class="word" style="display: flex; align-items: baseline; justify-content: start" v-if="xin_display && xin_display.length > 0">
             <span v-for="(value, index) in xin_display[0]" :key="'xin' + index + value[0]" style="display: flex; align-items: baseline; justify-content: start">
               <el-link type="primary" :underline="false" style="font-size: 18px;" @click="search_baidu(value[0])">{{value[0]}}</el-link>
             </span>

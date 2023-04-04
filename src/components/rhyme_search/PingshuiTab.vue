@@ -1,6 +1,6 @@
 <template>
   <!-- 声部 -->
-  <el-space size="large" class="yun" style="display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; margin-bottom: 10px">
+  <el-space size="large" class="sheng" style="display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; margin-bottom: 10px">
     <el-radio-group v-model="ps_sheng_select" size="small" @change="change_ps_sheng_select">
       <el-radio :label="'平声'" style="font-weight: bold; color: black"/>
       <el-radio :label="'上声'" style="font-weight: bold; color: black"/>
@@ -19,7 +19,7 @@
   </div>
 
   <!-- 字 -->
-  <el-space wrap size="small" class="yun" style="display: flex; align-items: baseline; justify-content: start" v-if="ps_display && ps_display.length > 0">
+  <el-space wrap size="small" class="word" style="display: flex; align-items: baseline; justify-content: start" v-if="ps_display && ps_display.length > 0">
             <span v-for="(value, index) in (ps_display[0])" :key="index" style="display: flex; align-items: baseline; justify-content: start">
               <el-link type="primary" :underline="false" style="font-size: 18px;" @click="search_baidu(value[0])">{{value[0]}}</el-link>
               <span v-if="value[1] !== ''" class="detail">{{value[1]}}</span>

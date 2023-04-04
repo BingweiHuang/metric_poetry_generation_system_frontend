@@ -1,5 +1,5 @@
 <template>
-  <el-card :body-style="{ padding: '10px' }" shadow="hover" style="width: 340px; border: none;">
+  <el-card :body-style="{ padding: '10px' }" shadow="hover" style="width: 342px; border: none;">
 
     <div class="poetry-collection">
       <el-icon v-if="poetry.collection_id === 0" size="20" style="cursor: pointer" @click="collection(poetry.id)"><Star /></el-icon>
@@ -20,6 +20,9 @@
       <el-tag class="mx-1" effect="light" type="" :round="true">
         {{poetry.metric ? '近体' : '古体'}}
       </el-tag>
+      <el-tag class="mx-1" effect="light" type="" :round="true">
+        {{poetry.yan}}
+      </el-tag>
       <template v-if="poetry.jue !== 3">
         <el-tag class="mx-1" effect="light" type="" :round="true">
           {{poetry.jue === 0 ? '绝句' : poetry.jue === 1 ? '律诗' : '排律'}}
@@ -31,7 +34,7 @@
           {{poetry.rhyme}}
         </el-tag>
         <el-tag class="mx-1" effect="light" type="" :round="true">
-          {{poetry.ru === false ? '入韵' : '不入韵'}}
+          {{poetry.ru ? '不入韵' : '入韵'}}
         </el-tag>
       </template>
 
@@ -165,9 +168,7 @@ export default {
   text-align: center;
 }
 .poetry-detail-div {
-  //font-family: '楷体';
-  //font-family: '华文楷体';
-  font-family:Georgia,"Nimbus Roman No9 L","Songti SC",STSong,"AR PL New Sung","AR PL SungtiL GB",NSimSun,SimSun,"TW\-Sung","WenQuanYi Bitmap Song","AR PL UMing CN","AR PL UMing HK","AR PL UMing TW","AR PL UMing TW MBE",sans-serif;
+  font-family: '瘦金体简','行楷',NSimSun,SimSun;
   font-size: 20px;
 }
 

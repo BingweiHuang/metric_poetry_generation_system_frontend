@@ -182,12 +182,14 @@ export default {
           })
           .catch((error) => {
             console.log(error);
-            ElMessage({
-              showClose: true,
-              message: '刷新出错！',
-              type: 'error',
-              duration: 3000,
-            })
+            if (error.response.status !== 429) {
+              ElMessage({
+                showClose: true,
+                message: '刷新出错！',
+                type: 'error',
+                duration: 5000,
+              })
+            }
           })
     }
 
@@ -390,9 +392,7 @@ export default {
 }
 
 .detail-div {
-  //font-family: '楷体';
-  //font-family: '华文楷体';
-  font-family:Georgia,"Nimbus Roman No9 L","Songti SC",STSong,"AR PL New Sung","AR PL SungtiL GB",NSimSun,SimSun,"TW\-Sung","WenQuanYi Bitmap Song","AR PL UMing CN","AR PL UMing HK","AR PL UMing TW","AR PL UMing TW MBE",sans-serif;
+  font-family: '瘦金体简','行楷',NSimSun,SimSun;
   font-size: 20px;
   width: 100%;
   min-height: 26px;
@@ -409,5 +409,9 @@ export default {
   justify-content: center; /*水平居中*/
   margin-top: 20px;
   margin-bottom: 20px;
+}
+.my .el-card {
+  border: none;
+  background: none;
 }
 </style>

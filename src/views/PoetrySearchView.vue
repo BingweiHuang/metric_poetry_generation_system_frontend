@@ -152,7 +152,7 @@
     </el-row>
 
     <!-- 检索结果展示栏 -->
-    <div style="min-height: 600px">
+    <div style="min-height: 600px" class="my">
       <el-space size="" wrap style="width: 100%; justify-content: center;">
         <template v-for="(poetry, idx) in poetryList.slice((currentPage - 1) * pageSize, currentPage * pageSize)" :key="idx">
           <ShiCard v-if="shici === 'shis'" :poetry="poetry" :pos="(currentPage - 1) * pageSize + idx"
@@ -1010,12 +1010,14 @@ export default {
       })
       .catch((error) => {
         console.log(error);
-        ElMessage({
-          showClose: true,
-          message: '刷新出错！',
-          type: 'error',
-          duration: 3000,
-        })
+        if (error.response.status !== 429) {
+          ElMessage({
+            showClose: true,
+            message: '刷新出错！',
+            type: 'error',
+            duration: 5000,
+          })
+        }
       })
     }
 
@@ -1083,5 +1085,11 @@ export default {
   justify-content: center; /*水平居中*/
   margin-top: 20px;
   margin-bottom: 20px;
+}
+
+
+.my .el-card {
+  border: none;
+  background: none;
 }
 </style>

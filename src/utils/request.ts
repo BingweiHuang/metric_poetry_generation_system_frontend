@@ -12,10 +12,11 @@ const refreshToken = () => {
     return instance.post(system_base_url + 'api/token/refresh/', { refresh: store.getters.get_refresh })
 }
 
-// export const system_base_url = 'http://127.0.0.1:8000/';
-export const system_base_url = '/sys/';
-// export const AI_base_url = 'http://127.0.0.1:8088/';
-export const AI_base_url = '/ai/';
+export const system_base_url = 'http://127.0.0.1:8000/';
+// export const system_base_url = '/sys/';
+export const AI_base_url = 'http://127.0.0.1:8088/';
+// export const AI_base_url = '/ai/';
+
 
 export const trans_next_url = 'http://bwhlifetimelove.top/';
 
@@ -25,6 +26,7 @@ const instance = axios.create({
     timeout: 20 * 1000,
     headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
+        // 'Cache-Control': 'max-age=9999',
     }
 })
 
@@ -157,8 +159,13 @@ const setHeaderToken = (isNeedToken) => {
     if (isNeedToken) {
         const accessToken = store.getters.get_access;
         instance.defaults.headers.Authorization = `Bearer ${accessToken}`
+
     } else {
-        instance.defaults.headers.Authorization = ''
+        if (instance.defaults.headers.Authorization) {
+            console.log('instance.defaults.headers.Authorization:', instance.defaults.headers.Authorization)
+            delete instance.defaults.headers.Authorization;
+            console.log('instance.defaults.headers.Authorization:', instance.defaults.headers.Authorization)
+        }
     }
 }
 

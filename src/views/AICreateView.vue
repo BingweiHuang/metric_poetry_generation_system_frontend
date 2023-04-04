@@ -4,7 +4,7 @@
     <el-col :xl="5" :lg="5" :md="4" :sm="2" :xs="0">
 
     </el-col>
-    <el-col :xl="14" :lg="14" :md="16" :sm="19" :xs="23">
+    <el-col :xl="14" :lg="14" :md="16" :sm="19" :xs="23" class="my">
 
       <!-- LSTM模型 -->
       <el-card class="box-card" style="margin-bottom: 10px">
@@ -236,6 +236,11 @@
   font-family:Georgia,"Nimbus Roman No9 L","Songti SC",STSong,"AR PL New Sung","AR PL SungtiL GB",NSimSun,SimSun,"TW\-Sung","WenQuanYi Bitmap Song","AR PL UMing CN","AR PL UMing HK","AR PL UMing TW","AR PL UMing TW MBE",sans-serif;
 
   font-size: 18px;
+}
+
+.my .el-card {
+  border: none;
+  background: none;
 }
 
 </style>
