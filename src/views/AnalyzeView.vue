@@ -14,11 +14,17 @@
 
           </el-col>
           <el-col :xl="9" :lg="9" :md="9" :sm="9" :xs="9">
-            <el-input size="large" v-model="author_num" placeholder="5~20 " clearable>
+            <el-select size="large" v-model="author_num_value">
+              <el-option
+                  v-for="item in author_num_options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+              />
               <template #prefix>
-                人数:&nbsp;
+                人数:
               </template>
-            </el-input >
+            </el-select>
           </el-col>
 
           <el-col :xl="2" :lg="2" :md="2" :sm="2" :xs="3">
@@ -98,11 +104,15 @@
           </el-col>
 
           <el-col :xl="7" :lg="7" :md="7" :sm="7" :xs="6">
-            <el-input size="large" v-model="rhyme_num" placeholder="显示韵脚数" clearable>
-              <!--              <template #prefix>
-                              韵脚数:
-                            </template>-->
-            </el-input >
+            <el-select size="large" v-model="rhyme_num_value" @change="dynasty2_change">
+<!--              <template #prefix>韵脚数:</template>-->
+              <el-option
+                  v-for="item in rhyme_num_options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+              />
+            </el-select>
           </el-col>
 
 
@@ -115,7 +125,6 @@
         <el-card shadow="none" style="margin-bottom: 0;">
           <div ref="pie_echart" style="width:100%; height:420px;"></div>
         </el-card>
-
         <!-- 诗作种类分析饼图 -->
         <el-card shadow="none">
           <div ref="pie2_echart" style="width:100%; height:380px;"></div>
@@ -160,7 +169,7 @@
         <el-row justify="center" align="middle" :gutter="0" >
 
           <el-col :xl="23" :lg="23" :md="23" :sm="23" :xs="23">
-            <el-input size="large" v-model="word_list_str" placeholder="词组(1~10个,空格隔开)" clearable>
+            <el-input size="large" v-model="word_list_str" placeholder="词组(1~6个,空格隔开)" clearable>
             </el-input >
           </el-col>
 
@@ -284,12 +293,9 @@ import 'echarts-wordcloud';
 
 import {
   Search,
-  User,
-  Folder,
-  Document,
 } from '@element-plus/icons-vue'
 import {useStore} from "vuex";
-import {Get, Post, system_base_url} from "@/utils/request";
+import {authGet, system_base_url} from "@/utils/request";
 
 export default {
   name: "AnalyzeView",
@@ -406,7 +412,17 @@ export default {
     ])
     const jue_value = ref(-1)
 
-    const author_num = ref(10)
+    const author_num_value = ref(10)
+    const author_num_options = ref([
+      {
+        value: 10,
+        label: 10,
+      },
+      {
+        value: 20,
+        label: 20,
+      },
+    ])
     const bar_echart = ref()
 
     const dynasty_change = () => {
@@ -426,23 +442,13 @@ export default {
       else jue_value.value = -1
     }
     const author_output_search = async() => {
-      let num = Number(author_num.value);
-      if (!(num >= 5 && num <= 20)) {
-        ElMessage({
-          showClose: true,
-          message: '请输入人数[5,20]',
-          type: 'error',
-          duration: 3000,
-        })
-        return false
-      }
       let three_hundred = 0
       if (dynasty_value.value.length > 1 && dynasty_value.value[1] === '三百首') three_hundred = 1
 
       let res_list = []
 
       let kwargs = {
-        'num': num,
+        'num': author_num_value.value,
         'dynasty': dynasty_value.value[0],
         'metric': metric_value.value,
         'yan': yan_value.value,
@@ -451,7 +457,7 @@ export default {
       }
 
 
-      let ret = await Get(system_base_url +  'analyze/author_output/', kwargs, true)
+      let ret = await authGet(system_base_url +  'analyze/author_output/', kwargs)
       if (ret.status == 401) return false
 
       res_list = ret.data.res_list
@@ -872,7 +878,17 @@ export default {
     const dynasty2_value = ref('近现代')
     const author2_input = ref('毛泽东')
     const author2_input_disable = ref(true)
-    const rhyme_num = ref(10)
+    const rhyme_num_options = ref([
+      {
+        value: 8,
+        label: 8,
+      },
+      {
+        value: 15,
+        label: 15,
+      },
+    ])
+    const rhyme_num_value = ref(8)
     const pie_echart = ref()
     const pie2_echart = ref()
 
@@ -888,18 +904,9 @@ export default {
         author2_input_disable.value = false
       }
     }
-    const poetry_statistics_search = async() => {
-      let num = Number(rhyme_num.value);
-      if (!(num >= 5 && num <= 15)) {
-        ElMessage({
-          showClose: true,
-          message: '请输入韵脚数[5，15]',
-          type: 'error',
-          duration: 3000,
-        })
-        return false
-      }
 
+
+    const poetry_statistics_search = async() => {
       let author = reserved_chinese_word(author2_input.value)
       if (author !== author2_input.value) {
         ElMessage({
@@ -910,16 +917,36 @@ export default {
         })
       }
 
+      let count_pairs = []
       let res_list = []
 
-      let ret = await Get(system_base_url + 'analyze/poetry_statistics/', {
-        'rhyme_num': num,
+      await authGet(system_base_url + 'analyze/poetry_rhyme_statistics/', {
+        'rhyme_num': rhyme_num_value.value,
         'dynasty': dynasty2_value.value,
         'author': author,
-      }, true)
+      })
+          .then((resp) => {
+            if (resp.status === 200) {
 
-      if (ret.status == 401) return false
-      res_list = ret.data.res_list
+              count_pairs = resp.data.count_pairs;
+            }
+          })
+          .catch((error) => {
+            console.log(error)
+          })
+
+      await authGet(system_base_url + 'analyze/poetry_style_statistics/', {
+        'dynasty': dynasty2_value.value,
+        'author': author,
+      })
+          .then((resp) => {
+            if (resp.status === 200) {
+              res_list = resp.data.res_list;
+            }
+          })
+          .catch((error) => {
+            console.log(error)
+          })
 
       if (res_list[0][0]['value'] === 0 && res_list[0][1]['value'] === 0) {
         ElMessage({
@@ -929,6 +956,7 @@ export default {
         })
         return false
       }
+
       let search = (author === '' ? dynasty2_value.value : author)
       echarts.dispose(pie_echart.value)
       const my_echart = echarts.init(pie_echart.value, 'white', {renderer: 'canvas'})
@@ -986,7 +1014,7 @@ export default {
                 shadowColor: 'rgba(0, 0, 0, 0.5)',
               },
             },
-            data: res_list[1],
+            data: count_pairs,
             radius: ['40%', '70%']
           }
         ]
@@ -994,8 +1022,8 @@ export default {
       });
 
       let legend_data = []
-      for (let i = 0, len = res_list[2].length; i < len; i ++) {
-        if (res_list[2][i] !== '近体诗') legend_data.push(res_list[2][i])
+      for (let i = 0, len = res_list[1].length; i < len; i ++) {
+        if (res_list[1][i] !== '近体诗') legend_data.push(res_list[1][i])
       }
       my_echart2.setOption( {
         title: {
@@ -1068,7 +1096,7 @@ export default {
                 shadowColor: 'rgba(0, 0, 0, 0.5)'
               },
             },
-            data: res_list[2]
+            data: res_list[1]
           }
         ]
       });
@@ -1156,7 +1184,7 @@ export default {
         author3_input_disable.value = true
       } else if (dynasty3_value.value === 1) {
         author3_input.value = '纳兰性德'
-      } else if (dynasty3_value.value === 6) {
+      } else if (dynasty3_value.value >= 6) {
         author3_input.value = ''
         author3_input_disable.value = true
       } else {
@@ -1181,10 +1209,10 @@ export default {
           duration: 3000,
         })
         return false
-      } else if (the_word_list.length > 10) {
+      } else if (the_word_list.length > 6) {
         ElMessage({
           showClose: true,
-          message: '不得超过十个词~',
+          message: '不得超过六个词~',
           type: 'error',
           duration: 3000,
         })
@@ -1203,19 +1231,19 @@ export default {
 
       let res_list = []
 
-      let ret = await Get(system_base_url + 'analyze/word_list/', {
+      let ret = await authGet(system_base_url + 'analyze/word_list/', {
         'word_list': the_word_list.join(' '),
         'dynasty': trans[dynasty3_value.value]['dynasty'],
         'shici': trans[dynasty3_value.value]['shici'],
         'author': author,
-      }, true)
+      })
 
       if (ret.status == 401) return false
       res_list = ret.data.word_list
 
       let search = ''
       if (dynasty3_value.value == 0) search = '毛泽东诗词';
-      else if (dynasty3_value.value == 6) search = '所有诗词';
+      else if (dynasty3_value.value == 7) search = '所有诗词';
       else search = dynasty3_options.value[dynasty3_value.value]['label'] + author;
 
 
@@ -1342,10 +1370,6 @@ export default {
     const phrase_value = ref(-3)
     const word_num_options = ref([
       {
-        value: 50,
-        label: 50,
-      },
-      {
         value: 100,
         label: 100,
       },
@@ -1383,7 +1407,7 @@ export default {
 
 
 
-      let ret = await Get(system_base_url + 'analyze/word_frequency/', kwargs, true)
+      let ret = await authGet(system_base_url + 'analyze/word_frequency/', kwargs)
 
       if (ret.status == 401) return false
       word_list = ret.data.word_list
@@ -1490,16 +1514,8 @@ export default {
     const author5_input_disable = ref(true)
     const rhythmic_num_options = ref([
       {
-        value: 20,
-        label: 20,
-      },
-      {
         value: 50,
         label: 50,
-      },
-      {
-        value: 80,
-        label: 80,
       },
       {
         value: 100,
@@ -1542,11 +1558,11 @@ export default {
         })
       }
 
-      let ret = await Get(system_base_url + 'analyze/rhythmic_statistics/', {
+      let ret = await authGet(system_base_url + 'analyze/rhythmic_statistics/', {
         'num': rhythmic_num_value.value,
         'dynasty': dynasty5_value.value,
         'author': author,
-      }, true)
+      })
 
       if (ret.status == 401) return false
       word_list = ret.data.word_list
@@ -1749,30 +1765,10 @@ export default {
     });
 
     onMounted(async() => {
-      let num = Number(rhyme_num.value);
-      if (!(num >= 5 && num <= 15)) {
-        ElMessage({
-          showClose: true,
-          message: '请输入韵脚数[5，15]',
-          type: 'error',
-          duration: 3000,
-        })
-        return false
-      }
-
-      let author = reserved_chinese_word(author2_input.value)
-      if (author !== author2_input.value) {
-        ElMessage({
-          showClose: true,
-          message: '非汉字部分不识别哦~',
-          type: 'warning',
-          duration: 3000,
-        })
-      }
-
       let res_list = [
           [{'name': '古体诗', 'value': 84}, {'name': '近体诗', 'value': 22}],
-          [{'name': '七阳', 'value': 8}, {'name': '十一庚', 'value': 8}, {'name': '一先', 'value': 7}, {'name': '十灰', 'value': 6}, {'name': '九文', 'value': 4}, {'name': '五微', 'value': 3}, {'name': '五歌', 'value': 3}, {'name': '十五删', 'value': 3}, {'name': '一东', 'value': 2}, {'name': '二冬', 'value': 2}],
+          // [{'name': '七阳', 'value': 8}, {'name': '十一庚', 'value': 8}, {'name': '一先', 'value': 7}, {'name': '十灰', 'value': 6}, {'name': '九文', 'value': 4}, {'name': '五微', 'value': 3}, {'name': '五歌', 'value': 3}, {'name': '十五删', 'value': 3}, {'name': '一东', 'value': 2}, {'name': '二冬', 'value': 2}],
+          [{'name': '七阳', 'value': 8}, {'name': '十一庚', 'value': 8}, {'name': '一先', 'value': 7}, {'name': '十灰', 'value': 6}, {'name': '九文', 'value': 4}, {'name': '五微', 'value': 3}, {'name': '五歌', 'value': 3}, {'name': '十五删', 'value': 3}],
           [{'name': '古体诗', 'value': 84}, {'name': '七言绝句', 'value': 10}, {'name': '七言律诗', 'value': 9}, {'name': '五言排律', 'value': 2}, {'name': '五言律诗', 'value': 1}]
       ]
 
@@ -2137,7 +2133,8 @@ export default {
       jue_options,
       jue_value,
 
-      author_num,
+      author_num_value,
+      author_num_options,
       bar_echart,
       dynasty_change,
       metric_value_change,
@@ -2148,7 +2145,8 @@ export default {
       dynasty2_value,
       author2_input,
       author2_input_disable,
-      rhyme_num,
+      rhyme_num_options,
+      rhyme_num_value,
       pie_echart,
       pie2_echart,
       dynasty2_change,
@@ -2198,7 +2196,6 @@ export default {
   --el-card-padding: 0px;
   margin-bottom: 15px;
   border: none;
-  //background: none !important;
   background-color: transparent !important;
 }
 

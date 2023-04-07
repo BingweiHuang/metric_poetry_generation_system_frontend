@@ -88,7 +88,7 @@ export default {
   text-align: center;
 }
 .poetry-detail-div {
-  font-family: '瘦金体简','行楷',NSimSun,SimSun;
+  font-family: 瘦金体简,仿宋,楷体;
   font-size: 20px;
 }
 

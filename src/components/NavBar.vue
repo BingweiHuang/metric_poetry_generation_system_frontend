@@ -16,7 +16,7 @@
         >
 
           <router-link to="/">
-            <img class="el-image-logo" src="/logo.png" fit="cover" style="margin-top: 10px"/>
+            <img class="el-image-logo" src="/logo.png" fit="cover"/>
           </router-link>
 
           <el-menu-item v-for="(item, index) in MenuList" :key="index" :index="item.index">
@@ -62,7 +62,7 @@
         >
 
           <router-link to="/">
-            <img class="el-image-logo" src="/logo.png" fit="cover" style="margin-top: 10px"/>
+            <img class="el-image-logo" src="/logo.png" fit="cover" />
           </router-link>
 
           <div class="flex-grow" />
@@ -228,7 +228,7 @@ export default {
             // 发送axios
             await Get(system_base_url + 'account/sign_in/', {
               'email' : form.email
-            }, false, 2)
+            }, 2)
                 .then((resp) => {
                   countDown(email_clock_seconds)
                 })
@@ -239,7 +239,7 @@ export default {
             // 发送axios
             await Get(system_base_url + 'account/update_password/', {
               'email' : form.email
-            }, false, 2)
+            }, 2)
                 .then((resp) => {
                   countDown(email_clock_seconds)
                 })
@@ -485,7 +485,7 @@ export default {
       dom.value.validate((valid) => {
         if (valid) {
 
-          Post(system_base_url + 'account/sign_in/', form, false)
+          Post(system_base_url + 'account/sign_in/', form)
           .then((resp) => {
             router.push('/')
             clear_form()
@@ -506,19 +506,18 @@ export default {
 
       dom.value.validate((valid) => {
         if (valid) {
-
-          Post(system_base_url + 'account/update_password/', form, false)
+          Post(system_base_url + 'account/update_password/', form)
           .then((resp) => {
-
-            store.dispatch('logout')
-            router.push('/')
-            clear_form()
-            form_state.value = '登录'
-            dialogFormVisible.value = true
-
+            if (resp.status === 201) {
+              store.dispatch('logout')
+              router.push('/')
+              clear_form()
+              form_state.value = '登录'
+              dialogFormVisible.value = true
+            }
           })
           .catch((error) => {
-            console.log('error.response.data.result:', error.response.data.result);
+            console.log(error);
           })
 
         } else {
@@ -532,7 +531,6 @@ export default {
       Object.keys(form).map(key => {
         form[key] = ''
       })
-      // console.log('清空情况:', form)
     }
 
     const trans_sign_in = () => {
@@ -598,8 +596,9 @@ export default {
 
 
 .el-image-logo {
-  width: 33px;
-  height: 33px;
+  width: 35px;
+  height: 35px;
+  margin: 10px 7px 0 7px;
 }
 .el-image-logo:hover {
   cursor: pointer;

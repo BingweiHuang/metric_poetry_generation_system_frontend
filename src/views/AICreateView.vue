@@ -248,9 +248,8 @@
 
 <script lang="ts">
 import { ref } from 'vue';
-import {instance} from "@/utils/utils";
 import { ElMessage } from 'element-plus'
-import {AI_base_url, Get, system_base_url} from "@/utils/request";
+import {AI_base_url, authGet, Get, system_base_url} from "@/utils/request";
 
 export default {
   name: "AICreateView",
@@ -300,7 +299,7 @@ export default {
         qi: qi ? 1 : 0,
         ru: ru ? 0 : 1,
         use_rhyme: use_rhyme,
-      }, false)
+      })
       
       flag = (ret.data.is_rhyme === 1)
       return flag
@@ -384,7 +383,7 @@ export default {
 
       lstm_change_state(1) // 字数和韵律都符合规范 切换状态 开始作诗
 
-      await Get(AI_base_url + 'create/lstm/', {
+      await authGet(AI_base_url + 'create/lstm/', {
         text: text_filter,
         yan: yan.value ? 7 : 5,
         jue: jue.value ? 0 : 1,
@@ -392,7 +391,7 @@ export default {
         ru: ru.value ? 0 : 1,
         use_rhyme: use_rhyme.value,
         style: style.value,
-      }, true, 1)
+      }, 1)
       .then((resp) => {
         lstm_change_state(2)
         lstmCreateList.value = resp.data.createList;
@@ -452,7 +451,7 @@ export default {
       }
 
       gpt2_change_state(1);
-      await Get(AI_base_url + 'create/gpt2/', {
+      await authGet(AI_base_url + 'create/gpt2/', {
         text: text_filter,
         yan: yan2.value ? 7 : 5,
         jue: jue2.value ? 0 : 1,
@@ -460,7 +459,7 @@ export default {
         ru: ru2.value ? 0 : 1,
         use_rhyme: use_rhyme2.value,
         style: style2.value,
-      }, true, 1)
+      }, 1)
       .then((resp) => {
         gpt2_change_state(2)
         gpt2CreateList.value = resp.data.createList;

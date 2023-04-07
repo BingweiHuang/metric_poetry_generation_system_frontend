@@ -31,7 +31,7 @@
 
 <script lang="ts">
 import {onMounted, reactive, ref, watch} from "vue";
-import {Delete, Get, Post, system_base_url} from "@/utils/request";
+import {authDelete, authGet, authPost, system_base_url} from "@/utils/request";
 import {ElMessage} from "element-plus";
 
 export default {
@@ -60,7 +60,7 @@ export default {
     })
 
     const get_follow_list = async () => {
-      await Get(system_base_url + 'account/follows/', {fan: props.account_id, limit: follows.limit}, true)
+      await authGet(system_base_url + 'account/follows/', {fan: props.account_id, limit: follows.limit})
           .then((resp) => {
             if (resp.status === 200) {
               follows.list = resp.data.results;
@@ -99,14 +99,12 @@ export default {
         return false
       }
 
-      Get(follows.next_url, {fan: props.account_id, limit: follows.limit}, true)
+      authGet(follows.next_url, {fan: props.account_id, limit: follows.limit})
           .then((resp) => {
             follows.next_url = resp.data.next
             const ofs = resp.data.count - follows.len; // 浏览过程中保护缓存，防止新关注
             follows.len = resp.data.count;
             follows.list.push(...(resp.data.results.splice(ofs > 0 ? ofs : 0))) // 保护缓存，防止取消关注
-
-
           })
           .catch((error) => {
             console.log(error);
@@ -122,10 +120,9 @@ export default {
     }
 
     const follow_list_delete = (id, pos) => {
-      Delete(system_base_url + 'account/follows/' + id, {}, true)
+      authDelete(system_base_url + 'account/follows/' + id, {})
           .then((resp) => {
             if (resp.status === 204) {
-              // follow_list.value.splice(pos, 1);
               follows.list[pos].id = 0;
               ElMessage({
                 showClose: true,
@@ -148,7 +145,7 @@ export default {
     }
 
     const follow_list_add = (account_id, pos) => {
-      Post(system_base_url + 'account/follows/', {follow_id:account_id}, true)
+      authPost(system_base_url + 'account/follows/', {follow_id:account_id})
           .then((resp) => {
             if (resp.status === 201) {
               follows.list[pos].id = resp.data.id;

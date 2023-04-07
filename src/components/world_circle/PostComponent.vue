@@ -118,7 +118,7 @@
 <script lang="ts">
 import {reactive, ref} from "vue";
 import {ElMessage} from "element-plus";
-import {Delete, Get, Post, system_base_url} from "@/utils/request";
+import {authDelete, authGet, authPost, system_base_url} from "@/utils/request";
 import {
   Promotion,
 } from '@element-plus/icons-vue'
@@ -173,9 +173,9 @@ export default {
 
 
     const get_comment_list = async () => {
-      await Get(system_base_url + 'account/comments/', {
+      await authGet(system_base_url + 'account/comments/', {
         post: props.post.id, limit: comments.limit,
-      }, true)
+      })
           .then((resp) => {
             if (resp.status === 200) {
               const result = resp.data.results
@@ -185,7 +185,7 @@ export default {
             }
           })
           .catch((error) => {
-            console.log('error:', error)
+            console.log(error)
           })
     }
 
@@ -214,15 +214,14 @@ export default {
         return false
       }
 
-      Post(system_base_url + 'account/comments/', {
+      authPost(system_base_url + 'account/comments/', {
         // account_id: store.getters.get_account.id,
         post_id: props.post.id,
         content: comment_input.value,
-      }, true)
+      })
           .then((resp) => {
             if (resp.status === 201) {
               comment_input.value = ''
-              comments.len += 1
               ElMessage({
                 showClose: true,
                 type: 'success',
@@ -240,13 +239,13 @@ export default {
             }
           })
           .catch((error) => {
-            console.log('error:', error)
+            console.log(error)
           })
     }
 
     const delete_comment = (comment_id) => {
 
-      Delete(system_base_url + 'account/comments/' + comment_id, {}, true)
+      authDelete(system_base_url + 'account/comments/' + comment_id, {})
           .then((resp) => {
             if (resp.status === 204) {
               // comments.comment_list.splice(pos, 1)
@@ -281,7 +280,7 @@ export default {
         return false
       }
 
-      Get(comments.next_url, {post: props.post.id, limit: comments.limit,}, true)
+      authGet(comments.next_url, {post: props.post.id, limit: comments.limit,})
           .then((resp) => {
             if (resp.status === 200) {
               const result = resp.data.results
@@ -289,7 +288,11 @@ export default {
               comments.len = resp.data.count
               comments.next_url = resp.data.next
               comments.comment_list.push(...(result.splice(ofs > 0 ? ofs : 0))) // 保护缓存，防止删帖
-            } else {
+            }
+
+          })
+          .catch((error) => {
+            if (error.response.status !== 429) {
               ElMessage({
                 showClose: true,
                 message: '刷新出错！',
@@ -297,11 +300,7 @@ export default {
                 duration: 3000,
               })
             }
-
-          })
-          .catch((error) => {
             console.log(error);
-
           })
     }
 

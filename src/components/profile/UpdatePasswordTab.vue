@@ -55,9 +55,11 @@ export default {
           // 发送axios
           await Get(system_base_url + 'account/update_password/', {
             'email' : store.getters.get_account.email,
-          }, false, 2)
+          }, 2)
               .then((resp) => {
-                countDown(email_clock_seconds)
+                if (resp.status === 200) {
+                  countDown(email_clock_seconds)
+                }
               })
               .catch((error) => {
                 console.log(error.response)
@@ -122,14 +124,16 @@ export default {
 
       update_password_dom.value.validate((valid) => {
         if (valid) {
-          Post(system_base_url + 'account/update_password/', update_password_form, false)
+          Post(system_base_url + 'account/update_password/', update_password_form)
               .then((resp) => {
-                store.dispatch('logout')
-                router.push('/')
-                clear_update_password_form()
+                if (resp.status === 201) {
+                  store.dispatch('logout')
+                  router.push('/')
+                  clear_update_password_form()
+                }
               })
               .catch((error) => {
-                console.log('error.response.data.result:', error.response.data.result);
+                console.log(error);
               })
 
         } else {

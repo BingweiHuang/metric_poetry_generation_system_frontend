@@ -122,7 +122,7 @@
 import {ref, reactive, onMounted, toRaw, watch} from 'vue'
 import type { TabsPaneContext } from 'element-plus'
 import {ElMessage} from 'element-plus'
-import {Delete, Get, Post, Put, system_base_url} from "@/utils/request";
+import {authDelete, authGet, authPost, authPut, Get, system_base_url} from "@/utils/request";
 import {useRoute, useRouter} from "vue-router";
 import store from "@/store";
 import WorkTab from "@/components/profile/WorkTab.vue";
@@ -185,7 +185,7 @@ export default {
 
     const handleClick = (tab: TabsPaneContext, event: Event) => {
       if (tab.props.name === '关注') {
-        console.log('关注')
+        // console.log('关注')
       }
     }
 
@@ -204,7 +204,7 @@ export default {
         author: the_account.id,
       }
 
-      Get(system_base_url + 'account/posts/', params, true)
+      authGet(system_base_url + 'account/posts/', params)
           .then((resp) => {
             if (resp.status === 200) {
               posts.post_list = resp.data.results
@@ -236,7 +236,7 @@ export default {
         return false
       }
 
-      await Get(posts.next_url, {}, true)
+      await authGet(posts.next_url, {})
           .then((resp) => {
 
             posts.next_url = resp.data.next
@@ -258,10 +258,10 @@ export default {
 
     const like = (obj) => {
 
-      Post(system_base_url + 'account/likes/', {
+      authPost(system_base_url + 'account/likes/', {
         // account_id: store.getters.get_account.id,
         post_id: obj.post_id
-      }, true)
+      })
           .then((resp) => {
             posts.post_list[obj.pos].like_id = resp.data.id;
             posts.post_list[obj.pos].like_count += 1;
@@ -270,7 +270,7 @@ export default {
     }
 
     const cancle_like = (obj) => {
-      Delete(system_base_url + 'account/likes/' + obj.like_id, {}, true)
+      authDelete(system_base_url + 'account/likes/' + obj.like_id, {})
           .then((resp) => {
             posts.post_list[obj.pos].like_id = 0;
             posts.post_list[obj.pos].like_count -= 1;
@@ -278,7 +278,7 @@ export default {
     }
 
     const delete_post = (post_id) => {
-      Delete(system_base_url + 'account/posts/' + post_id, {}, true)
+      authDelete(system_base_url + 'account/posts/' + post_id, {})
           .then((resp) => {
             if (resp.status === 204) {
               // posts.post_list.splice(obj.pos, 1)
@@ -314,7 +314,7 @@ export default {
     )
 
     onMounted(() => {
-      Get(system_base_url + 'account/accounts/' + the_account.id, {}, false)
+      authGet(system_base_url + 'account/accounts/' + the_account.id, {})
       .then((resp) => {
         the_account.avatar_url = resp.data.avatar_url
         the_account.nickname = resp.data.nickname
@@ -326,7 +326,6 @@ export default {
         the_account.display_works = resp.data.display_works
         the_account.display_collections = resp.data.display_collections
         the_account.is_superuser = resp.data.is_superuser
-
         follow_id.value = resp.data.follow_id
 
       })
@@ -337,7 +336,7 @@ export default {
     })
 
     const update_account = (form, callBack) => {
-      Put(system_base_url + 'account/accounts/' + store.getters.get_account.id, form, true)
+      authPut(system_base_url + 'account/accounts/' + store.getters.get_account.id, form)
           .then((resp) => {
             if (resp.status === 200) {
               the_account.nickname = resp.data.nickname
@@ -370,7 +369,7 @@ export default {
     }
 
     const delete_follow = (id) => {
-      Delete(system_base_url + 'account/follows/' + id, {}, true)
+      authDelete(system_base_url + 'account/follows/' + id, {})
           .then((resp) => {
             if (resp.status === 204) {
               follow_id.value = 0;
@@ -393,7 +392,7 @@ export default {
     }
 
     const add_follow = () => {
-      Post(system_base_url + 'account/follows/', {follow_id:the_account.id}, true)
+      authPost(system_base_url + 'account/follows/', {follow_id:the_account.id})
           .then((resp) => {
             if (resp.status === 201) {
               follow_id.value = resp.data.id;

@@ -55,7 +55,7 @@
 <script lang="ts">
 import ShiCard from "@/components/ShiCard.vue";
 import {onMounted, ref, watch} from "vue";
-import {Delete, Get, Post, system_base_url} from "@/utils/request";
+import {authDelete, authGet, authPost, system_base_url} from "@/utils/request";
 import {ElMessage} from "element-plus";
 import store from "@/store";
 
@@ -101,8 +101,8 @@ export default {
     let shi_next_url = '';
     const shi_collection_list = ref([])
     const get_shi_collection_list = async () => {
-      await Get(system_base_url + 'account/shi_collections/',
-          {author: props.the_account.id, limit: default_limit}, true)
+      await authGet(system_base_url + 'account/shi_collections/',
+          {author: props.the_account.id, limit: default_limit})
           .then((resp) => {
             const result = resp.data.results
             shi_collection_list.value = result;
@@ -127,7 +127,7 @@ export default {
         return false
       }
 
-      Get(shi_next_url, {author: props.the_account.id, limit: default_limit}, true)
+      authGet(shi_next_url, {author: props.the_account.id, limit: default_limit})
           .then((resp) => {
             let result = resp.data.results
             shi_next_url = resp.data.next
@@ -151,7 +151,7 @@ export default {
     const shi_have_more = ref(true);
 
     const cancle_collection = (obj, callBack) => {
-      Delete(system_base_url + 'account/shi_collections/' + obj.collection_id, {}, true)
+      authDelete(system_base_url + 'account/shi_collections/' + obj.collection_id, {})
           .then((resp) => {
             if (resp.status === 204) { // 删除成功返回204
               shi_collection_list.value[obj.pos].shi.collection_id = 0;
@@ -163,7 +163,7 @@ export default {
           })
     }
     const collection = (obj, callBack) => {
-      Post(system_base_url + 'account/shi_collections/', {shi_id:obj.shi_id}, true)
+      authPost(system_base_url + 'account/shi_collections/', {shi_id:obj.shi_id})
           .then((resp) => {
             if (resp.status === 201) { // 成功收藏 创建成功返回201
               shi_collection_list.value[obj.pos].shi.collection_id = resp.data.id;

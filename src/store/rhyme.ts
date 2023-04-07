@@ -1,6 +1,4 @@
-import {instance} from "@/utils/utils";
 import {Get, system_base_url} from "@/utils/request";
-import store from "@/store/index";
 
 const ModuleRhyme = {
     state: {
@@ -43,20 +41,16 @@ const ModuleRhyme = {
         set_xinyun(state, obj) {
 
             state.xinyun2word[obj.sheng_tag][obj.yun_tag] = obj.data;
-            // console.log('commit成功', state.xinyun2word)
         },
         set_pingshui(state, obj) {
 
             state.pingshui2word[obj.sheng_tag][obj.yun_tag] = obj.data;
-            // console.log('commit成功', state.pingshui2word)
         },
     },
     actions: {
         async updateAllRhyme(context, obj) {
-            await Get(system_base_url + 'rhyme/all_rhyme/', {}, false)
+            await Get(system_base_url + 'rhyme/all_rhyme/', {})
             .then((resp) => {
-                console.log('resp.obj.xinyun2word:', resp.data.xinyun2word)
-                console.log('resp.obj.pingshui2word:', resp.data.pingshui2word)
                 context.commit('set_xinyun', resp.data.xinyun2word);
                 context.commit('set_pingshui', resp.data.pingshui2word);
                 obj.success();
@@ -70,7 +64,7 @@ const ModuleRhyme = {
         async updateRhyme(context, obj) {
             await Get(system_base_url + 'rhyme/get_rhyme/', {
                 kind: obj.kind, sheng_tag: obj.sheng_tag, yun_tag: obj.yun_tag
-            }, false)
+            })
                 .then((resp) => {
                     if (obj.kind === 1) {
                         context.commit('set_pingshui', {

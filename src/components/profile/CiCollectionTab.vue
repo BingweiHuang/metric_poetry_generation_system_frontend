@@ -54,7 +54,7 @@
 <script lang="ts">
 import CiCard from "@/components/CiCard.vue";
 import {ref, watch} from "vue";
-import {Delete, Get, Post, system_base_url} from "@/utils/request";
+import {authDelete, authGet, authPost, system_base_url} from "@/utils/request";
 import {ElMessage} from "element-plus";
 import store from "@/store";
 
@@ -100,8 +100,8 @@ export default {
     let ci_next_url = '';
     const ci_collection_list = ref([])
     const get_ci_collection_list = async () => {
-      await Get(system_base_url + 'account/ci_collections/',
-          {author: props.the_account.id, limit: default_limit}, true)
+      await authGet(system_base_url + 'account/ci_collections/',
+          {author: props.the_account.id, limit: default_limit})
           .then((resp) => {
             const result = resp.data.results
             ci_collection_list.value = result;
@@ -125,7 +125,7 @@ export default {
         return false
       }
 
-      Get(ci_next_url, {author: props.the_account.id, limit: default_limit}, true)
+      authGet(ci_next_url, {author: props.the_account.id, limit: default_limit})
           .then((resp) => {
             let result = resp.data.results
             ci_next_url = resp.data.next
@@ -150,7 +150,7 @@ export default {
     const ci_have_more = ref(true);
 
     const cancle_collection = (obj, callBack) => {
-      Delete(system_base_url + 'account/ci_collections/' + obj.collection_id, {}, true)
+      authDelete(system_base_url + 'account/ci_collections/' + obj.collection_id, {})
           .then((resp) => {
             if (resp.status === 204) { // 删除成功返回204
               ci_collection_list.value[obj.pos].ci.collection_id = 0;
@@ -162,7 +162,7 @@ export default {
           })
     }
     const collection = (obj, callBack) => {
-      Post(system_base_url + 'account/ci_collections/', {ci_id:obj.ci_id}, true)
+      authPost(system_base_url + 'account/ci_collections/', {ci_id:obj.ci_id})
           .then((resp) => {
             if (resp.status === 201) { // 成功收藏 创建成功返回201
               ci_collection_list.value[obj.pos].ci.collection_id = resp.data.id;

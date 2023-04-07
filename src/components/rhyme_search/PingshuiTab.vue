@@ -20,9 +20,15 @@
 
   <!-- 字 -->
   <el-space wrap size="small" class="word" style="display: flex; align-items: baseline; justify-content: start" v-if="ps_display && ps_display.length > 0">
-            <span v-for="(value, index) in (ps_display[0])" :key="index" style="display: flex; align-items: baseline; justify-content: start">
-              <el-link type="primary" :underline="false" style="font-size: 18px;" @click="search_baidu(value[0])">{{value[0]}}</el-link>
-              <span v-if="value[1] !== ''" class="detail">{{value[1]}}</span>
+            <span v-for="(value, index) in (ps_display[0])" :key="index" style=" display: flex; align-items: baseline; justify-content: start">
+              <el-link type="primary" :underline="false"  @click="search_baidu(value[0])" style="font-size: 18px;">
+                {{value[0]}}
+              </el-link>
+              <el-link v-if="value[1] !== ''" type="primary" :underline="false"  @click="search_baidu(value[0])" class="detail">
+                {{value[1]}}
+              </el-link>
+
+
             </span>
 
     <span>
@@ -33,8 +39,11 @@
     <template v-if="ps_sp_word === true">
               <span v-for="(value, index) in (ps_display[1])" :key="'sp' + index"
                     style="display: flex; align-items: baseline; justify-content: start">
-                <el-link type="primary" :underline="false" style="font-size: 18px;" @click="search_baidu(value[0])">{{value[0]}}</el-link>
-                <span v-if="value[1] !== ''" class="detail">{{value[1]}}</span>
+                <el-link type="primary" :underline="false" style="font-size: 18px;" @click="search_baidu(value[0])">
+                  {{value[0]}}
+                  <span v-if="value[1] !== ''" class="detail">{{value[1]}}</span>
+                </el-link>
+
               </span>
     </template>
   </el-space>
@@ -120,7 +129,7 @@ export default {
           },
           error() {
 
-            console.log("getRhyme 失败");
+            console.log("获取韵表失败");
           },
           kind: 1, ...kwargs
         })

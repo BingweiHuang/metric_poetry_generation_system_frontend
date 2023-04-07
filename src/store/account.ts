@@ -1,5 +1,5 @@
 // import $ from 'jquery';
-import {Get, Post, system_base_url} from "@/utils/request";
+import {authGet, Post, system_base_url} from "@/utils/request";
 import jwt_decode from 'jwt-decode';
 import {ElMessage} from "element-plus";
 
@@ -7,9 +7,7 @@ const ModuleAccount = {
     state: {
         account: JSON.parse(localStorage.getItem('account')),
         access: JSON.parse(localStorage.getItem('access')) === null ? "" : JSON.parse(localStorage.getItem('access')),
-        // access: "",
         refresh: JSON.parse(localStorage.getItem('refresh')) === null ? "" : JSON.parse(localStorage.getItem('refresh')),
-        // refresh: "",
         is_login: (JSON.parse(localStorage.getItem('account')) !== null),
     },
     getters: {
@@ -36,7 +34,6 @@ const ModuleAccount = {
         },
 
         set_account(state, account) {
-            console.log('account:', account)
             localStorage.setItem('account', JSON.stringify(account)); // 将用户信息存入
             state.account = account;
             state.is_login = true;
@@ -59,7 +56,7 @@ const ModuleAccount = {
             Post(system_base_url + 'account/login/', {
                 username: data.username,
                 password: data.password,
-            }, false)
+            })
             .then((resp) => {
                 ElMessage({
                     showClose: true,
@@ -69,16 +66,13 @@ const ModuleAccount = {
                 })
                 const {access, refresh} = resp.data;
                 const access_obj:any = jwt_decode(access);
-                // console.log('access:',access)
-                // console.log('refresh:',refresh)
+
                 context.commit('set_access', access)
-                // console.log('access的存储情况:', context.getters('get_access'))
                 context.commit('set_refresh', refresh)
 
-                Get(system_base_url + 'account/accounts/' + access_obj.user_id, {}, true)
+                authGet(system_base_url + 'account/accounts/' + access_obj.user_id, {})
                 .then((resp) => {
                     context.commit("set_account", resp.data);
-                    console.log('context.getters.get_account.id:', context.getters.get_account.id)
                     data.success();
                 });
             }).catch((error) => {

@@ -80,7 +80,7 @@ export default {
             xin_display.value = store.getters.get_xinyun(kwargs);
           },
           error() {
-            console.log("getRhyme 失败");
+            console.log("获取韵表失败");
           },
           kind: 2, ...kwargs
         })

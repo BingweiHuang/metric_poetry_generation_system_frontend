@@ -1,22 +1,95 @@
 <template>
-  <div class="block text-center">
-    <el-carousel height="350px" style="margin-bottom: 50px">
-      <el-carousel-item v-for="item in 4" :key="item">
-        <h3 class="small justify-center" text="2xl">{{ item }}</h3>
+  <!-- 小窗隐藏 web端显示 -->
+  <div class="hidden-xs-only">
+    <el-carousel height="580px" style="" interval="4000">
+      <el-carousel-item v-for="(url, idx) in images1" :key="idx">
+        <el-image :src="url" fit="cover"/>
       </el-carousel-item>
     </el-carousel>
   </div>
+
+  <!-- 大窗隐藏 移动端显示 -->
+  <div class="hidden-sm-and-up" style="height: 100%">
+    <el-carousel  height="800px" direction="vertical" interval="4000">
+      <el-carousel-item v-for="(url, idx) in images2" :key="idx">
+        <el-image :src="url" fit="cover"/>
+      </el-carousel-item>
+    </el-carousel>
+
+<!--    <el-carousel height="400px" style="width: 800px; margin-left: -200px; margin-top: 200px; transform: rotate(90deg); transform-origin: center;">
+      <el-carousel-item v-for="item in 11" :key="item">
+        <el-image :src="'/douyin/' + item + '.jpg'" fit="cover"/>
+      </el-carousel-item>
+    </el-carousel>-->
+  </div>
+
+
 </template>
 
 <script lang="ts">
 
+
+import {ref} from "vue";
 
 export default {
   name: 'HomeView',
   components: {
   },
   setup() {
-    const a = 1;
+    const images1 = ref([
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/0.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/1.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/2.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/3.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/5.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/6.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/7.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/8.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/9.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/10.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/11.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/12.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/13.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/14.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/15.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/16.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/17.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/18.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/19.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/20.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/21.jpg',
+        'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images1/22.jpg',
+    ])
+
+    const images2 = ref([
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/0.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/1.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/2.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/3.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/5.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/6.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/7.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/8.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/9.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/10.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/11.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/12.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/13.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/14.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/15.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/16.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/17.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/18.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/19.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/20.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/21.jpg',
+      'http://rs2ezu96y.hn-bkt.clouddn.com/system/rotation_images2/22.jpg',
+    ])
+
+    return {
+      images1,
+      images2,
+    }
   },
 
 }
@@ -41,11 +114,11 @@ export default {
 }
 
 .el-carousel__item:nth-child(2n) {
-  background-color: #99a9bf;
+  //background-color: #99a9bf;
 }
 
 .el-carousel__item:nth-child(2n + 1) {
-  background-color: #d3dce6;
+  //background-color: #d3dce6;
 }
 
 </style>

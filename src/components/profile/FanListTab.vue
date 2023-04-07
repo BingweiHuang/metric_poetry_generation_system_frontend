@@ -26,7 +26,7 @@
 
 <script lang="ts">
 import {onMounted, reactive, ref, watch} from "vue";
-import {Get, system_base_url} from "@/utils/request";
+import {authGet, system_base_url} from "@/utils/request";
 import {ElMessage} from "element-plus";
 import store from "@/store";
 
@@ -53,7 +53,7 @@ export default {
 
     const get_fan_list = () => {
       fans.len = 0;
-      Get(system_base_url + 'account/follows/', {follow: props.account_id, limit: fans.limit}, true)
+      authGet(system_base_url + 'account/follows/', {follow: props.account_id, limit: fans.limit})
           .then((resp) => {
             if (resp.status === 200) {
               fans.list = resp.data.results;
@@ -92,7 +92,7 @@ export default {
         return false
       }
 
-      Get(fans.next_url, {follow: props.account_id, limit: fans.limit}, true)
+      authGet(fans.next_url, {follow: props.account_id, limit: fans.limit})
           .then((resp) => {
             fans.next_url = resp.data.next
             const ofs = resp.data.count - fans.len; // 浏览过程中保护缓存，防止新关注

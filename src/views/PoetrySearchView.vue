@@ -51,7 +51,7 @@
           <el-row justify="center" align="middle" :gutter="0">
 
             <el-col :span="8">
-              <el-select v-model="metric_value" class="m-2" placeholder="Select" size="large">
+              <el-select v-model="metric_value" class="m-2" placeholder="Select" size="large" @change="metric_value_change">
                 <template #prefix>
                   <span>古近:</span>
                 </template>
@@ -65,7 +65,7 @@
             </el-col>
 
             <el-col :span="8">
-              <el-select v-model="yan_value" class="m-2" placeholder="Select" size="large">
+              <el-select v-model="yan_value" class="m-2" placeholder="Select" size="large" @change="yan_value_change">
                 <template #prefix>
                   <span>几言:</span>
                 </template>
@@ -74,6 +74,7 @@
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
+                    :disabled="((item.value === 4 || item.value === 6 || item.value === 0) && metric_value === 1)"
                 />
               </el-select>
             </el-col>
@@ -88,6 +89,7 @@
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
+                    :disabled="((item.value === 2 && metric_value === 0) || (item.value === 3 && metric_value === 1)) || (([0, 1, 2, -1].includes(item.value)) && !([5, 7, -1].includes(yan_value)))"
                 />
               </el-select>
             </el-col>
@@ -221,9 +223,8 @@ import {
 import ShiCard from "@/components/ShiCard.vue";
 import CiCard from "@/components/CiCard.vue";
 import ShijingCard from "@/components/ShijingCard.vue";
-import {instance} from "@/utils/utils";
 import {ElMessage} from "element-plus";
-import {Delete, Get, Post, system_base_url} from "@/utils/request";
+import {authDelete, authGet, authPost, Get, system_base_url} from "@/utils/request";
 export default {
   name: "PoetrySearchView",
   components: {
@@ -232,9 +233,19 @@ export default {
     ShijingCard,
   },
   setup() {
+
+    const metric_value_change = () => {
+      yan_value.value = -1
+      jue_value.value = -1
+    }
+    const yan_value_change = () => {
+      if ([4, 6, 0].includes(yan_value.value)) jue_value.value = 3
+      else jue_value.value = -1
+    }
+
     const cancle_collection = (obj, callBack) => {
       let kind = shici.value.substring(0, shici.value.length - 1)
-      Delete(system_base_url + 'account/'+ kind + '_collections/' + obj.collection_id, {}, true)
+      authDelete(system_base_url + 'account/'+ kind + '_collections/' + obj.collection_id, {})
           .then((resp) => {
             if (resp.status === 204) { // 删除成功返回204
               poetryList.value[obj.pos].collection_id = 0;
@@ -258,7 +269,7 @@ export default {
           ci_id: obj.ci_id,
         }
       }
-      Post(system_base_url + 'account/'+ kind + '_collections/', params, true)
+      authPost(system_base_url + 'account/'+ kind + '_collections/', params)
           .then((resp) => {
             if (resp.status === 201) { // 成功收藏 创建成功返回201
               poetryList.value[obj.pos].collection_id = resp.data.id;
@@ -963,20 +974,23 @@ export default {
 
       poetryList.value = [];
 
-      await Get(system_base_url + query_url, kwargs, false)
+      await authGet(system_base_url + query_url, kwargs)
           .then((resp) => {
-            let result = resp.data.results
-            if (result.length === 0) {
-              ElMessage({
-                message:'喏哦~ 没有符合条件的诗词喔~ 换个条件戏一下的喔',
-                duration: 3000
-              })
-            } else {
-              poetryList.value = result
-              next_url = resp.data.next
-              if (result.length < default_limit) have_more.value = false;
-              else have_more.value = true;
+            if (resp.status === 200) {
+              let result = resp.data.results
+              if (result.length === 0) {
+                ElMessage({
+                  message:'喏哦~ 没有符合条件的诗词喔~ 换个条件戏一下的喔',
+                  duration: 3000
+                })
+              } else {
+                poetryList.value = result
+                next_url = resp.data.next
+                if (result.length < default_limit) have_more.value = false;
+                else have_more.value = true;
+              }
             }
+
           })
           .catch((error) => {
             console.log(error);
@@ -999,7 +1013,7 @@ export default {
         return false
       }
 
-      Get(next_url, kwargs, false)
+      authGet(next_url, kwargs)
       .then((resp) => {
         let result = resp.data.results
         next_url = resp.data.next
@@ -1022,6 +1036,10 @@ export default {
     }
 
     return {
+
+      metric_value_change,
+      yan_value_change,
+
 
       cancle_collection,
       collection,

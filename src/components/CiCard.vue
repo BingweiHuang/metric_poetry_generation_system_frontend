@@ -29,8 +29,6 @@
 </template>
 
 <script lang="ts">
-import {ref, watch} from "vue";
-import {Delete, Post, system_base_url} from "@/utils/request";
 import {ElMessage} from "element-plus";
 
 export default {
@@ -140,7 +138,7 @@ export default {
   text-align: center;
 }
 .poetry-detail-div {
-  font-family: '瘦金体简','行楷',NSimSun,SimSun;
+  font-family: 瘦金体简,仿宋,楷体;
   font-size: 20px;
 }
 

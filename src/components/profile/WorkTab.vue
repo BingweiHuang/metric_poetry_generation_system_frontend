@@ -9,7 +9,7 @@
     <template v-for="(work, idx) in work_list.slice((work_currentPage - 1) * work_pageSize, work_currentPage * work_pageSize)" :key="'work_' + work.id">
       <el-card :body-style="{ padding: '10px' }" shadow="hover" style="width: 340px; text-align: center;">
         <div style="display: flex; justify-content: space-between; margin-bottom: 5px">
-          <el-button type="success" text size="small" @click="open_work_form('编辑作品', work.id, idx)" v-if="is_me">
+          <el-button type="success" text size="small" @click="open_work_form('编辑作品', work.id, (work_currentPage - 1) * work_pageSize + idx)" v-if="is_me">
             编辑
           </el-button>
           <div>
@@ -120,7 +120,8 @@
 <script lang="ts">
 import {reactive, ref, watch} from "vue";
 import {ElMessage} from "element-plus";
-import {Delete, Get, Post, Put, system_base_url} from "@/utils/request";
+import {authDelete, authGet, authPost, authPut, system_base_url} from "@/utils/request";
+import store from "@/store";
 
 export default {
   name: "WorkTab",
@@ -146,8 +147,8 @@ export default {
     const work_list = ref([])
     const work_have_more = ref(true);
     const get_work_list = async () => {
-      await Get(system_base_url + 'account/works/',
-          {author: props.the_account.id, limit: default_limit}, true)
+      await authGet(system_base_url + 'account/works/',
+          {author: props.the_account.id, limit: default_limit})
           .then((resp) => {
             const result = resp.data.results
             work_list.value = result;
@@ -171,7 +172,7 @@ export default {
         return false
       }
 
-      Get(work_next_url, {author: props.the_account.id, limit: default_limit}, true)
+      authGet(work_next_url, {author: props.the_account.id, limit: default_limit})
           .then((resp) => {
             let result = resp.data.results
             work_next_url = resp.data.next
@@ -197,7 +198,7 @@ export default {
         ()=>(props.activeName),
         (val,preVal)=>{
           if (val === '作品') {
-            if ((props.is_me || props.the_account.display_works) && work_list.value.length === 0) {
+            if ((props.the_account.display_works || props.is_me || store.getters.get_account.is_superuser) && work_list.value.length === 0) {
               get_work_list()
             }
           }
@@ -273,7 +274,7 @@ export default {
     }
 
     const delete_work = (work_id, pos) => {
-      Delete(system_base_url + 'account/works/' + work_id, {}, true)
+      authDelete(system_base_url + 'account/works/' + work_id, {})
           .then((resp) => {
             if (resp.status === 204) {
               work_list.value.splice(pos, 1);
@@ -297,7 +298,7 @@ export default {
           })
     }
     const add_work = () => {
-      Post(system_base_url + 'account/works/', work_form, true)
+      authPost(system_base_url + 'account/works/', work_form)
           .then((resp) => {
             if (resp.status === 201) {
               ElMessage({
@@ -319,7 +320,7 @@ export default {
           })
     }
     const put_work = () => {
-      Put(system_base_url + 'account/works/' + update_work_id, work_form, true)
+      authPut(system_base_url + 'account/works/' + update_work_id, work_form)
           .then((resp) => {
             if (resp.status === 200) {
               ElMessage({
@@ -392,7 +393,7 @@ export default {
 }
 
 .detail-div {
-  font-family: '瘦金体简','行楷',NSimSun,SimSun;
+  font-family: 瘦金体简,仿宋,楷体;
   font-size: 20px;
   width: 100%;
   min-height: 26px;

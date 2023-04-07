@@ -68,14 +68,13 @@
 <script lang="ts">
 
 import {onMounted, reactive, ref} from 'vue'
-import {Delete, Get, Post, system_base_url} from "@/utils/request";
+import {authDelete, authGet, authPost, system_base_url} from "@/utils/request";
 import {
     Promotion,
     Search,
 } from '@element-plus/icons-vue'
 import store from "@/store";
 import {ElMessage} from "element-plus";
-import {parse} from "@typescript-eslint/parser";
 import {useRouter} from "vue-router";
 import PostComponent from "@/components/world_circle/PostComponent.vue";
 
@@ -124,8 +123,6 @@ export default {
     
     const get_post_list = (flag) => {
       const now = format_dateTime(new Date())
-      /*console.log('start_time.value:', start_time.value)
-      console.log('end_time.value:', end_time.value)*/
       let start = ''
       let end = ''
       if (start_time.value) {
@@ -182,7 +179,7 @@ export default {
         params['create_date_before'] = end
       }
 
-      Get(system_base_url + 'account/posts/', params, true)
+      authGet(system_base_url + 'account/posts/', params)
           .then((resp) => {
             if (resp.status === 200) {
               posts.list = resp.data.results
@@ -222,7 +219,7 @@ export default {
         return false
       }
 
-      await Get(posts.next_url, {}, true)
+      await authGet(posts.next_url, {})
           .then((resp) => {
 
             posts.next_url = resp.data.next
@@ -251,10 +248,10 @@ export default {
 
     const like = (obj) => {
 
-      Post(system_base_url + 'account/likes/', {
+      authPost(system_base_url + 'account/likes/', {
         // account_id: store.getters.get_account.id,
         post_id: obj.post_id
-      }, true)
+      })
           .then((resp) => {
             posts.list[obj.pos].like_id = resp.data.id;
             posts.list[obj.pos].like_count += 1;
@@ -263,7 +260,7 @@ export default {
     }
 
     const cancle_like = (obj) => {
-      Delete(system_base_url + 'account/likes/' + obj.like_id, {}, true)
+      authDelete(system_base_url + 'account/likes/' + obj.like_id, {})
           .then((resp) => {
             posts.list[obj.pos].like_id = 0;
             posts.list[obj.pos].like_count -= 1;
@@ -281,10 +278,10 @@ export default {
         return false
       }
 
-      Post(system_base_url + 'account/posts/', {
+      authPost(system_base_url + 'account/posts/', {
         content: post_input.value,
         // id: store.getters.get_account.id,
-      }, true)
+      })
       .then((resp) => {
         if (resp.status === 201) {
           post_input.value = ''
@@ -295,14 +292,14 @@ export default {
             duration: 3000,
           })
           posts.len = 0
-          Get(system_base_url + 'account/posts/', {limit: posts.limit}, true)
+          authGet(system_base_url + 'account/posts/', {limit: posts.limit})
               .then((resp) => {
                 posts.list = resp.data.results
                 posts.next_url = resp.data.next
                 posts.len = resp.data.count
               })
               .catch((error) => {
-                console.log(error.response)
+                console.log(error)
               })
         } else {
           ElMessage({
@@ -319,7 +316,7 @@ export default {
     }
 
     const delete_post = (post_id) => {
-      Delete(system_base_url + 'account/posts/' + post_id, {}, true)
+      authDelete(system_base_url + 'account/posts/' + post_id, {})
       .then((resp) => {
         if (resp.status === 204) {
           // posts.list.splice(obj.pos, 1)

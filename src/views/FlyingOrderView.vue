@@ -106,24 +106,18 @@
 
 <script lang="ts">
 import {onMounted, ref} from "vue";
-import { ElScrollbar } from 'element-plus'
 import {
   Search,
   User,
   Folder,
   Document,
 } from '@element-plus/icons-vue'
-import ShiCard from "@/components/ShiCard.vue";
-import CiCard from "@/components/CiCard.vue";
-import {instance} from "@/utils/utils";
 import {ElMessage} from "element-plus";
-import {Get, system_base_url} from "@/utils/request";
+import {authGet, system_base_url} from "@/utils/request";
 
 export default {
   name: "FlyingOrderView",
   components: {
-    // ShiCard,
-    // CiCard,
   },
   setup() {
 
@@ -358,17 +352,20 @@ export default {
       }
 
 
-      let ret = await Get(system_base_url + 'search/flys/', kwargs, true)
+      let ret = await authGet(system_base_url + 'search/flys/', kwargs)
           .then((resp) => {
-            let result = resp.data.results
-            next_url = resp.data.next
-            flyList.value = flyList.value.concat(result)
-            if (resp.data.results.length === 0) {
-              ElMessage({
-                message:'喏哦~ 条件太复杂，飞不出来了喔~ 换个条件飞一下的喔',
-                duration: 3000
-              })
-            } else flyList.value = resp.data.results;
+            if (resp.status === 200) {
+              let result = resp.data.results
+              next_url = resp.data.next
+              flyList.value = flyList.value.concat(result)
+              if (resp.data.results.length === 0) {
+                ElMessage({
+                  message:'喏哦~ 条件太复杂，飞不出来了喔~ 换个条件飞一下的喔',
+                  duration: 3000
+                })
+              } else flyList.value = resp.data.results;
+            }
+
           })
           .catch((error) => {
             console.log(error);
@@ -389,7 +386,7 @@ export default {
         return false
       }
 
-      Get(next_url, kwargs, true)
+      authGet(next_url, kwargs)
       .then((resp) => {
         let result = resp.data.results
         next_url = resp.data.next

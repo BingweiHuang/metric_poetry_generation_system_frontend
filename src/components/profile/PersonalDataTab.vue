@@ -58,7 +58,7 @@
 <script lang="ts">
 import {reactive, ref, watch} from "vue";
 import {ElMessage, UploadInstance, UploadProps, UploadUserFile} from "element-plus";
-import {Get, Put, system_base_url} from "@/utils/request";
+import {authGet, authPut, system_base_url} from "@/utils/request";
 import store from "@/store";
 
 export default {
@@ -212,7 +212,7 @@ export default {
         return false;
       }
 
-      await Get(system_base_url + 'account/get_qiniu_token/', {}, true)
+      await authGet(system_base_url + 'account/get_qiniu_token/', {})
           .then((resp) => {
             upload_data.value.token = resp.data.qn_token
           })
@@ -232,15 +232,24 @@ export default {
 
       update_profile_form.avatar_url = baseUrl + response.key;
 
-      Put(system_base_url + 'account/accounts/' + store.getters.get_account.id, update_profile_form, true)
+      authPut(system_base_url + 'account/accounts/' + store.getters.get_account.id, update_profile_form)
           .then((resp) => {
-            ElMessage({
-              showClose: true,
-              message: '头像修改成功！',
-              type: 'success',
-              duration: 3000,
-            })
-            context.emit('update_account_avatar_url', resp.data.avatar_url)
+            if (resp.status === 200) {
+              ElMessage({
+                showClose: true,
+                message: '头像修改成功！',
+                type: 'success',
+                duration: 3000,
+              })
+              context.emit('update_account_avatar_url', resp.data.avatar_url)
+            } else {
+              ElMessage({
+                showClose: true,
+                message: '头像修改失败！',
+                type: 'error',
+                duration: 3000,
+              })
+            }
           })
           .catch((error) => {
             console.log(error);

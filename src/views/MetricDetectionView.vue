@@ -297,14 +297,9 @@
 
 <script lang="ts">
 import {ref} from "vue";
-import {instance} from "@/utils/utils";
 import {ElMessage, ElMessageBox} from "element-plus";
-import {
-  Search,
-} from '@element-plus/icons-vue'
-import {useStore} from "vuex";
+
 import {Get, system_base_url} from "@/utils/request";
-import store from "@/store";
 import RhymeSearchView from "@/views/RhymeSearchView.vue";
 
 export default {
@@ -377,7 +372,7 @@ export default {
         qi: qi.value ? 1 : 0,
         ru: ru.value ? 0 : 1,
         use_rhyme: use_rhyme.value,
-      }, false)
+      })
 
       detect_text.value = ret.data.text;
       yun_pos_dict.value = ret.data.yun_pos_dict;

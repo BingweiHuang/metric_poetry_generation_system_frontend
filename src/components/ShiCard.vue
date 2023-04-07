@@ -56,10 +56,7 @@
 </template>
 
 <script lang="ts">
-
-import {Delete, Post, system_base_url} from "@/utils/request";
 import {ElMessage} from "element-plus";
-import {ref, watch} from "vue";
 
 export default {
   name: "ShiCard",
@@ -168,7 +165,7 @@ export default {
   text-align: center;
 }
 .poetry-detail-div {
-  font-family: '瘦金体简','行楷',NSimSun,SimSun;
+  font-family: 瘦金体简,仿宋,楷体;
   font-size: 20px;
 }
 

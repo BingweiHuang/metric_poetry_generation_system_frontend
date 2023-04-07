@@ -87,7 +87,7 @@ export default {
 
         Get(system_base_url + 'rhyme/search_rhyme/', {
           'word': word,
-        }, false)
+        })
             .then((resp) => {
               ps_word2rhyme.value = resp.data.ps_word2rhyme;
               xin_word2rhyme.value = resp.data.xin_word2rhyme;
