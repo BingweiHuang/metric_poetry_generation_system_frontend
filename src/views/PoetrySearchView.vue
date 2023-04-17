@@ -25,7 +25,7 @@
           </el-col>
 
           <el-col :span="8">
-            <el-input size="large" v-model="title_input" placeholder="诗名，词牌" clearable
+            <el-input size="large" v-model="title_input" placeholder="诗名，词牌名" clearable
                       :disabled="poetry_dynasty_value && poetry_dynasty_value[0] === 'shijings'">
             </el-input>
           </el-col>
@@ -225,6 +225,7 @@ import CiCard from "@/components/CiCard.vue";
 import ShijingCard from "@/components/ShijingCard.vue";
 import {ElMessage} from "element-plus";
 import {authDelete, authGet, authPost, Get, system_base_url} from "@/utils/request";
+import store from "@/store";
 export default {
   name: "PoetrySearchView",
   components: {
@@ -817,6 +818,7 @@ export default {
       title_value.value = -1
       if (chapter === -1) {
         section_disable.value = true
+        title_disable.value = true
       } else {
         const the = []
         the.push({
@@ -974,28 +976,51 @@ export default {
 
       poetryList.value = [];
 
-      await authGet(system_base_url + query_url, kwargs)
-          .then((resp) => {
-            if (resp.status === 200) {
-              let result = resp.data.results
-              if (result.length === 0) {
-                ElMessage({
-                  message:'喏哦~ 没有符合条件的诗词喔~ 换个条件戏一下的喔',
-                  duration: 3000
-                })
-              } else {
-                poetryList.value = result
-                next_url = resp.data.next
-                if (result.length < default_limit) have_more.value = false;
-                else have_more.value = true;
+      if (shici.value !== 'shijings' && store.getters.get_is_login) {
+        await authGet(system_base_url + query_url, kwargs)
+            .then((resp) => {
+              if (resp.status === 200) {
+                let result = resp.data.results
+                if (result.length === 0) {
+                  ElMessage({
+                    message:'喏哦~ 没有符合条件的诗词喔~ 换个条件戏一下的喔',
+                    duration: 3000
+                  })
+                } else {
+                  poetryList.value = result
+                  next_url = resp.data.next
+                  if (result.length < default_limit) have_more.value = false;
+                  else have_more.value = true;
+                }
               }
-            }
 
-          })
-          .catch((error) => {
-            console.log(error);
-          })
+            })
+            .catch((error) => {
+              console.log(error);
+            })
+      } else {
+        await Get(system_base_url + query_url, kwargs)
+            .then((resp) => {
+              if (resp.status === 200) {
+                let result = resp.data.results
+                if (result.length === 0) {
+                  ElMessage({
+                    message:'喏哦~ 没有符合条件的诗词喔~ 换个条件戏一下的喔',
+                    duration: 3000
+                  })
+                } else {
+                  poetryList.value = result
+                  next_url = resp.data.next
+                  if (result.length < default_limit) have_more.value = false;
+                  else have_more.value = true;
+                }
+              }
 
+            })
+            .catch((error) => {
+              console.log(error);
+            })
+      }
 
     }
 
@@ -1013,26 +1038,51 @@ export default {
         return false
       }
 
-      authGet(next_url, kwargs)
-      .then((resp) => {
-        let result = resp.data.results
-        next_url = resp.data.next
-        if (result.length < default_limit) have_more.value = false;
-        else have_more.value = true;
-        poetryList.value = poetryList.value.concat(result)
+      if (shici.value !== 'shijings' && store.getters.get_is_login) {
+        authGet(next_url, kwargs)
+            .then((resp) => {
+              let result = resp.data.results
+              next_url = resp.data.next
+              if (result.length < default_limit) have_more.value = false;
+              else have_more.value = true;
+              poetryList.value = poetryList.value.concat(result)
 
-      })
-      .catch((error) => {
-        console.log(error);
-        if (error.response.status !== 429) {
-          ElMessage({
-            showClose: true,
-            message: '刷新出错！',
-            type: 'error',
-            duration: 5000,
-          })
-        }
-      })
+            })
+            .catch((error) => {
+              console.log(error);
+              if (error.response.status !== 429) {
+                ElMessage({
+                  showClose: true,
+                  message: '刷新出错！',
+                  type: 'error',
+                  duration: 5000,
+                })
+              }
+            })
+      } else {
+        Get(next_url, kwargs)
+            .then((resp) => {
+              let result = resp.data.results
+              next_url = resp.data.next
+              if (result.length < default_limit) have_more.value = false;
+              else have_more.value = true;
+              poetryList.value = poetryList.value.concat(result)
+
+            })
+            .catch((error) => {
+              console.log(error);
+              if (error.response.status !== 429) {
+                ElMessage({
+                  showClose: true,
+                  message: '刷新出错！',
+                  type: 'error',
+                  duration: 5000,
+                })
+              }
+            })
+      }
+
+
     }
 
     return {

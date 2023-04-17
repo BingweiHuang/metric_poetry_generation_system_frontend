@@ -12,10 +12,10 @@ const refreshToken = () => {
     return instance.post(system_base_url + 'api/token/refresh/', { refresh: store.getters.get_refresh })
 }
 
-// export const system_base_url = 'http://127.0.0.1:8000/';
-export const system_base_url = '/sys/';
-// export const AI_base_url = 'http://127.0.0.1:8088/';
-export const AI_base_url = '/ai/';
+export const system_base_url = 'http://127.0.0.1:8000/';
+// export const system_base_url = '/sys/';
+export const AI_base_url = 'http://127.0.0.1:8088/';
+// export const AI_base_url = '/ai/';
 
 
 export const trans_next_url = 'http://bwhlifetimelove.top/';

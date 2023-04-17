@@ -77,7 +77,7 @@
 
         </el-row>
         <!-- 作者产量排行柱状图 -->
-          <el-card shadow="none">
+        <el-card shadow="none">
             <div ref="bar_echart" style="width:100%; height:600px;"></div>
           </el-card>
 
@@ -1668,13 +1668,13 @@ export default {
         },
       }
 
-      let x_list = ['罗隐', '姚合', '贯休', '许浑', '李商隐', '元稹', '刘禹锡', '齐己', '杜甫', '白居易']
-      let y1_list = [86, 39, 38, 54, 195, 231, 167, 54, 72, 646]
-      let y2_list = [243, 60, 106, 196, 105, 93, 171, 193, 110, 533]
-      let y3_list = [1, 1, 3, 0, 1, 6, 0, 0, 4, 20]
-      let y4_list = [4, 13, 2, 6, 31, 26, 30, 2, 31, 86]
-      let y5_list = [85, 279, 280, 218, 136, 159, 159, 422, 602, 369]
-      let y6_list = [8, 48, 16, 21, 43, 32, 32, 9, 103, 152]
+      let x_list = ['杜牧', '姚合', '贯休', '许浑', '李商隐', '元稹', '刘禹锡', '齐己', '杜甫', '白居易']
+      let y1_list = [181, 40, 40, 54, 195, 236, 172, 54, 77, 681]
+      let y2_list = [100, 60, 106, 197, 106, 95, 171, 193, 110, 555]
+      let y3_list = [1, 1, 3, 0, 1, 6, 0, 0, 4, 22]
+      let y4_list = [26, 13, 3, 6, 34, 27, 32, 2, 31, 86]
+      let y5_list = [104, 281, 283, 220, 141, 162, 165, 423, 604, 382]
+      let y6_list = [29, 48, 16, 21, 43, 32, 32, 9, 103, 156]
 
       const copy1 = JSON.parse(JSON.stringify(obj_series)) as typeof obj_series;
       const copy2 = JSON.parse(JSON.stringify(obj_series)) as typeof obj_series;
@@ -1767,9 +1767,9 @@ export default {
     onMounted(async() => {
       let res_list = [
           [{'name': '古体诗', 'value': 84}, {'name': '近体诗', 'value': 22}],
-          // [{'name': '七阳', 'value': 8}, {'name': '十一庚', 'value': 8}, {'name': '一先', 'value': 7}, {'name': '十灰', 'value': 6}, {'name': '九文', 'value': 4}, {'name': '五微', 'value': 3}, {'name': '五歌', 'value': 3}, {'name': '十五删', 'value': 3}, {'name': '一东', 'value': 2}, {'name': '二冬', 'value': 2}],
-          [{'name': '七阳', 'value': 8}, {'name': '十一庚', 'value': 8}, {'name': '一先', 'value': 7}, {'name': '十灰', 'value': 6}, {'name': '九文', 'value': 4}, {'name': '五微', 'value': 3}, {'name': '五歌', 'value': 3}, {'name': '十五删', 'value': 3}],
-          [{'name': '古体诗', 'value': 84}, {'name': '七言绝句', 'value': 10}, {'name': '七言律诗', 'value': 9}, {'name': '五言排律', 'value': 2}, {'name': '五言律诗', 'value': 1}]
+          // [{'name': '七阳', 'value': 8}, {'name': '十一庚', 'value': 8}, {'name': '一先', 'value': 7}, {'name': '十灰', 'value': 6}, {'name': '九文', 'value': 4}, {'name': '五微', 'value': 3}, {'name': '五歌', 'value': 3}, {'name': '十五删', 'value': 3}],
+          [{'name': '七阳', 'value': 8}, {'name': '十一庚', 'value': 8}, {'name': '十灰', 'value': 6}, {'name': '一先', 'value': 5}, {'name': '九文', 'value': 4}, {'name': '五歌', 'value': 3}, {'name': '十五删', 'value': 3}, {'name': '一东', 'value': 2}],
+          [{'name': '古体诗', 'value': 84}, {'name': '七言律诗', 'value': 10}, {'name': '七言绝句', 'value': 10}, {'name': '五言律诗', 'value': 1}, {'name': '五言绝句', 'value': 1}]
       ]
 
 

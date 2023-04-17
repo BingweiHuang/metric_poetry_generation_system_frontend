@@ -1,18 +1,18 @@
 <template>
   <!-- 小窗隐藏 web端显示 -->
-  <div class="hidden-xs-only">
-    <el-carousel height="580px" style="" interval="4000">
+  <div class="hidden-xs-only" style="margin: 0 20px">
+    <el-carousel height="640px" interval="4000">
       <el-carousel-item v-for="(url, idx) in images1" :key="idx">
-        <el-image :src="url" fit="cover"/>
+        <el-image :src="url" style="height: 100%" fit="contain"/>
       </el-carousel-item>
     </el-carousel>
   </div>
 
   <!-- 大窗隐藏 移动端显示 -->
-  <div class="hidden-sm-and-up" style="height: 100%">
-    <el-carousel  height="800px" direction="vertical" interval="4000">
+  <div class="hidden-sm-and-up" style="margin: 0 20px">
+    <el-carousel  height="700px" direction="vertical" interval="4000" style="align-items: center; justify-content: center">
       <el-carousel-item v-for="(url, idx) in images2" :key="idx">
-        <el-image :src="url" fit="cover"/>
+        <el-image :src="url" style="height: 100%; display: block" fit="contain"/>
       </el-carousel-item>
     </el-carousel>
 
