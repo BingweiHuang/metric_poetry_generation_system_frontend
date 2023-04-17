@@ -29,7 +29,7 @@
         </el-tag>
       </template>
 
-      <template v-if="poetry.rhyme !== ''">
+      <template v-if="poetry.rhyme && poetry.rhyme !== ''">
         <el-tag class="mx-1" effect="light" type="" :round="true">
           {{poetry.rhyme}}
         </el-tag>
