@@ -1,17 +1,17 @@
 <template>
- <div>
-   404 Not Found
- </div>
+    <div>
+        404 Not Found
+    </div>
 </template>
 
 <script lang="ts">
 export default {
-  name: "NotFoundView",
-  components: {},
-  setup() {
+    name: "NotFoundView",
+    components: {},
+    setup() {
 
-    return {}
-  }
+        return {}
+    }
 }
 </script>
 

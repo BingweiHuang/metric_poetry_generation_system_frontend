@@ -22,14 +22,14 @@ const ModuleRhyme = {
         },
     },
     getters: {
-        get_xinyun:(state) => (obj) => {
+        get_xinyun: (state) => (obj) => {
             let res = []
             if (Object.keys(state.xinyun2word[obj.sheng_tag]).includes(obj.yun_tag)) {
                 res = state.xinyun2word[obj.sheng_tag][obj.yun_tag]
             }
             return res
         },
-        get_pingshui:(state) => (obj) => {
+        get_pingshui: (state) => (obj) => {
             let res = []
             if (Object.keys(state.pingshui2word[obj.sheng_tag]).includes(obj.yun_tag)) {
                 res = state.pingshui2word[obj.sheng_tag][obj.yun_tag]
@@ -37,7 +37,7 @@ const ModuleRhyme = {
             return res
         },
     },
-        mutations: {
+    mutations: {
         set_xinyun(state, obj) {
 
             state.xinyun2word[obj.sheng_tag][obj.yun_tag] = obj.data;
@@ -50,15 +50,15 @@ const ModuleRhyme = {
     actions: {
         async updateAllRhyme(context, obj) {
             await Get(system_base_url + 'rhyme/all_rhyme/', {})
-            .then((resp) => {
-                context.commit('set_xinyun', resp.data.xinyun2word);
-                context.commit('set_pingshui', resp.data.pingshui2word);
-                obj.success();
-            })
-            .catch((error) => {
-                console.log(error);
-                obj.error();
-            })
+                .then((resp) => {
+                    context.commit('set_xinyun', resp.data.xinyun2word);
+                    context.commit('set_pingshui', resp.data.pingshui2word);
+                    obj.success();
+                })
+                .catch((error) => {
+                    console.log(error);
+                    obj.error();
+                })
         },
 
         async updateRhyme(context, obj) {
@@ -68,11 +68,11 @@ const ModuleRhyme = {
                 .then((resp) => {
                     if (obj.kind === 1) {
                         context.commit('set_pingshui', {
-                            sheng_tag: obj.sheng_tag, yun_tag: obj.yun_tag, data:resp.data.list
+                            sheng_tag: obj.sheng_tag, yun_tag: obj.yun_tag, data: resp.data.list
                         });
                     } else if (obj.kind === 2) {
                         context.commit('set_xinyun', {
-                            sheng_tag: obj.sheng_tag, yun_tag: obj.yun_tag, data:resp.data.list
+                            sheng_tag: obj.sheng_tag, yun_tag: obj.yun_tag, data: resp.data.list
                         });
                     }
                     obj.success();
@@ -83,9 +83,7 @@ const ModuleRhyme = {
                 })
         }
     },
-    modules: {
-
-    }
+    modules: {}
 }
 
 export default ModuleRhyme;

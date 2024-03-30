@@ -57,25 +57,25 @@ const ModuleAccount = {
                 username: data.username,
                 password: data.password,
             })
-            .then((resp) => {
-                ElMessage({
-                    showClose: true,
-                    type: 'success',
-                    message: '登陆成功~',
-                    duration: 3000,
-                })
-                const {access, refresh} = resp.data;
-                const access_obj:any = jwt_decode(access);
-
-                context.commit('set_access', access)
-                context.commit('set_refresh', refresh)
-
-                authGet(system_base_url + 'account/accounts/' + access_obj.user_id, {})
                 .then((resp) => {
-                    context.commit("set_account", resp.data);
-                    data.success();
-                });
-            }).catch((error) => {
+                    ElMessage({
+                        showClose: true,
+                        type: 'success',
+                        message: '登陆成功~',
+                        duration: 3000,
+                    })
+                    const {access, refresh} = resp.data;
+                    const access_obj: any = jwt_decode(access);
+
+                    context.commit('set_access', access)
+                    context.commit('set_refresh', refresh)
+
+                    authGet(system_base_url + 'account/accounts/' + access_obj.user_id, {})
+                        .then((resp) => {
+                            context.commit("set_account", resp.data);
+                            data.success();
+                        });
+                }).catch((error) => {
                 console.log(error);
                 data.error();
             });
@@ -85,8 +85,7 @@ const ModuleAccount = {
             context.commit("clear_account")
         }
     },
-    modules: {
-    }
+    modules: {}
 };
 
 export default ModuleAccount;

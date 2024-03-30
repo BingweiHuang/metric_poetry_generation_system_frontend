@@ -29,7 +29,12 @@
           <el-menu-item :index="'/Profile/' + $store.getters.get_account.id" v-if="$store.getters.get_is_login">
             家
           </el-menu-item>
-          <el-button link type="info" v-else @click="open_login_table">
+
+<!--          <el-menu-item :index="'/'" v-else @click="open_login_table">
+            登录
+          </el-menu-item>-->
+
+          <el-button link type="info" v-else @click="open_login_table" style="height: 50px">
               登录
           </el-button>
 
@@ -77,7 +82,7 @@
               家
             </el-menu-item>
             <el-button link type="info" v-else @click="open_login_table">
-              登录
+              <span style="padding: 10px">登录</span>
             </el-button>
 
 
@@ -274,36 +279,39 @@ export default {
       },
       {
         index: '/AICreate',
-        content: '引玉才华',
+        // content: '引玉才华',
+        content: 'AI作诗',
       },
       {
         index: '/MetricDetection',
-        content: '吹毛求瑕',
+        // content: '吹毛求瑕',
+        content: '诗歌声律检测',
       },
       {
         index: '/RhymeSearch',
-        content: '顺藤摸瓜',
+        // content: '顺藤摸瓜',
+        content: '韵表检索',
       },
       {
         index: '/PoetrySearch',
-        content: '大浪淘沙',
+        // content: '大浪淘沙',
+        content: '诗词检索',
       },
       {
         index: '/FlyingOrder',
-        content: '春城飞花',
+        // content: '春城飞花',
+        content: '飞花令检索',
       },
       {
         index: '/Analyze',
-        content: '收割如麻',
+        // content: '收割如麻',
+        content: '数据可视化分析',
       },
       {
         index: '/WorldCircle',
-        content: '游子天涯',
+        // content: '游子天涯',
+        content: '交流论坛',
       },
-      /*{
-        index: '/Profile',
-        content: '个人中心',
-      },*/
 
     ]
 

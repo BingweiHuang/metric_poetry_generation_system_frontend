@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
+import {createRouter, createWebHashHistory, RouteRecordRaw} from 'vue-router'
 
 // 静态导入
 import AICreateView from '@/views/AICreateView.vue'
@@ -19,103 +19,103 @@ import {ElMessage} from "element-plus";
 // 路由懒加载 需要时才导入组件
 
 const routes: Array<RouteRecordRaw> = [
-  {
-    path: '/AICreate',
-    name: 'AICreateView',
-    component: AICreateView,
+    {
+        path: '/AICreate',
+        name: 'AICreateView',
+        component: AICreateView,
 
-  },
-  {
-    path: '/PoetrySearch',
-    name: 'PoetrySearchView',
-    component: PoetrySearchView,
+    },
+    {
+        path: '/PoetrySearch',
+        name: 'PoetrySearchView',
+        component: PoetrySearchView,
 
-  },
-  {
-    path: '/RhymeSearch',
-    name: 'RhymeSearchView',
-    component: RhymeSearchView,
+    },
+    {
+        path: '/RhymeSearch',
+        name: 'RhymeSearchView',
+        component: RhymeSearchView,
 
-  },
-  {
-    path: '/MetricDetection',
-    name: 'MetricDetectionView',
-    component: MetricDetectionView,
+    },
+    {
+        path: '/MetricDetection',
+        name: 'MetricDetectionView',
+        component: MetricDetectionView,
 
-  },
-  {
-    path: '/FlyingOrder',
-    name: 'FlyingOrderView',
-    component: FlyingOrderView,
+    },
+    {
+        path: '/FlyingOrder',
+        name: 'FlyingOrderView',
+        component: FlyingOrderView,
 
-  },
-  {
-    path: '/Analyze',
-    name: 'AnalyzeView',
-    // component: () => import('@/views/AnalyzeView.vue'),
-    component: AnalyzeView,
+    },
+    {
+        path: '/Analyze',
+        name: 'AnalyzeView',
+        // component: () => import('@/views/AnalyzeView.vue'),
+        component: AnalyzeView,
 
-  },
-  {
-    path: '/',
-    name: 'HomeView',
-    // component: () => import('@/views/HomeView.vue'), // 懒加载
-    component: HomeView,
+    },
+    {
+        path: '/',
+        name: 'HomeView',
+        // component: () => import('@/views/HomeView.vue'), // 懒加载
+        component: HomeView,
 
-  },
-  {
-    path: '/Profile/:account_id',
-    name: 'ProfileView',
-    // component: () => import('@/views/HomeView.vue'), // 懒加载
-    component: ProfileView,
+    },
+    {
+        path: '/Profile/:account_id',
+        name: 'ProfileView',
+        // component: () => import('@/views/HomeView.vue'), // 懒加载
+        component: ProfileView,
 
-    // 每路守卫
-    beforeEnter: (to, from, next) => {
-      if (store.getters.get_is_login) next(); // 登陆状态才放行
-      else {
-        ElMessage({
-          showClose: true,
-          message: '请您先登录！',
-          type: 'error',
-          duration: 3000,
-        })
-      }
-    }
+        // 每路守卫
+        beforeEnter: (to, from, next) => {
+            if (store.getters.get_is_login) next(); // 登陆状态才放行
+            else {
+                ElMessage({
+                    showClose: true,
+                    message: '请您先登录！',
+                    type: 'error',
+                    duration: 3000,
+                })
+            }
+        }
 
-  },
-  {
-    path: '/WorldCircle',
-    name: 'WorldCircleView',
-    // component: () => import('@/views/HomeView.vue'), // 懒加载
-    component: WorldCircleView,
-    // 每路守卫
-    beforeEnter: (to, from, next) => {
-      if (store.getters.get_is_login) next(); // 登陆状态才放行
-      else {
-        ElMessage({
-          showClose: true,
-          message: '请您先登录！',
-          type: 'error',
-          duration: 3000,
-        })
-      }
-    }
-  },
-  {
-    path: '/About',
-    name: 'AboutView',
-    component: AboutView
-  },
-  {
-    path: '/:path(.*)',
-    name: 'NotFoundView',
-    component: NotFoundView
-  },
+    },
+    {
+        path: '/WorldCircle',
+        name: 'WorldCircleView',
+        // component: () => import('@/views/HomeView.vue'), // 懒加载
+        component: WorldCircleView,
+        // 每路守卫
+        beforeEnter: (to, from, next) => {
+            if (store.getters.get_is_login) next(); // 登陆状态才放行
+            else {
+                ElMessage({
+                    showClose: true,
+                    message: '请您先登录！',
+                    type: 'error',
+                    duration: 3000,
+                })
+            }
+        }
+    },
+    {
+        path: '/About',
+        name: 'AboutView',
+        component: AboutView
+    },
+    {
+        path: '/:path(.*)',
+        name: 'NotFoundView',
+        component: NotFoundView
+    },
 ]
 
 const router = createRouter({
-  history: createWebHashHistory(),
-  routes
+    history: createWebHashHistory(),
+    routes
 })
 
 // 全局 守卫
